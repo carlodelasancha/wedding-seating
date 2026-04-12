@@ -4,7 +4,7 @@
    ============================================ */
 
 const STORAGE_KEY = 'wedding-seating-state-v1';
-const DATA_VERSION = 4; // bump this number every time server data changes → forces refresh on all browsers
+const DATA_VERSION = 5; // bump this number every time server data changes → forces refresh on all browsers
 
 const state = {
   tables: [],
@@ -134,20 +134,34 @@ function renderUnassigned() {
       if (!dragPayload) return;
       const g = state.guests.find(x => x.id === dragPayload.guestId);
       if (!g) return;
-      if (g.tableId) {
-        g.tableId = null;
-        toast(`${g.name} → pendientes`);
-        render();
-      }
+      const partners = getPartners(g.id);
+      g.tableId = null;
+      partners.forEach(p => { p.tableId = null; });
+      toast(partners.length
+        ? `${g.name} + ${partners.map(p=>p.name).join(', ')} → pendientes`
+        : `${g.name} → pendientes`);
+      render();
     });
     ul.dataset.dropBound = '1';
   }
   clear(ul);
   const q = state.filters.search.toLowerCase();
-  const unassigned = state.guests
-    .filter(g => !g.tableId)
+  // Build set of partner IDs that are already shown as part of another guest's row
+  const shownAsPartner = new Set();
+  const allUnassigned = state.guests.filter(g => !g.tableId);
+  allUnassigned.forEach(g => {
+    const partners = getPartners(g.id).filter(p => !p.tableId);
+    partners.forEach(p => {
+      // The partner with alphabetically later name gets hidden (shown as "+partner" on the earlier one)
+      if (g.name.localeCompare(p.name) < 0) shownAsPartner.add(p.id);
+    });
+  });
+
+  const unassigned = allUnassigned
+    .filter(g => !shownAsPartner.has(g.id))
     .filter(g => state.filters[g.side || 'otro'])
-    .filter(g => !q || g.name.toLowerCase().includes(q))
+    .filter(g => !q || g.name.toLowerCase().includes(q) ||
+                 getPartners(g.id).some(p => p.name.toLowerCase().includes(q)))
     .sort((a,b) => a.name.localeCompare(b.name));
 
   if (unassigned.length === 0) {
@@ -157,9 +171,12 @@ function renderUnassigned() {
 
   unassigned.forEach(g => {
     const sideTag = el('span', { class: `side side-${g.side||'otro'}`, text: (g.side||'otro').slice(0,1).toUpperCase() });
-    const nameSpan = el('span', { class: 'name', text: g.name });
+    const partners = getPartners(g.id);
+    const partnerNames = partners.filter(p => !p.tableId).map(p => p.name);
+    const nameText = partnerNames.length ? `${g.name} + ${partnerNames.join(', ')}` : g.name;
+    const nameSpan = el('span', { class: 'name', text: nameText });
     const li = el('li', {
-      class: 'guest-item' + (g.id === state.selectedGuestId ? ' selected' : ''),
+      class: 'guest-item' + (g.id === state.selectedGuestId ? ' selected' : '') + (partnerNames.length ? ' has-partner' : ''),
       draggable: true,
       dataset: { guestId: g.id },
       onclick: () => selectGuest(g.id),
@@ -505,12 +522,16 @@ function handleDrop(e) {
   const t = state.tables.find(x => x.id === tableId);
   const g = state.guests.find(x => x.id === dragPayload.guestId);
   if (!t || !g) return;
+  const partners = getPartners(g.id);
+  const needed = 1 + partners.filter(p => p.tableId !== tableId).length;
   const occupants = state.guests.filter(x => x.tableId === tableId).length;
-  if (g.tableId !== tableId && occupants >= t.capacity) {
-    toast(`Mesa ${t.name} llena (${t.capacity}) — arrastra directo a un asiento ocupado para hacer swap`);
+  if (g.tableId !== tableId && occupants + needed > t.capacity) {
+    toast(`${t.name}: no caben ${needed} personas (pareja incluida)`);
     return;
   }
   g.tableId = tableId;
+  partners.forEach(p => { p.tableId = tableId; });
+  if (partners.length) toast(`${g.name} + ${partners.map(p=>p.name).join(', ')}`);
   render();
 }
 
@@ -532,32 +553,36 @@ function handleSeatDrop(e) {
   if (!dragPayload) return;
   const seat = e.currentTarget;
   const tableId = seat.dataset.tableId;
-  const targetGuestId = seat.dataset.guestId; // only set on occupied seats
+  const targetGuestId = seat.dataset.guestId;
   const draggedGuest = state.guests.find(x => x.id === dragPayload.guestId);
   if (!draggedGuest || !tableId) return;
-
-  // Same guest dropped on itself: no-op
   if (targetGuestId && targetGuestId === dragPayload.guestId) return;
 
+  // Find partners (must-sit-with) of the dragged guest
+  const partners = getPartners(draggedGuest.id);
+
   if (targetGuestId) {
-    // Occupied seat → SWAP: target goes where dragged was; dragged takes target's spot
     const targetGuest = state.guests.find(x => x.id === targetGuestId);
     if (!targetGuest) return;
-    const sourceTableId = draggedGuest.tableId; // may be null (was pending)
-    targetGuest.tableId = sourceTableId; // if dragged was pending, target becomes pending
+    const sourceTableId = draggedGuest.tableId;
+    targetGuest.tableId = sourceTableId;
     draggedGuest.tableId = tableId;
+    // Move partners too
+    partners.forEach(p => { p.tableId = tableId; });
     toast(sourceTableId
-      ? `Swap: ${targetGuest.name} ↔ ${draggedGuest.name}`
+      ? `Swap: ${targetGuest.name} ↔ ${draggedGuest.name}${partners.length ? ' + pareja' : ''}`
       : `${targetGuest.name} desplazado a pendientes`);
   } else {
-    // Empty seat → place there if space
     const t = state.tables.find(x => x.id === tableId);
     const occupants = state.guests.filter(x => x.tableId === tableId).length;
-    if (draggedGuest.tableId !== tableId && occupants >= t.capacity) {
-      toast(`Mesa ${t.name} llena`);
+    const needed = 1 + partners.filter(p => p.tableId !== tableId).length;
+    if (draggedGuest.tableId !== tableId && occupants + needed > t.capacity) {
+      toast(`${t.name}: no caben ${needed} personas (pareja incluida)`);
       return;
     }
     draggedGuest.tableId = tableId;
+    partners.forEach(p => { p.tableId = tableId; });
+    if (partners.length) toast(`${draggedGuest.name} + ${partners.map(p=>p.name).join(', ')}`);
   }
   render();
 }
@@ -812,6 +837,26 @@ function autoSeat() {
   }
   render();
   toast('Auto-seating completado (v2: couples-safe, group-first)');
+}
+
+/* ── PARTNER LOGIC ─────────────────────────── */
+function getPartners(guestId) {
+  // Find all must-sit-with partners (connected component via must rules)
+  const visited = new Set([guestId]);
+  const queue = [guestId];
+  while (queue.length) {
+    const cur = queue.shift();
+    for (const r of state.rules) {
+      if (r.type !== 'must') continue;
+      const other = r.a === cur ? r.b : r.b === cur ? r.a : null;
+      if (other && !visited.has(other)) {
+        visited.add(other);
+        queue.push(other);
+      }
+    }
+  }
+  visited.delete(guestId);
+  return [...visited].map(id => state.guests.find(g => g.id === id)).filter(Boolean);
 }
 
 /* ── UTILITIES ─────────────────────────────── */

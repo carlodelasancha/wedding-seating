@@ -181,6 +181,7 @@ h1, h2, h3 { font-weight: 600; }
 .guest-item.selected { background: var(--cream-dark); border-color: var(--gold); }
 .guest-item:active { cursor: grabbing; }
 .guest-item.dragging { opacity: 0.4; }
+.guest-item.has-partner { border-left: 3px solid var(--gold); }
 .guest-item .side {
   font-size: 9px;
   padding: 1px 5px;
