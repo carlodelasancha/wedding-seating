@@ -53,6 +53,8 @@ async function boot() {
   if (persisted && persisted.guests && persisted.guests.length > 10) {
     // Always restore user's saved state — NEVER reset without explicit action
     Object.assign(state, persisted);
+    // One-time migrations (safe to leave — they no-op if already applied)
+    state.rules = state.rules.filter(r => r.id !== 'rule_ahmad_mohamed');
   } else {
     // First visit only — load from server preset
     await loadPreset('merged');
