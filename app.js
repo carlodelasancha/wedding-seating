@@ -148,7 +148,8 @@ function renderStats() {
   const total = state.guests.length;
   const capacity = state.tables.reduce((s,t) => s + t.capacity, 0);
   $('#stat-assigned').textContent = `${assigned} / ${total}`;
-  $('#stat-capacity').textContent = `${assigned} / ${capacity}`;
+  const capEl = $('#stat-capacity');
+  if (capEl) capEl.textContent = `${assigned} / ${capacity}`;
   $('#stat-score').textContent = scoreToString(computeScore());
 }
 
@@ -1168,15 +1169,6 @@ function attachEvents() {
   $('#file-input').onchange = e => { if (e.target.files[0]) importFile(e.target.files[0]); };
   $('#btn-export-json').onclick = exportJSON;
   $('#btn-export-print').onclick = () => window.print();
-  // Auto-seat removed from UI to avoid accidental clicks
-  $('#btn-reset').onclick = async () => {
-    if (confirm('¿Restaurar todo al estado original? Se perderán tus cambios manuales.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      await loadPreset('merged');
-      render();
-      toast('Restaurado al estado original');
-    }
-  };
   $('#search-guests').oninput = e => { state.filters.search = e.target.value; renderUnassigned(); };
   document.querySelectorAll('.filter').forEach(f => f.onchange = e => {
     state.filters[e.target.value] = e.target.checked;

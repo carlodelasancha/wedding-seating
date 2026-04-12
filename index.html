@@ -7,15 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Seating Chart · Carlo & Laura · 9 Mayo 2026</title>
-<link rel="stylesheet" href="styles.css">
-<script>
-// Force fresh CSS/JS on every load — no more Cmd+Shift+R needed
-(function(){
-  var t = Date.now();
-  var css = document.querySelector('link[rel="stylesheet"]');
-  if (css) css.href = 'styles.css?t=' + t;
-})();
-</script>
+<link rel="stylesheet" href="styles.css?v=99">
 </head>
 <body>
 
@@ -26,7 +18,6 @@
   </div>
   <div class="stats">
     <div class="stat"><span class="stat-label">Asignados</span><span class="stat-value" id="stat-assigned">0 / 0</span></div>
-    <div class="stat"><span class="stat-label">Capacidad</span><span class="stat-value" id="stat-capacity">0 / 0</span></div>
     <div class="stat score"><span class="stat-label">Score</span><span class="stat-value" id="stat-score">—</span></div>
   </div>
   <div class="toolbar">
@@ -34,7 +25,6 @@
     <button id="btn-undo" title="Deshacer último cambio (Ctrl+Z)" disabled>↩ Deshacer</button>
     <button id="btn-export-json" title="Descargar archivo JSON para compartir">📤 Exportar</button>
     <button id="btn-export-print" title="Imprimir / PDF">🖨 Imprimir</button>
-    <button id="btn-reset" class="danger" title="Restaurar al estado original">↺ Reset</button>
     <span id="autosave-badge" style="font-size:10px;color:#3e8e5a;opacity:0;transition:opacity 0.3s">✓ guardado</span>
   </div>
 </header>
@@ -111,13 +101,6 @@
 
 <div id="toast" class="toast"></div>
 
-<script>
-// Load app.js with cache-bust timestamp
-(function(){
-  var s = document.createElement('script');
-  s.src = 'app.js?t=' + Date.now();
-  document.body.appendChild(s);
-})();
-</script>
+<script src="app.js?v=99"></script>
 </body>
 </html>

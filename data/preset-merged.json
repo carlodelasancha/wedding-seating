@@ -2131,12 +2131,6 @@
   ],
   "rules": [
     {
-      "id": "rule_ahmad_mohamed",
-      "type": "must",
-      "a": "z_ahmad_alkashash_1",
-      "b": "tentative_mohamed_amin_mustafa"
-    },
-    {
       "id": "rule_barnaby_tissa",
       "type": "must",
       "a": "z_barnaby_cronshaw_29",
