@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seating Chart · Carlo & Laura · 9 Mayo 2026</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="title">
+    <h1>Carlo &amp; Laura</h1>
+    <span class="subtitle">Casa de los 7 Patios · 9 Mayo 2026</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="stat-label">Asignados</span><span class="stat-value" id="stat-assigned">0 / 0</span></div>
+    <div class="stat"><span class="stat-label">Capacidad</span><span class="stat-value" id="stat-capacity">0 / 0</span></div>
+    <div class="stat score"><span class="stat-label">Score</span><span class="stat-value" id="stat-score">—</span></div>
+  </div>
+  <div class="toolbar">
+    <button id="btn-import" title="Importar CSV de Zola">↑ Importar</button>
+    <button id="btn-autoseat" title="Sugerencia automática respetando reglas">✨ Auto-sentar</button>
+    <button id="btn-export-json" title="Guardar estado">💾 Guardar</button>
+    <button id="btn-export-print" title="Imprimir / PDF">🖨 Imprimir</button>
+    <button id="btn-reset" class="danger" title="Vaciar asignaciones">↺ Reset</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- LEFT: unassigned guests -->
+  <aside class="panel panel-left">
+    <div class="panel-header">
+      <h2>Invitados sin asignar</h2>
+      <input type="search" id="search-guests" placeholder="Buscar...">
+    </div>
+    <div class="filters">
+      <label><input type="checkbox" class="filter" value="carlo" checked> Carlo</label>
+      <label><input type="checkbox" class="filter" value="laura" checked> Laura</label>
+      <label><input type="checkbox" class="filter" value="ambos" checked> Ambos</label>
+      <label><input type="checkbox" class="filter" value="otro" checked> Otro</label>
+    </div>
+    <ul id="unassigned-list" class="guest-list"></ul>
+    <div class="panel-footer">
+      <button id="btn-add-guest" class="secondary">+ Agregar invitado</button>
+    </div>
+  </aside>
+
+  <!-- CENTER: tables -->
+  <section class="canvas-wrap">
+    <div class="canvas-controls">
+      <label>Zoom <input type="range" id="zoom" min="0.5" max="1.5" step="0.05" value="1"></label>
+      <span class="legend">
+        <span class="legend-item"><span class="dot warn"></span>Sin asignar</span>
+        <span class="legend-item"><span class="dot ok"></span>Mesa feliz</span>
+        <span class="legend-item"><span class="dot bad"></span>Conflicto</span>
+      </span>
+    </div>
+    <div id="canvas" class="canvas"></div>
+  </section>
+
+  <!-- RIGHT: details / rules -->
+  <aside class="panel panel-right">
+    <div class="tabs">
+      <button class="tab active" data-tab="guest">Invitado</button>
+      <button class="tab" data-tab="table">Mesa</button>
+      <button class="tab" data-tab="rules">Reglas</button>
+    </div>
+
+    <div class="tab-pane active" data-pane="guest">
+      <div id="guest-detail" class="empty">Selecciona a un invitado</div>
+    </div>
+
+    <div class="tab-pane" data-pane="table">
+      <div id="table-detail" class="empty">Selecciona una mesa</div>
+    </div>
+
+    <div class="tab-pane" data-pane="rules">
+      <h3>Grupos de afinidad</h3>
+      <p class="hint">Invitados del mismo grupo se tratan de juntar en la misma mesa.</p>
+      <div id="groups-list"></div>
+      <button id="btn-add-group" class="secondary">+ Nuevo grupo</button>
+
+      <h3 style="margin-top:24px">Reglas duras</h3>
+      <p class="hint">Must-sit-with (✓) y Must-NOT-sit-with (✗) entre pares.</p>
+      <div id="rules-list"></div>
+      <button id="btn-add-rule" class="secondary">+ Nueva regla</button>
+    </div>
+  </aside>
+</main>
+
+<input type="file" id="file-input" accept=".csv,.json" style="display:none">
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

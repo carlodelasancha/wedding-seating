@@ -1,0 +1,72 @@
+{
+  "_notes": "Preset basado en Google Sheet 'Wedding Tables' de Laura, actualizado 11 Abr 2026. 48 nombres únicos, agrupados en 7 clusters según su propia organización en la hoja. Los nombres de pila son cortos; algunos probablemente son parejas. Laura numeró mesas 1-27 pero solo 7 tienen gente, algunos con 10 personas (implica mesas grandes).",
+  "source": "Laura — Google Sheet Wedding Tables (gid=0)",
+  "sourceUrl": "https://docs.google.com/spreadsheets/d/1hQJv3RUshOcz42Vmf44741AVqre6UDRY_6yMUhXIrNo/edit",
+  "totalGuests": 48,
+  "groups": [
+    { "id": "gr_laura_g1", "name": "Laura grupo 1 (Dan/Lizzie/William)", "color": "#c9a86b" },
+    { "id": "gr_laura_g2", "name": "Laura grupo 2 (Michael/Walt/Pam)", "color": "#a88449" },
+    { "id": "gr_laura_g6", "name": "Laura grupo 6 (Carol/Chris/Olta)", "color": "#b8825a" },
+    { "id": "gr_laura_g7", "name": "Laura grupo 7 (Lexi/Jaco/Kenneth)", "color": "#8a5f3b" },
+    { "id": "gr_laura_g11", "name": "Laura grupo 11 (Meron/Karina/Sabreen)", "color": "#a07040" },
+    { "id": "gr_laura_g12", "name": "Laura grupo 12 (Nikki/Jasmine/Terray)", "color": "#6b4a2a" },
+    { "id": "gr_laura_g16", "name": "Laura grupo 16 (Gesenia/Edwin/Jenny)", "color": "#c49c6a" }
+  ],
+  "guests": [
+    { "id": "l_dan", "name": "Dan", "side": "laura", "groups": ["gr_laura_g1"], "tableId": null },
+    { "id": "l_lizzie", "name": "Lizzie", "side": "laura", "groups": ["gr_laura_g1"], "tableId": null },
+    { "id": "l_william", "name": "William", "side": "laura", "groups": ["gr_laura_g1"], "tableId": null },
+    { "id": "l_zoe", "name": "Zoe", "side": "laura", "groups": ["gr_laura_g1"], "tableId": null },
+    { "id": "l_bryce", "name": "Bryce", "side": "laura", "groups": ["gr_laura_g1"], "tableId": null },
+
+    { "id": "l_michael", "name": "Michael", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_walt", "name": "Walt", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_pam", "name": "Pam", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_barbara", "name": "Barbara", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_jim", "name": "Jim", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_david", "name": "David", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_maddie", "name": "Maddie", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+    { "id": "l_tom", "name": "Tom", "side": "laura", "groups": ["gr_laura_g2"], "tableId": null },
+
+    { "id": "l_carol", "name": "Carol", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_chris", "name": "Chris", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_olta", "name": "Olta", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_thomas", "name": "Thomas", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_belen", "name": "Belen", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_emi", "name": "Emi", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_leanne", "name": "Leanne", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+    { "id": "l_callie", "name": "Callie", "side": "laura", "groups": ["gr_laura_g6"], "tableId": null },
+
+    { "id": "l_lexi", "name": "Lexi", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_jaco", "name": "Jaco", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_kenneth", "name": "Kenneth", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_ellie", "name": "Ellie", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_rose", "name": "Rose", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_jon", "name": "Jon", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_paddy", "name": "Paddy", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_natalie", "name": "Natalie", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_anna", "name": "Anna (?)", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+    { "id": "l_matt", "name": "Matt", "side": "laura", "groups": ["gr_laura_g7"], "tableId": null },
+
+    { "id": "l_meron", "name": "Meron", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_karina", "name": "Karina", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_sabreen", "name": "Sabreen", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_jason", "name": "Jason", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_cheryl", "name": "Cheryl", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_alejandra", "name": "Alejandra", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_joanna", "name": "Joanna", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+    { "id": "l_emily", "name": "Emily", "side": "laura", "groups": ["gr_laura_g11"], "tableId": null },
+
+    { "id": "l_nikki", "name": "Nikki", "side": "laura", "groups": ["gr_laura_g12"], "tableId": null },
+    { "id": "l_jasmine", "name": "Jasmine", "side": "laura", "groups": ["gr_laura_g12"], "tableId": null },
+    { "id": "l_terray", "name": "Terray", "side": "laura", "groups": ["gr_laura_g12"], "tableId": null },
+    { "id": "l_amy", "name": "Amy", "side": "laura", "groups": ["gr_laura_g12"], "tableId": null },
+    { "id": "l_charlie", "name": "Charlie", "side": "laura", "groups": ["gr_laura_g12"], "tableId": null },
+
+    { "id": "l_gesenia", "name": "Gesenia", "side": "laura", "groups": ["gr_laura_g16"], "tableId": null },
+    { "id": "l_edwin", "name": "Edwin", "side": "laura", "groups": ["gr_laura_g16"], "tableId": null },
+    { "id": "l_jenny", "name": "Jenny", "side": "laura", "groups": ["gr_laura_g16"], "tableId": null },
+    { "id": "l_karan", "name": "Karan", "side": "laura", "groups": ["gr_laura_g16"], "tableId": null }
+  ],
+  "rules": []
+}

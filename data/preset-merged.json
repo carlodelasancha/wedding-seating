@@ -1,0 +1,2432 @@
+{
+  "_notes": "Preset MAESTRO combinando Zola (181 attending) + mamá + Laura. Automatch cruzado. Unmatched quedan como side=\"otro\" para que Carlo asigne.",
+  "totalGuests": 181,
+  "sideCounts": {
+    "carlo": 73,
+    "otro": 62,
+    "laura": 46
+  },
+  "unmatchedCount": 62,
+  "groups": [
+    {
+      "id": "gr_delasancha_nucleo",
+      "name": "De la Sancha (núcleo)",
+      "color": "#6b1f2a"
+    },
+    {
+      "id": "gr_amigos_pedro",
+      "name": "Amigos Pedro/Patricia/Oscar",
+      "color": "#8a2e3b"
+    },
+    {
+      "id": "gr_verduzco_extendida",
+      "name": "Verduzco extendida",
+      "color": "#c9a86b"
+    },
+    {
+      "id": "gr_amigos_salvador",
+      "name": "Amigos Salvador/América/Marco",
+      "color": "#a88449"
+    },
+    {
+      "id": "gr_laura_g2",
+      "name": "Laura Mesa 2 (Hilko/Dryfoos/Bea mamá)",
+      "color": "#a88449"
+    },
+    {
+      "id": "gr_laura_g6",
+      "name": "Laura Mesa 6 (Morgan/Eldridge/Dan)",
+      "color": "#b8825a"
+    },
+    {
+      "id": "gr_laura_g7",
+      "name": "Laura grupo 7 (Lexi/Jaco/Kenneth)",
+      "color": "#8a5f3b"
+    },
+    {
+      "id": "gr_laura_g11",
+      "name": "Laura grupo 11 (Meron/Karina/Sabreen)",
+      "color": "#a07040"
+    },
+    {
+      "id": "gr_laura_g12",
+      "name": "Laura grupo 12 (Nikki/Jasmine/Terray)",
+      "color": "#6b4a2a"
+    },
+    {
+      "id": "gr_laura_g16",
+      "name": "Laura grupo 16 (Gesenia/Edwin/Jenny)",
+      "color": "#c49c6a"
+    },
+    {
+      "id": "gr_colegio_mexico_ensenada",
+      "name": "Amigos infancia Colegio México / Ensenada",
+      "color": "#6b1f2a"
+    },
+    {
+      "id": "gr_indiana_university",
+      "name": "Indiana University",
+      "color": "#4a6b8a"
+    },
+    {
+      "id": "gr_la_paz_mexicali_med",
+      "name": "La Paz / Medicina Mexicali",
+      "color": "#8a5f3b"
+    },
+    {
+      "id": "gr_primos_paternos",
+      "name": "Primos paternos (De la Sancha)",
+      "color": "#8a2e3b"
+    },
+    {
+      "id": "gr_hermano_willy",
+      "name": "Hermano Willy (familia nuclear)",
+      "color": "#a82a38"
+    },
+    {
+      "id": "gr_primos_maternos",
+      "name": "Primos maternos (Cañedo/Verduzco/Barajas)",
+      "color": "#c9a86b"
+    },
+    {
+      "id": "gr_alemania_internacional",
+      "name": "Alemanes (Antje + Matthias)",
+      "color": "#5b8a6b"
+    },
+    {
+      "id": "gr_familia_politica_carlo",
+      "name": "Familia política Carlo (suegros Willy)",
+      "color": "#7a3e4e"
+    },
+    {
+      "id": "gr_ensenada_xochicalco",
+      "name": "Ensenada Medicina Xochicalco",
+      "color": "#4a6b4e"
+    },
+    {
+      "id": "gr_amigos_epoca_alemania",
+      "name": "Amigos época Alemania (mexicanos)",
+      "color": "#7b8a5b"
+    }
+  ],
+  "guests": [
+    {
+      "id": "z_carlos_alberto_arjona_morineau_0",
+      "name": "Carlos Alberto Arjona Morineau",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_ahmad_alkashash_1",
+      "name": "Ahmad Alkashash",
+      "side": "carlo",
+      "groups": [
+        "gr_indiana_university"
+      ],
+      "tableId": null,
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Pork"
+    },
+    {
+      "id": "z_alberto_amparan_2",
+      "name": "Alberto Amparan",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_gabriela_porras_robles_3",
+      "name": "Gabriela Porras Robles",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "x5",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "No"
+    },
+    {
+      "id": "z_manuel_amparan_4",
+      "name": "Manuel Amparan",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_rocio_preciado_5",
+      "name": "Rocio Preciado",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_bruno_andres_ballesteros_perez_6",
+      "name": "Bruno Andrés Ballesteros Perez",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vbru",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_plus_one_1_7",
+      "name": "Plus-one #1",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vbru",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Plus-one Bruno Ballesteros Perez"
+    },
+    {
+      "id": "z_roberto_arce_8",
+      "name": "Roberto Arce",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_veronica_avalos_9",
+      "name": "Verónica Avalos",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_amy_armani_10",
+      "name": "Amy Armani",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g12"
+      ],
+      "tableId": "x1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_charlie_ferguson_11",
+      "name": "Charlie Ferguson",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g12"
+      ],
+      "tableId": "x1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_sabreen_aulakh_12",
+      "name": "Sabreen Aulakh",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "r8",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Gluten allergy"
+    },
+    {
+      "id": "z_marco_antonio_avalos_rodriguez_13",
+      "name": "Marco Antonio Avalos Rodriguez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_adriana_feliz_tamayo_14",
+      "name": "Adriana Feliz Tamayo",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_marisol_barajas_verduzco_15",
+      "name": "Marisol Barajas Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No, todo bien"
+    },
+    {
+      "id": "z_pedro_ernesto_petris_leyva_16",
+      "name": "Pedro Ernesto Petris Leyva",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No, todo bien"
+    },
+    {
+      "id": "z_valeria_nahi_petris_barajas_17",
+      "name": "Valeria Nahi Petris Barajas",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No, todo bien"
+    },
+    {
+      "id": "z_jesus_beas_garibay_18",
+      "name": "Jesus Beas Garibay",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_silvia_gonzalez_19",
+      "name": "Silvia González",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_alexis_brayton_20",
+      "name": "Alexis Brayton",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "r7",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Lexi en hoja Laura Mesa 7"
+    },
+    {
+      "id": "z_kenneth_rockwell_21",
+      "name": "Kenneth Rockwell",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "r7",
+      "meal": "filet mignon - filete mignon",
+      "notes": "we eat everything!"
+    },
+    {
+      "id": "z_roxana_canedo_verduzco_22",
+      "name": "Roxana Canedo Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No."
+    },
+    {
+      "id": "z_esteban_arturo_alvarez_serrano_23",
+      "name": "Esteban Arturo Alvarez Serrano",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No."
+    },
+    {
+      "id": "z_carolina_canedo_verduzco_24",
+      "name": "Carolina Cañedo Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_ernesto_milton_macedo_hernandez_25",
+      "name": "Ernesto Milton Macedo Hernández",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_anabel_cornejo_26",
+      "name": "Anabel Cornejo",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vbru",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_carlos_eduardo_mejia_vazquez_27",
+      "name": "Carlos Eduardo Mejía Vazquez",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vbru",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_nikki_creasman_28",
+      "name": "Nikki Creasman",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g12"
+      ],
+      "tableId": "x1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_barnaby_cronshaw_29",
+      "name": "Barnaby Cronshaw",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_tissa_ogrady_30",
+      "name": "Tissa O’Grady",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "esposa Barnaby Cronshaw"
+    },
+    {
+      "id": "z_nestor_david_bazan_lopez_31",
+      "name": "Néstor David Bazan López",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Camaron"
+    },
+    {
+      "id": "z_claudia_castro_salgado_32",
+      "name": "Claudia Castro Salgado",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "esposa Néstor David Bazan"
+    },
+    {
+      "id": "z_maria_de_la_paz_campos_33",
+      "name": "Maria De La Paz Campos",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_epoca_alemania"
+      ],
+      "tableId": "valm",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_eduardo_sierra_chein_34",
+      "name": "Eduardo Sierra Chein",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_epoca_alemania"
+      ],
+      "tableId": "valm",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_edgar_de_la_sancha_35",
+      "name": "Edgar De la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_paternos"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_mary_garcia_36",
+      "name": "Mary Garcia",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_paternos"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_fernando_de_la_sancha_37",
+      "name": "Fernando De la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_paternos"
+      ],
+      "tableId": null,
+      "meal": "vegetarian - vegetariano",
+      "notes": ""
+    },
+    {
+      "id": "z_lilia_de_la_sancha_38",
+      "name": "Lilia De la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_paternos",
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_edna_de_la_sancha_39",
+      "name": "Edna De la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_wily_de_la_sancha_verduzco_40",
+      "name": "Wily De la Sancha Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_hermano_willy"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hermano de Carlo"
+    },
+    {
+      "id": "z_karla_olivares_41",
+      "name": "Karla Olivares",
+      "side": "carlo",
+      "groups": [
+        "gr_hermano_willy"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_leah_luciana_de_la_sancha_olivares_42",
+      "name": "Leah Luciana De la Sancha Olivares",
+      "side": "carlo",
+      "groups": [
+        "gr_hermano_willy"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hija de Wily"
+    },
+    {
+      "id": "z_sofia_zayas_olivares_43",
+      "name": "Sofia Zayas Olivares",
+      "side": "carlo",
+      "groups": [
+        "gr_hermano_willy"
+      ],
+      "tableId": "x5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_cesar_de_la_sancha_villa_44",
+      "name": "Cesar De la Sancha Villa",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_federico_de_la_sancha_villa_45",
+      "name": "Federico De la Sancha Villa",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_juana_porras_46",
+      "name": "Juana Porras",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_wilibaldo_de_la_sancha_villa_47",
+      "name": "Wilibaldo De la Sancha Villa",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_carmen_judith_verduzco_dominguez_48",
+      "name": "Carmen Judith Verduzco Dominguez",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_maria_de_lourdes_amparan_vasquez_49",
+      "name": "María de Lourdes Amparán Vasquez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_juan_manuel_perez_castro_50",
+      "name": "Juan Manuel Pérez Castro",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_anna_deering_51",
+      "name": "Anna Deering",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "r7",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_beatrice_deering_52",
+      "name": "Beatrice Deering",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "MAMÁ DE LAURA (Bea)"
+    },
+    {
+      "id": "z_thomas_deering_53",
+      "name": "Thomas Deering",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r5",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_emily_doering_white_54",
+      "name": "Emily Doering White",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "r8",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No :)"
+    },
+    {
+      "id": "z_michael_dryfoos_55",
+      "name": "Michael Dryfoos",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "No"
+    },
+    {
+      "id": "z_walter_dryfoos_56",
+      "name": "Walter Dryfoos",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Mesa 2 Laura (Dryfoos)"
+    },
+    {
+      "id": "z_barbara_dryfoos_57",
+      "name": "Barbara Dryfoos",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "David is allergic to cow's milk and all its products: cheese, cream, etc.\nBarbara is allergic to capsaicin: chilis, peppers, cayenne, red pepper, etc.\nBell peppers and sweet paprika are mild and are ok for me to eat."
+    },
+    {
+      "id": "z_david_dryfoos_58",
+      "name": "David Dryfoos",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "David is allergic to cow's milk and all its products: cheese, cream, etc.\nBarbara is allergic to capsaicin: chilis, peppers, cayenne, red pepper, etc.\nBell peppers and sweet paprika are mild and are ok for me to eat."
+    },
+    {
+      "id": "z_leanne_duhaney_59",
+      "name": "Leanne Duhaney",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r8",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Pescatarian, lactose intolerant"
+    },
+    {
+      "id": "z_luis_edgardo_argote_bolio_60",
+      "name": "Luis Edgardo Argote Bolio",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "amigo Carlo — grupo pendiente"
+    },
+    {
+      "id": "z_bhoomi_prakashbhai_patel_61",
+      "name": "Bhoomi Prakashbhai Patel",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Luis Argote"
+    },
+    {
+      "id": "z_jose_eduardo_gil_rullan_62",
+      "name": "José Eduardo Gil Rullan",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_epoca_alemania"
+      ],
+      "tableId": "valm",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_paulina_lordmendez_63",
+      "name": "Paulina Lordmendez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_epoca_alemania"
+      ],
+      "tableId": "valm",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "pareja José Eduardo Gil Rullán"
+    },
+    {
+      "id": "z_karina_favela_64",
+      "name": "Karina Favela",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "vbru",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_melchor_flores_65",
+      "name": "Melchor Flores",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_laura_mejia_66",
+      "name": "Laura Mejia",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "No"
+    },
+    {
+      "id": "z_rodrigo_gasparri_lamadrid_67",
+      "name": "Rodrigo Gasparri Lamadrid",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_janet_larios_bustillos_68",
+      "name": "Janet Larios Bustillos",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Rodrigo"
+    },
+    {
+      "id": "z_alejandra_gonzalez_69",
+      "name": "Alejandra Gonzalez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r8",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Gluten free"
+    },
+    {
+      "id": "z_jesus_gonzalo_cervantes_robles_70",
+      "name": "Jesús Gonzalo Cervantes Robles",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null,
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "No"
+    },
+    {
+      "id": "z_belen_guerra_71",
+      "name": "Belen Guerra",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r8",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_efrain_gutierrez_lanz_72",
+      "name": "Efraín Gutiérrez Lanz",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vmex",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "UABC Mexicali"
+    },
+    {
+      "id": "z_daniela_arvide_jimenez_73",
+      "name": "Daniela Arvide Jimenez",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vmex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Efraín"
+    },
+    {
+      "id": "z_cheryl_hawkins_74",
+      "name": "Cheryl Hawkins",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "r8",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_claudia_haydee_machuca_hernandez_75",
+      "name": "Claudia Haydee Machuca Hernández",
+      "side": "carlo",
+      "groups": [
+        "gr_ensenada_xochicalco"
+      ],
+      "tableId": "vxoc",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_miguel_angel_ambriz_76",
+      "name": "Miguel Ángel Ambriz",
+      "side": "carlo",
+      "groups": [
+        "gr_ensenada_xochicalco"
+      ],
+      "tableId": "vxoc",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Claudia Haydee"
+    },
+    {
+      "id": "z_blanca_leticia_hernandez_robles_77",
+      "name": "Blanca Leticia Hernández Robles",
+      "side": "carlo",
+      "groups": [
+        "gr_familia_politica_carlo"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "mamá de Karla (cuñada)"
+    },
+    {
+      "id": "z_dennisse_herrera_bringas_78",
+      "name": "Dennisse Herrera Bringas",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Javier Rico López"
+    },
+    {
+      "id": "z_javier_rico_lopez_79",
+      "name": "Javier Rico López",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_claudia_hilko_80",
+      "name": "Claudia Hilko",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "vegetarian - vegetariano",
+      "notes": "Mesa 2 Laura (Hilko)"
+    },
+    {
+      "id": "z_rob_hilko_81",
+      "name": "Rob Hilko",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Mesa 2 Laura (Hilko)"
+    },
+    {
+      "id": "z_meg_hilko_82",
+      "name": "Meg Hilko",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r5",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Mesa 2 Laura (Hilko)"
+    },
+    {
+      "id": "z_james_hogan_83",
+      "name": "James Hogan",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "r7",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "esposo de Maddie Hogan (Laura Mesa 7)"
+    },
+    {
+      "id": "z_maddie_hogan_84",
+      "name": "Maddie Hogan",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r7",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_olta_hoxha_85",
+      "name": "Olta Hoxha",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r8",
+      "meal": "vegetarian - vegetariano",
+      "notes": ""
+    },
+    {
+      "id": "z_bernardo_huesca_lara_86",
+      "name": "Bernardo Huesca Lara",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Ensenada amigo"
+    },
+    {
+      "id": "z_enrique_zarate_losoya_87",
+      "name": "Enrique Zárate Losoya",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "party con Bernardo Huesca"
+    },
+    {
+      "id": "z_juan_hurtado_88",
+      "name": "Juan Hurtado",
+      "side": "carlo",
+      "groups": [
+        "gr_ensenada_xochicalco"
+      ],
+      "tableId": "vxoc",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "None"
+    },
+    {
+      "id": "z_reyna_nunez_89",
+      "name": "Reyna Nuñez",
+      "side": "carlo",
+      "groups": [
+        "gr_ensenada_xochicalco"
+      ],
+      "tableId": "vxoc",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Juan Hurtado"
+    },
+    {
+      "id": "z_edgar_ibanez_90",
+      "name": "Edgar Ibañez",
+      "side": "carlo",
+      "groups": [
+        "gr_indiana_university"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "Indianapolis, conoce a Ahmad/Mohamed si Amin viene"
+    },
+    {
+      "id": "z_francisco_javier_verduzco_montoya_91",
+      "name": "Francisco Javier Verduzco Montoya",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "vvex",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_jasmine_jones_scott_92",
+      "name": "Jasmine Jones-Scott",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g12"
+      ],
+      "tableId": "x1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_terray_jones_scott_93",
+      "name": "Terray Jones-Scott",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g12"
+      ],
+      "tableId": "x1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_jon_lawrence_94",
+      "name": "Jon Lawrence",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "x1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_salvador_leon_lorta_95",
+      "name": "Salvador Leon Lorta",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_america_gonzalez_lopez_96",
+      "name": "América Gonzalez Lopez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_jose_luis_junco_lozano_97",
+      "name": "José Luis Junco Lozano",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_epoca_alemania"
+      ],
+      "tableId": "valm",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_cynthia_stewart_gonzalez_98",
+      "name": "Cynthia Stewart González",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_epoca_alemania"
+      ],
+      "tableId": "valm",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "esposa José Luis Junco"
+    },
+    {
+      "id": "z_sandra_luz_verduzco_dominguez_99",
+      "name": "Sandra Luz Verduzco Dominguez",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No, todo bn"
+    },
+    {
+      "id": "z_alan_lopez_mendez_100",
+      "name": "Alan López Méndez",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Ensenada amigo"
+    },
+    {
+      "id": "z_jenny_makovkina_101",
+      "name": "Jenny Makovkina",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g16"
+      ],
+      "tableId": "x2",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "No"
+    },
+    {
+      "id": "z_oscar_maldonado_martinez_102",
+      "name": "Oscar Maldonado Martinez",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_irma_esthela_smith_olivas_103",
+      "name": "Irma Esthela Smith Olivas",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Oscar Maldonado"
+    },
+    {
+      "id": "z_stephanie_mendoza_martinez_104",
+      "name": "Stephanie Mendoza Martinez",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vbru",
+      "meal": "filet mignon - filete mignon",
+      "notes": "UABC Mexicali"
+    },
+    {
+      "id": "z_antje_mensendieck_105",
+      "name": "Antje Mensendieck",
+      "side": "carlo",
+      "groups": [
+        "gr_alemania_internacional"
+      ],
+      "tableId": "valm",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "alemana, grupo Alemania?"
+    },
+    {
+      "id": "z_matthias_rath_106",
+      "name": "Matthias Räth",
+      "side": "carlo",
+      "groups": [
+        "gr_alemania_internacional"
+      ],
+      "tableId": "valm",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Antje"
+    },
+    {
+      "id": "z_meron_meshesha_107",
+      "name": "Meron Meshesha",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "r8",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "None"
+    },
+    {
+      "id": "z_alfonso_morales_carranza_108",
+      "name": "Alfonso Morales Carranza",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vmex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "UABC Mexicali"
+    },
+    {
+      "id": "z_brisa_coral_villa_estrella_109",
+      "name": "Brisa Coral Villa Estrella",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vmex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "acompañante Alfonso Morales"
+    },
+    {
+      "id": "z_oscar_moreno_lopez_110",
+      "name": "Oscar Moreno López",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Ninguna"
+    },
+    {
+      "id": "z_adela_guerena_111",
+      "name": "Adela Güereña",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Ninguna"
+    },
+    {
+      "id": "z_carol_morgan_112",
+      "name": "Carol Morgan",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "vegetarian - vegetariano",
+      "notes": "no"
+    },
+    {
+      "id": "z_chris_morgan_113",
+      "name": "Chris Morgan",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "no"
+    },
+    {
+      "id": "z_thomas_morgan_114",
+      "name": "Thomas Morgan",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "For Thomas only: no meat, egg, dairy, or sugar, please"
+    },
+    {
+      "id": "z_emi_makabe_115",
+      "name": "Emi Makabe",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "filet mignon - filete mignon",
+      "notes": "For Thomas only: no meat, egg, dairy, or sugar, please"
+    },
+    {
+      "id": "z_juan_pedro_nahim_verdugo_116",
+      "name": "Juan Pedro Nahim Verdugo",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "vxoc",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_karla_coria_117",
+      "name": "Karla Coria",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "vxoc",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Juan Pedro Nahim"
+    },
+    {
+      "id": "z_rose_nisker_118",
+      "name": "Rose Nisker",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "r7",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_paddy_sandino_119",
+      "name": "Paddy Sandino",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "r7",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_francisco_javier_olivares_padilla_120",
+      "name": "Francisco Javier Olivares Padilla",
+      "side": "carlo",
+      "groups": [
+        "gr_familia_politica_carlo"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "PAPÁ de Karla (cuñada)"
+    },
+    {
+      "id": "z_bertim_perez_121",
+      "name": "Bertim Perez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null,
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "amigo videógrafo Carlo, no conoce a nadie, cerca de Rafael Vázquez y Luz Maria Galindo si es posible"
+    },
+    {
+      "id": "z_cleydi_vazquez_122",
+      "name": "Cleydi Vazquez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Bertim, habla español"
+    },
+    {
+      "id": "z_natalie_pierson_123",
+      "name": "Natalie Pierson",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "x1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Nope!"
+    },
+    {
+      "id": "z_matt_gallo_124",
+      "name": "Matt Gallo",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "x1",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Nope!"
+    },
+    {
+      "id": "z_eduardo_perez_rodriguez_125",
+      "name": "Eduardo Pérez Rodríguez",
+      "side": "carlo",
+      "groups": [
+        "gr_ensenada_xochicalco"
+      ],
+      "tableId": "vxoc",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Ninguna"
+    },
+    {
+      "id": "z_dan_qazi_126",
+      "name": "Dan Qazi",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "Laura Mesa 6 (Morgan/Eldridge/von Transehe group)"
+    },
+    {
+      "id": "z_devin_columbus_127",
+      "name": "Devin Columbus",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Dan Qazi"
+    },
+    {
+      "id": "z_elvira_quintanilla_128",
+      "name": "Elvira Quintanilla",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "r3",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_radhika_rajan_129",
+      "name": "Radhika Rajan",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": null,
+      "meal": "vegetarian - vegetariano",
+      "notes": "Mesa 11 Laura con Olta"
+    },
+    {
+      "id": "z_ellie_ratcliff_130",
+      "name": "Ellie Ratcliff",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "x1",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_jaco_roesch_131",
+      "name": "Jaco Roesch",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g7"
+      ],
+      "tableId": "x1",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_diana_renteria_de_la_sancha_132",
+      "name": "Diana Rentería De la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r1",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_edwin_rosendo_133",
+      "name": "Edwin Rosendo",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g16"
+      ],
+      "tableId": "x2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Allergic to bad food"
+    },
+    {
+      "id": "z_gesenia_vasquez_134",
+      "name": "Gesenia Vasquez",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g16"
+      ],
+      "tableId": "x2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Allergic to bad food"
+    },
+    {
+      "id": "z_karina_ruiz_esteves_135",
+      "name": "Karina Ruiz-Esteves",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "x2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No le digas a Jason que tengo la felete......"
+    },
+    {
+      "id": "z_leonardo_sanchez_diaz_136",
+      "name": "Leonardo Sanchez Diaz",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_karen_alexandra_portillo_avalos_137",
+      "name": "Karen Alexandra Portillo Ávalos",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x4",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Leonardo Sanchez"
+    },
+    {
+      "id": "z_michael_sideris_138",
+      "name": "Michael Sideris",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "x2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_joanna_tao_139",
+      "name": "Joanna Tao",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "x2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_jason_silberman_140",
+      "name": "Jason Silberman",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g11"
+      ],
+      "tableId": "x2",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Te amo Carlo"
+    },
+    {
+      "id": "z_jose_silvestre_canedo_141",
+      "name": "José Silvestre Cañedo",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_mercedes_verduzco_dominguez_142",
+      "name": "Mercedes Verduzco Dominguez",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_brianda_canedo_verduzco_143",
+      "name": "Brianda Canedo Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hija José Silvestre + Mercedes"
+    },
+    {
+      "id": "z_cassandra_carrillo_canedo_144",
+      "name": "Cassandra Carrillo Cañedo",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "hija José Silvestre + Mercedes"
+    },
+    {
+      "id": "z_karen_stephanie_tucker_bernal_145",
+      "name": "Karen Stephanie Tucker Bernal",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Carnes frías"
+    },
+    {
+      "id": "z_cesar_andrade_146",
+      "name": "Cesar Andrade",
+      "side": "carlo",
+      "groups": [
+        "gr_colegio_mexico_ensenada"
+      ],
+      "tableId": "x3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Karen Tucker"
+    },
+    {
+      "id": "z_javier_sanchez_gallardo_147",
+      "name": "Javier Sánchez Gallardo",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vmex",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_michael_tenzer_148",
+      "name": "Michael Tenzer",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r7",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "none"
+    },
+    {
+      "id": "z_pamela_hetrick_149",
+      "name": "Pamela Hetrick",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g2"
+      ],
+      "tableId": "r7",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "pareja Michael Tenzer, Laura side"
+    },
+    {
+      "id": "z_callie_thompson_150",
+      "name": "Callie Thompson",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r8",
+      "meal": "vegetarian - vegetariano",
+      "notes": ""
+    },
+    {
+      "id": "z_giovanna_vanessa_olivares_hernandez_151",
+      "name": "Giovanna Vanessa Olivares Hernández",
+      "side": "carlo",
+      "groups": [
+        "gr_familia_politica_carlo"
+      ],
+      "tableId": null,
+      "meal": "filet mignon - filete mignon",
+      "notes": "HERMANA de Karla (cuñada)"
+    },
+    {
+      "id": "z_david_juarez_152",
+      "name": "David Juárez",
+      "side": "carlo",
+      "groups": [
+        "gr_familia_politica_carlo"
+      ],
+      "tableId": null,
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "esposo Giovanna"
+    },
+    {
+      "id": "z_karlo_velarde_153",
+      "name": "Karlo Velarde",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "primo Carlo — familia materna (confirmado)"
+    },
+    {
+      "id": "z_larissa_navil_de_la_torre_154",
+      "name": "Larissa Navil De La Torre",
+      "side": "carlo",
+      "groups": [
+        "gr_primos_maternos"
+      ],
+      "tableId": "larga",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "pareja Karlo Velarde"
+    },
+    {
+      "id": "z_pedro_velasco_155",
+      "name": "Pedro Velasco",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_paty_velasco_156",
+      "name": "Paty Velasco",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r2",
+      "meal": "filet mignon - filete mignon",
+      "notes": "esposa Pedro Velasco"
+    },
+    {
+      "id": "z_alberto_verdusco_acosta_157",
+      "name": "Alberto Verdusco Acosta",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_paola_verdusco_acosta_158",
+      "name": "Paola Verdusco Acosta",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hermana Alberto Verdusco Acosta"
+    },
+    {
+      "id": "z_alberto_verdusco_dominguez_159",
+      "name": "Alberto Verdusco Dominguez",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "r3",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "No"
+    },
+    {
+      "id": "z_arminda_acosta_mireles_160",
+      "name": "Arminda Acosta Mireles",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "r3",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_fernando_verduzco_dominguez_161",
+      "name": "Fernando Verduzco Domínguez",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r3",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_lupita_valdez_162",
+      "name": "Lupita Valdéz",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "r3",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_javier_verduzco_dominguez_163",
+      "name": "Javier Verduzco Domínguez",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": "r3",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "z_leonardo_verduzco_montoya_164",
+      "name": "Leonardo Verduzco Montoya",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vvex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hijo Javier Verduzco"
+    },
+    {
+      "id": "z_pamela_verduzco_montoya_165",
+      "name": "Pamela Verduzco Montoya",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vvex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hija Javier Verduzco"
+    },
+    {
+      "id": "z_oliver_dangelo_pichardo_166",
+      "name": "Oliver D’Angelo Pichardo",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vvex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "esposo Pamela Verduzco"
+    },
+    {
+      "id": "z_jose_verduzco_reyna_167",
+      "name": "Jose Verduzco Reyna",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "No"
+    },
+    {
+      "id": "z_lizbeth_yariela_navidad_felix_168",
+      "name": "Lizbeth Yariela Navidad Felix",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "larga",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Jose Verduzco Reyna"
+    },
+    {
+      "id": "z_diana_verduzco_valdez_169",
+      "name": "Diana Verduzco Valdéz",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vvex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hija Fernando+Lupita Verduzco"
+    },
+    {
+      "id": "z_fernando_verduzco_valdez_170",
+      "name": "Fernando Verduzco Valdéz",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vvex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "hijo Fernando+Lupita Verduzco"
+    },
+    {
+      "id": "z_alondra_gordillo_171",
+      "name": "Alondra Gordillo",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": "vvex",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "pareja Fernando Verduzco Valdéz"
+    },
+    {
+      "id": "z_josue_villegas_galaviz_172",
+      "name": "Josue Villegas Galaviz",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vmex",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "UABC Mexicali"
+    },
+    {
+      "id": "z_edith_teresita_paz_diaz_173",
+      "name": "Edith Teresita Paz Díaz",
+      "side": "carlo",
+      "groups": [
+        "gr_la_paz_mexicali_med"
+      ],
+      "tableId": "vmex",
+      "meal": "filet mignon - filete mignon",
+      "notes": "pareja Josue"
+    },
+    {
+      "id": "z_elizabeth_von_transehe_174",
+      "name": "Elizabeth von Transehe",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "filet mignon - filete mignon",
+      "notes": "mamá de Zoe von Transehe (Mesa 6 Laura)"
+    },
+    {
+      "id": "z_daniel_eldridge_175",
+      "name": "Daniel Eldridge",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "filet mignon - filete mignon",
+      "notes": "papá de Eldridge kids (Mesa 6 Laura)"
+    },
+    {
+      "id": "z_bryce_conover_176",
+      "name": "Bryce Conover",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Laura Mesa 6 (Bryce)"
+    },
+    {
+      "id": "z_william_eldridge_177",
+      "name": "William Eldridge",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "filet mignon - filete mignon",
+      "notes": "Laura Mesa 6 (William)"
+    },
+    {
+      "id": "z_zoe_von_transehe_178",
+      "name": "Zoe von Transehe",
+      "side": "laura",
+      "groups": [
+        "gr_laura_g6"
+      ],
+      "tableId": "r6",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": "Laura Mesa 6 (Zoe)"
+    },
+    {
+      "id": "z_rafael_vazquez_179",
+      "name": "Rafael Vázquez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r4",
+      "meal": "seasonal fish - pescado de temporada",
+      "notes": ""
+    },
+    {
+      "id": "z_luz_maria_galindo_180",
+      "name": "Luz Maria Galindo",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": "r4",
+      "meal": "filet mignon - filete mignon",
+      "notes": ""
+    },
+    {
+      "id": "tentative_mohamed_amin_mustafa",
+      "name": "Mohamed Amin Mustafa (tentative)",
+      "side": "carlo",
+      "groups": [
+        "gr_indiana_university"
+      ],
+      "tableId": null,
+      "meal": "",
+      "notes": "TENTATIVE — No Response en Zola. Carlo quiere junto con Ahmad si viene.",
+      "tentative": true
+    }
+  ],
+  "rules": [
+    {
+      "id": "rule_ahmad_mohamed",
+      "type": "must",
+      "a": "z_ahmad_alkashash_1",
+      "b": "tentative_mohamed_amin_mustafa"
+    },
+    {
+      "id": "rule_barnaby_tissa",
+      "type": "must",
+      "a": "z_barnaby_cronshaw_29",
+      "b": "z_tissa_ogrady_30"
+    },
+    {
+      "id": "rule_nestor_claudia",
+      "type": "must",
+      "a": "z_nestor_david_bazan_lopez_31",
+      "b": "z_claudia_castro_salgado_32"
+    },
+    {
+      "id": "rule_z_carolina_canedo_verduzco_24_z_ern",
+      "type": "must",
+      "a": "z_carolina_canedo_verduzco_24",
+      "b": "z_ernesto_milton_macedo_hernandez_25"
+    },
+    {
+      "id": "rule_z_anabel_cornejo_26_z_carlos_eduard",
+      "type": "must",
+      "a": "z_anabel_cornejo_26",
+      "b": "z_carlos_eduardo_mejia_vazquez_27"
+    },
+    {
+      "id": "rule_z_maria_de_la_paz_campos_33_z_eduar",
+      "type": "must",
+      "a": "z_maria_de_la_paz_campos_33",
+      "b": "z_eduardo_sierra_chein_34"
+    },
+    {
+      "id": "rule_z_roxana_canedo_verduzco_22_z_esteb",
+      "type": "must",
+      "a": "z_roxana_canedo_verduzco_22",
+      "b": "z_esteban_arturo_alvarez_serrano_23"
+    },
+    {
+      "id": "rule_z_manuel_amparan_4_z_rocio_preciado",
+      "type": "must",
+      "a": "z_manuel_amparan_4",
+      "b": "z_rocio_preciado_5"
+    },
+    {
+      "id": "r_z_alfonso_moral_z_brisa_coral_v",
+      "type": "must",
+      "a": "z_alfonso_morales_carranza_108",
+      "b": "z_brisa_coral_villa_estrella_109"
+    },
+    {
+      "id": "r_z_luis_edgardo__z_bhoomi_prakas",
+      "type": "must",
+      "a": "z_luis_edgardo_argote_bolio_60",
+      "b": "z_bhoomi_prakashbhai_patel_61"
+    },
+    {
+      "id": "r_z_wily_de_la_sa_z_karla_olivare",
+      "type": "must",
+      "a": "z_wily_de_la_sancha_verduzco_40",
+      "b": "z_karla_olivares_41"
+    },
+    {
+      "id": "r_z_efrain_gut_z_daniela_ar",
+      "type": "must",
+      "a": "z_efrain_gutierrez_lanz_72",
+      "b": "z_daniela_arvide_jimenez_73"
+    },
+    {
+      "id": "r_z_claudia_ha_z_miguel_ang",
+      "type": "must",
+      "a": "z_claudia_haydee_machuca_hernandez_75",
+      "b": "z_miguel_angel_ambriz_76"
+    },
+    {
+      "id": "r_z_dennisse_h_z_javier_ric",
+      "type": "must",
+      "a": "z_dennisse_herrera_bringas_78",
+      "b": "z_javier_rico_lopez_79"
+    },
+    {
+      "id": "r_z_bernardo_h_z_enrique_za",
+      "type": "must",
+      "a": "z_bernardo_huesca_lara_86",
+      "b": "z_enrique_zarate_losoya_87"
+    },
+    {
+      "id": "r_z_juan_hurta_z_reyna_nune",
+      "type": "must",
+      "a": "z_juan_hurtado_88",
+      "b": "z_reyna_nunez_89"
+    },
+    {
+      "id": "r_z_jose_luis__z_cynthia_st",
+      "type": "must",
+      "a": "z_jose_luis_junco_lozano_97",
+      "b": "z_cynthia_stewart_gonzalez_98"
+    },
+    {
+      "id": "r_z_oscar_mald_z_irma_esthe",
+      "type": "must",
+      "a": "z_oscar_maldonado_martinez_102",
+      "b": "z_irma_esthela_smith_olivas_103"
+    },
+    {
+      "id": "r_z_antje_mens_z_matthias_r",
+      "type": "must",
+      "a": "z_antje_mensendieck_105",
+      "b": "z_matthias_rath_106"
+    },
+    {
+      "id": "r_z_oscar_more_z_adela_guer",
+      "type": "must",
+      "a": "z_oscar_moreno_lopez_110",
+      "b": "z_adela_guerena_111"
+    },
+    {
+      "id": "r_z_juan_pedro_z_karla_cori",
+      "type": "must",
+      "a": "z_juan_pedro_nahim_verdugo_116",
+      "b": "z_karla_coria_117"
+    },
+    {
+      "id": "r_z_dan_qazi_1_z_devin_colu",
+      "type": "must",
+      "a": "z_dan_qazi_126",
+      "b": "z_devin_columbus_127"
+    },
+    {
+      "id": "r_z_leonardo_s_z_karen_alex",
+      "type": "must",
+      "a": "z_leonardo_sanchez_diaz_136",
+      "b": "z_karen_alexandra_portillo_avalos_137"
+    },
+    {
+      "id": "r_z_jose_silve_z_mercedes_v",
+      "type": "must",
+      "a": "z_jose_silvestre_canedo_141",
+      "b": "z_mercedes_verduzco_dominguez_142"
+    },
+    {
+      "id": "r_z_karen_step_z_cesar_andr",
+      "type": "must",
+      "a": "z_karen_stephanie_tucker_bernal_145",
+      "b": "z_cesar_andrade_146"
+    },
+    {
+      "id": "r_z_giovanna_v_z_david_juar",
+      "type": "must",
+      "a": "z_giovanna_vanessa_olivares_hernandez_151",
+      "b": "z_david_juarez_152"
+    },
+    {
+      "id": "r_z_karlo_vela_z_larissa_na",
+      "type": "must",
+      "a": "z_karlo_velarde_153",
+      "b": "z_larissa_navil_de_la_torre_154"
+    },
+    {
+      "id": "r_z_pedro_vela_z_paty_velas",
+      "type": "must",
+      "a": "z_pedro_velasco_155",
+      "b": "z_paty_velasco_156"
+    },
+    {
+      "id": "r_z_alberto_ve_z_arminda_ac",
+      "type": "must",
+      "a": "z_alberto_verdusco_dominguez_159",
+      "b": "z_arminda_acosta_mireles_160"
+    },
+    {
+      "id": "r_z_fernando_v_z_lupita_val",
+      "type": "must",
+      "a": "z_fernando_verduzco_dominguez_161",
+      "b": "z_lupita_valdez_162"
+    },
+    {
+      "id": "r_z_marisol_ba_z_pedro_erne",
+      "type": "must",
+      "a": "z_marisol_barajas_verduzco_15",
+      "b": "z_pedro_ernesto_petris_leyva_16"
+    },
+    {
+      "id": "r_z_marisol_ba_z_valeria_na",
+      "type": "must",
+      "a": "z_marisol_barajas_verduzco_15",
+      "b": "z_valeria_nahi_petris_barajas_17"
+    },
+    {
+      "id": "r_z_pedro_erne_z_valeria_na",
+      "type": "must",
+      "a": "z_pedro_ernesto_petris_leyva_16",
+      "b": "z_valeria_nahi_petris_barajas_17"
+    },
+    {
+      "id": "r_z_edgar_de_l_z_mary_garci",
+      "type": "must",
+      "a": "z_edgar_de_la_sancha_35",
+      "b": "z_mary_garcia_36"
+    },
+    {
+      "id": "r_z_edgar_de_l_z_fernando_d",
+      "type": "must",
+      "a": "z_edgar_de_la_sancha_35",
+      "b": "z_fernando_de_la_sancha_37"
+    },
+    {
+      "id": "r_z_jesus_beas_z_silvia_gon",
+      "type": "must",
+      "a": "z_jesus_beas_garibay_18",
+      "b": "z_silvia_gonzalez_19"
+    },
+    {
+      "id": "r_z_maria_de_l_z_juan_manue",
+      "type": "must",
+      "a": "z_maria_de_lourdes_amparan_vasquez_49",
+      "b": "z_juan_manuel_perez_castro_50"
+    },
+    {
+      "id": "r_z_melchor_fl_z_laura_meji",
+      "type": "must",
+      "a": "z_melchor_flores_65",
+      "b": "z_laura_mejia_66"
+    },
+    {
+      "id": "r_z_alberto_am_z_gabriela_p",
+      "type": "must",
+      "a": "z_alberto_amparan_2",
+      "b": "z_gabriela_porras_robles_3"
+    },
+    {
+      "id": "r_z_marco_anto_z_adriana_fe",
+      "type": "must",
+      "a": "z_marco_antonio_avalos_rodriguez_13",
+      "b": "z_adriana_feliz_tamayo_14"
+    },
+    {
+      "id": "r_z_salvador_l_z_america_go",
+      "type": "must",
+      "a": "z_salvador_leon_lorta_95",
+      "b": "z_america_gonzalez_lopez_96"
+    },
+    {
+      "id": "r_z_rodrigo_ga_z_janet_lari",
+      "type": "must",
+      "a": "z_rodrigo_gasparri_lamadrid_67",
+      "b": "z_janet_larios_bustillos_68"
+    },
+    {
+      "id": "r_z_jose_eduar_z_paulina_lo",
+      "type": "must",
+      "a": "z_jose_eduardo_gil_rullan_62",
+      "b": "z_paulina_lordmendez_63"
+    },
+    {
+      "id": "r_z_james_hoga_z_maddie_hog",
+      "type": "must",
+      "a": "z_james_hogan_83",
+      "b": "z_maddie_hogan_84"
+    },
+    {
+      "id": "r_z_pamela_het_z_michael_te",
+      "type": "must",
+      "a": "z_pamela_hetrick_149",
+      "b": "z_michael_tenzer_148"
+    },
+    {
+      "id": "r_z_javier_ver_z_leonardo_v",
+      "type": "must",
+      "a": "z_javier_verduzco_dominguez_163",
+      "b": "z_leonardo_verduzco_montoya_164"
+    },
+    {
+      "id": "r_z_pamela_ver_z_oliver_dan",
+      "type": "must",
+      "a": "z_pamela_verduzco_montoya_165",
+      "b": "z_oliver_dangelo_pichardo_166"
+    },
+    {
+      "id": "r_z_jose_verdu_z_lizbeth_ya",
+      "type": "must",
+      "a": "z_jose_verduzco_reyna_167",
+      "b": "z_lizbeth_yariela_navidad_felix_168"
+    },
+    {
+      "id": "r_z_fernando_v_z_alondra_go",
+      "type": "must",
+      "a": "z_fernando_verduzco_valdez_170",
+      "b": "z_alondra_gordillo_171"
+    },
+    {
+      "id": "r_z_josue_vill_z_edith_tere",
+      "type": "must",
+      "a": "z_josue_villegas_galaviz_172",
+      "b": "z_edith_teresita_paz_diaz_173"
+    },
+    {
+      "id": "r_z_rafael_vaz_z_luz_maria_",
+      "type": "must",
+      "a": "z_rafael_vazquez_179",
+      "b": "z_luz_maria_galindo_180"
+    },
+    {
+      "id": "r_z_bertim_per_z_cleydi_vaz",
+      "type": "must",
+      "a": "z_bertim_perez_121",
+      "b": "z_cleydi_vazquez_122"
+    }
+  ]
+}

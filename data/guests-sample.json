@@ -1,0 +1,18 @@
+{
+  "_notes": "Datos de muestra. Reemplazar cuando llegue el CSV de Zola usando el botón Importar.",
+  "guests": [
+    { "id": "g001", "name": "Carlo De la Sancha", "side": "carlo", "groups": ["novios"] },
+    { "id": "g002", "name": "Laura (novia)",     "side": "laura", "groups": ["novios"] },
+    { "id": "g003", "name": "Mamá de Carlo",     "side": "carlo", "groups": ["familia_nuclear_carlo"] },
+    { "id": "g004", "name": "Papá de Carlo",     "side": "carlo", "groups": ["familia_nuclear_carlo"] },
+    { "id": "g005", "name": "Hermano de Carlo",  "side": "carlo", "groups": ["familia_nuclear_carlo"] },
+    { "id": "g006", "name": "Mamá de Laura",     "side": "laura", "groups": ["familia_nuclear_laura"] },
+    { "id": "g007", "name": "Papá de Laura",     "side": "laura", "groups": ["familia_nuclear_laura"] }
+  ],
+  "groups": [
+    { "id": "novios", "name": "Novios", "color": "#6b1f2a" },
+    { "id": "familia_nuclear_carlo", "name": "Familia nuclear Carlo", "color": "#8a2e3b" },
+    { "id": "familia_nuclear_laura", "name": "Familia nuclear Laura", "color": "#c9a86b" }
+  ],
+  "rules": []
+}

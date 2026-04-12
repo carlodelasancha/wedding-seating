@@ -1,0 +1,148 @@
+{
+  "venue": "Casa de los 7 Patios",
+  "date": "2026-05-09",
+  "notes": "Layout basado en cotización Fernanda. Capacidad por mesa es editable cuando se confirme.",
+  "tables": [
+    {
+      "id": "novios",
+      "name": "Novios",
+      "shape": "rect",
+      "capacity": 2,
+      "kind": "novios"
+    },
+    {
+      "id": "r1",
+      "name": "Redonda 1",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r2",
+      "name": "Redonda 2",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r3",
+      "name": "Redonda 3",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r4",
+      "name": "Redonda 4",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r5",
+      "name": "Redonda 5",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r6",
+      "name": "Redonda 6",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r7",
+      "name": "Redonda 7",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "r8",
+      "name": "Redonda 8",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
+    },
+    {
+      "id": "x1",
+      "name": "Rectangular 1",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "x2",
+      "name": "Rectangular 2",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "x3",
+      "name": "Rectangular 3",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "x4",
+      "name": "Rectangular 4",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "x5",
+      "name": "Rectangular 5",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "larga",
+      "name": "Mesa Larga",
+      "shape": "long",
+      "capacity": 16,
+      "kind": "larga"
+    },
+    {
+      "id": "vmex",
+      "name": "Mexicali UABC",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "vbru",
+      "name": "Bruno/Anabel/Stephanie",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "vvex",
+      "name": "Verduzco extra (primos)",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "vxoc",
+      "name": "Ensenada Xochicalco",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    },
+    {
+      "id": "valm",
+      "name": "Alemania (mexicanos + alemanes)",
+      "shape": "rect",
+      "capacity": 10,
+      "kind": "rectangular"
+    }
+  ],
+  "totalCapacity": 148
+}
