@@ -4,6 +4,7 @@
    ============================================ */
 
 const STORAGE_KEY = 'wedding-seating-state-v1';
+const DATA_VERSION = 4; // bump this number every time server data changes → forces refresh on all browsers
 
 const state = {
   tables: [],
@@ -46,11 +47,15 @@ function $(sel) { return document.querySelector(sel); }
 /* ── BOOT ──────────────────────────────────── */
 async function boot() {
   const persisted = loadLocal();
-  if (persisted && persisted.guests && persisted.guests.length > 10) {
+  const savedVersion = persisted ? persisted._dataVersion : 0;
+
+  if (persisted && persisted.guests && persisted.guests.length > 10 && savedVersion === DATA_VERSION) {
+    // Same version → use local changes (user's drag-drop edits preserved)
     Object.assign(state, persisted);
-    toast('Estado cargado desde el navegador');
   } else {
+    // New version or first visit → load fresh from server
     await loadPreset('merged');
+    toast('Datos actualizados');
   }
   attachEvents();
   render();
@@ -66,9 +71,10 @@ async function loadPreset(which) {
   };
   const file = files[which] || files.merged;
   try {
+    const bust = '?v=' + DATA_VERSION;
     const [tablesRes, dataRes] = await Promise.all([
-      fetch('data/tables.json').then(r => r.json()),
-      fetch(file).then(r => r.json())
+      fetch('data/tables.json' + bust).then(r => r.json()),
+      fetch(file + bust).then(r => r.json())
     ]);
     state.tables = tablesRes.tables;
     state.guests = (dataRes.guests || []).map(g => ({ ...g, tableId: g.tableId || null }));
@@ -83,9 +89,15 @@ async function loadPreset(which) {
 
 /* ── PERSISTENCE ───────────────────────────── */
 function saveLocal() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    tables: state.tables, guests: state.guests, groups: state.groups, rules: state.rules
-  })); } catch(e) { console.warn(e); }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      tables: state.tables, guests: state.guests, groups: state.groups, rules: state.rules,
+      _dataVersion: DATA_VERSION
+    }));
+    // Flash "guardado" badge
+    const badge = document.getElementById('autosave-badge');
+    if (badge) { badge.style.opacity = '1'; clearTimeout(saveLocal._t); saveLocal._t = setTimeout(() => badge.style.opacity = '0', 1500); }
+  } catch(e) { console.warn(e); }
 }
 function loadLocal() {
   try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
@@ -821,14 +833,12 @@ function attachEvents() {
   $('#btn-export-print').onclick = () => window.print();
   $('#btn-autoseat').onclick = autoSeat;
   $('#btn-reset').onclick = async () => {
-    const choice = prompt('Reset:\n1 = Solo vaciar asignaciones (mantener invitados)\n2 = Recargar preset MERGED (Zola+mamá+Laura)\n3 = Recargar solo Zola\n4 = Recargar solo mamá\n5 = Recargar solo Laura\n\nElige número:', '1');
-    if (choice === '1') {
-      state.guests.forEach(g => g.tableId = null);
+    if (confirm('¿Restaurar todo al estado original? Se perderán tus cambios manuales.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      await loadPreset('merged');
       render();
-    } else if (choice === '2') { localStorage.removeItem(STORAGE_KEY); await loadPreset('merged'); render(); }
-    else if (choice === '3') { localStorage.removeItem(STORAGE_KEY); await loadPreset('zola'); render(); }
-    else if (choice === '4') { localStorage.removeItem(STORAGE_KEY); await loadPreset('mama'); render(); }
-    else if (choice === '5') { localStorage.removeItem(STORAGE_KEY); await loadPreset('laura'); render(); }
+      toast('Restaurado al estado original');
+    }
   };
   $('#search-guests').oninput = e => { state.filters.search = e.target.value; renderUnassigned(); };
   document.querySelectorAll('.filter').forEach(f => f.onchange = e => {
