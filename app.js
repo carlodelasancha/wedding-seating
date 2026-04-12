@@ -4,7 +4,7 @@
    ============================================ */
 
 const STORAGE_KEY = 'wedding-seating-state-v1';
-const DATA_VERSION = 6; // bump this number every time server data changes → forces refresh on all browsers
+const DATA_VERSION = 5; // bump this number every time server data changes → forces refresh on all browsers
 
 const state = {
   tables: [],
