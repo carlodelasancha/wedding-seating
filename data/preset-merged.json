@@ -2113,6 +2113,20 @@
       "meal": "",
       "notes": "TENTATIVE — No Response en Zola. Carlo quiere junto con Ahmad si viene.",
       "tentative": true
+    },
+    {
+      "id": "novio_carlo",
+      "name": "Carlo De la Sancha",
+      "side": "carlo",
+      "groups": [],
+      "tableId": "novios"
+    },
+    {
+      "id": "novia_laura",
+      "name": "Laura Deering",
+      "side": "laura",
+      "groups": [],
+      "tableId": "novios"
     }
   ],
   "rules": [

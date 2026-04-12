@@ -12,133 +12,133 @@
     },
     {
       "id": "r1",
-      "name": "Redonda 1",
+      "name": "Mesa 1",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r2",
-      "name": "Redonda 2",
+      "name": "Mesa 2",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r3",
-      "name": "Redonda 3",
+      "name": "Mesa 3",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r4",
-      "name": "Redonda 4",
+      "name": "Mesa 4",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r5",
-      "name": "Redonda 5",
+      "name": "Mesa 5",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r6",
-      "name": "Redonda 6",
+      "name": "Mesa 6",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r7",
-      "name": "Redonda 7",
+      "name": "Mesa 7",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "r8",
-      "name": "Redonda 8",
+      "name": "Mesa 8",
       "shape": "round",
       "capacity": 10,
       "kind": "redonda"
     },
     {
       "id": "x1",
-      "name": "Rectangular 1",
+      "name": "Mesa 9",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "x2",
-      "name": "Rectangular 2",
+      "name": "Mesa 10",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "x3",
-      "name": "Rectangular 3",
+      "name": "Mesa 11",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "x4",
-      "name": "Rectangular 4",
+      "name": "Mesa 12",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "x5",
-      "name": "Rectangular 5",
+      "name": "Mesa 13",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "larga",
-      "name": "Mesa Larga",
+      "name": "Mesa 14",
       "shape": "long",
       "capacity": 16,
       "kind": "larga"
     },
     {
       "id": "vmex",
-      "name": "Mexicali UABC",
+      "name": "Mesa 15",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "vbru",
-      "name": "Bruno/Anabel/Stephanie",
+      "name": "Mesa 16",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "vvex",
-      "name": "Verduzco extra (primos)",
+      "name": "Mesa 17",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "vxoc",
-      "name": "Ensenada Xochicalco",
+      "name": "Mesa 18",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
     },
     {
       "id": "valm",
-      "name": "Alemania (mexicanos + alemanes)",
+      "name": "Mesa 19",
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
