@@ -4,7 +4,7 @@
    ============================================ */
 
 const STORAGE_KEY = 'wedding-seating-state-v1';
-const DATA_VERSION = 5; // bump this number every time server data changes → forces refresh on all browsers
+const DATA_VERSION = 6; // bump this number every time server data changes → forces refresh on all browsers
 
 const state = {
   tables: [],
@@ -220,9 +220,27 @@ function renderTables() {
     ]);
     const seatsDiv = el('div', { class: 'seats' });
 
-    occupants.forEach(g => {
+    occupants.forEach((g, idx) => {
       const sideTag = el('span', { class: `side side-${g.side||'otro'}`, text: (g.side||'otro').slice(0,1).toUpperCase() });
-      const nameSpan = el('span', { text: g.name });
+      const nameSpan = el('span', { class: 'seat-name', text: g.name });
+
+      const arrows = el('span', { class: 'seat-arrows' }, [
+        el('button', {
+          class: 'arrow-btn',
+          text: '\u25B2',
+          title: 'Subir',
+          style: { visibility: idx === 0 ? 'hidden' : 'visible' },
+          onclick: (ev) => { ev.stopPropagation(); moveGuestInTable(t.id, g.id, -1); }
+        }),
+        el('button', {
+          class: 'arrow-btn',
+          text: '\u25BC',
+          title: 'Bajar',
+          style: { visibility: idx === occupants.length - 1 ? 'hidden' : 'visible' },
+          onclick: (ev) => { ev.stopPropagation(); moveGuestInTable(t.id, g.id, 1); }
+        })
+      ]);
+
       const seat = el('div', {
         class: 'seat occupied',
         draggable: true,
@@ -233,7 +251,7 @@ function renderTables() {
         ondragover: handleSeatDragOver,
         ondragleave: handleSeatDragLeave,
         ondrop: handleSeatDrop
-      }, [sideTag, nameSpan]);
+      }, [sideTag, nameSpan, arrows]);
       seatsDiv.appendChild(seat);
     });
     for (let i = 0; i < emptySeats; i++) {
@@ -248,14 +266,24 @@ function renderTables() {
       seatsDiv.appendChild(emptySeat);
     }
 
+    // Table drag handle (grip icon at top-left)
+    const grip = el('span', {
+      class: 'table-grip',
+      text: '\u2630',
+      title: 'Arrastra para reordenar mesa',
+      draggable: true,
+      ondragstart: handleTableDragStart,
+      ondragend: handleTableDragEnd
+    });
+
     const div = el('div', {
       class: classes.join(' '),
       dataset: { tableId: t.id },
       onclick: () => selectTable(t.id),
-      ondragover: handleDragOver,
-      ondragleave: handleDragLeave,
-      ondrop: handleDrop
-    }, [header, seatsDiv]);
+      ondragover: (e) => { handleDragOver(e); handleTableDragOverTable(e); },
+      ondragleave: (e) => { handleDragLeave(e); handleTableDragLeaveTable(e); },
+      ondrop: (e) => { if (tableDragId) { handleTableDropOnTable(e); } else { handleDrop(e); } }
+    }, [grip, header, seatsDiv]);
     wrap.appendChild(div);
   });
 }
@@ -585,6 +613,79 @@ function handleSeatDrop(e) {
     if (partners.length) toast(`${draggedGuest.name} + ${partners.map(p=>p.name).join(', ')}`);
   }
   render();
+}
+
+/* ── REORDER GUEST WITHIN TABLE ───────────── */
+function moveGuestInTable(tableId, guestId, direction) {
+  // Get ordered list of guests at this table (order = position in state.guests array)
+  const indices = [];
+  state.guests.forEach((g, i) => { if (g.tableId === tableId) indices.push(i); });
+  const pos = indices.findIndex(i => state.guests[i].id === guestId);
+  if (pos < 0) return;
+  const newPos = pos + direction;
+  if (newPos < 0 || newPos >= indices.length) return;
+  // Swap in the master guests array
+  const a = indices[pos], b = indices[newPos];
+  [state.guests[a], state.guests[b]] = [state.guests[b], state.guests[a]];
+  render();
+}
+
+/* ── TABLE DRAG & DROP (reorder tables) ──── */
+let tableDragId = null;
+function handleTableDragStart(e) {
+  const tableId = e.currentTarget.dataset.tableId;
+  if (!tableId) return;
+  tableDragId = tableId;
+  e.currentTarget.classList.add('table-dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  // Set minimal data so browser allows drag
+  e.dataTransfer.setData('text/plain', tableId);
+  e.stopPropagation();
+}
+function handleTableDragEnd(e) {
+  e.currentTarget.classList.remove('table-dragging');
+  document.querySelectorAll('.table-drag-over').forEach(x => x.classList.remove('table-drag-over'));
+  tableDragId = null;
+}
+function handleTableDragOverTable(e) {
+  if (!tableDragId) return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('table-drag-over');
+}
+function handleTableDragLeaveTable(e) {
+  if (!tableDragId) return;
+  e.stopPropagation();
+  if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('table-drag-over');
+}
+function handleTableDropOnTable(e) {
+  if (!tableDragId) return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.classList.remove('table-drag-over');
+  const targetId = e.currentTarget.dataset.tableId;
+  if (!targetId || targetId === tableDragId) return;
+  const fromIdx = state.tables.findIndex(t => t.id === tableDragId);
+  const toIdx = state.tables.findIndex(t => t.id === targetId);
+  if (fromIdx < 0 || toIdx < 0) return;
+  // Move table from fromIdx to toIdx
+  const [moved] = state.tables.splice(fromIdx, 1);
+  state.tables.splice(toIdx, 0, moved);
+  // Renumber tables (skip novios)
+  renumberTables();
+  tableDragId = null;
+  render();
+  toast(`${moved.name} movida`);
+}
+
+function renumberTables() {
+  let num = 1;
+  state.tables.forEach(t => {
+    if (t.kind === 'novios') return;
+    t.name = 'Mesa ' + num;
+    num++;
+  });
 }
 
 /* ── CAPACITY TOGGLE ───────────────────────── */
