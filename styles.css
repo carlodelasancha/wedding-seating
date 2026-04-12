@@ -434,6 +434,18 @@ h1, h2, h3 { font-weight: 600; }
   color: var(--muted);
 }
 .guest-list.drag-over { background: var(--cream-dark); }
+.guest-item.assigned { opacity: 0.7; }
+.search-table-tag {
+  margin-left: auto;
+  font-size: 9px;
+  background: var(--cream);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--burgundy);
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
 /* ── RIGHT PANEL ─────────────────────────────── */
 .tabs {

@@ -176,13 +176,42 @@ function renderUnassigned() {
   }
   clear(ul);
   const q = state.filters.search.toLowerCase();
+
+  // If searching, show ALL matching guests (assigned + unassigned) with table info
+  if (q) {
+    const matches = state.guests
+      .filter(g => state.filters[g.side || 'otro'])
+      .filter(g => g.name.toLowerCase().includes(q))
+      .sort((a,b) => a.name.localeCompare(b.name));
+    if (matches.length === 0) {
+      ul.appendChild(el('li', { class: 'empty', style: { padding: '16px', fontSize: '12px' }, text: 'No encontrado' }));
+      return;
+    }
+    matches.forEach(g => {
+      const sideTag = el('span', { class: `side side-${g.side||'otro'}`, text: (g.side||'otro').slice(0,1).toUpperCase() });
+      const table = state.tables.find(t => t.id === g.tableId);
+      const nameSpan = el('span', { class: 'name', text: g.name });
+      const tableTag = el('span', { class: 'search-table-tag', text: table ? table.name : 'Pendiente' });
+      const li = el('li', {
+        class: 'guest-item' + (g.id === state.selectedGuestId ? ' selected' : '') + (g.tableId ? ' assigned' : ''),
+        draggable: true,
+        dataset: { guestId: g.id },
+        onclick: () => selectGuest(g.id),
+        ondragstart: handleDragStart,
+        ondragend: handleDragEnd
+      }, [sideTag, nameSpan, tableTag]);
+      ul.appendChild(li);
+    });
+    return;
+  }
+
+  // No search: show only unassigned guests
   // Build set of partner IDs that are already shown as part of another guest's row
   const shownAsPartner = new Set();
   const allUnassigned = state.guests.filter(g => !g.tableId);
   allUnassigned.forEach(g => {
     const partners = getPartners(g.id).filter(p => !p.tableId);
     partners.forEach(p => {
-      // The partner with alphabetically later name gets hidden (shown as "+partner" on the earlier one)
       if (g.name.localeCompare(p.name) < 0) shownAsPartner.add(p.id);
     });
   });
@@ -190,8 +219,6 @@ function renderUnassigned() {
   const unassigned = allUnassigned
     .filter(g => !shownAsPartner.has(g.id))
     .filter(g => state.filters[g.side || 'otro'])
-    .filter(g => !q || g.name.toLowerCase().includes(q) ||
-                 getPartners(g.id).some(p => p.name.toLowerCase().includes(q)))
     .sort((a,b) => a.name.localeCompare(b.name));
 
   if (unassigned.length === 0) {
