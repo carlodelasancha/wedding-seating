@@ -271,9 +271,29 @@ function renderTables() {
       title: canToggle ? 'Clic para alternar 8 ↔ 10' : '',
       onclick: canToggle ? (e) => { e.stopPropagation(); toggleCapacity(t.id); } : null
     });
+    const tableIdx = state.tables.indexOf(t);
+    const isFirst = tableIdx === 0 || (tableIdx === 1 && state.tables[0].kind === 'novios');
+    const isLast = tableIdx === state.tables.length - 1;
+    const isNovios = t.kind === 'novios';
+
+    const moveLeft = !isNovios && !isFirst ? el('button', {
+      class: 'table-move-btn',
+      text: '\u25C0',
+      title: 'Mover mesa a la izquierda',
+      onclick: (e) => { e.stopPropagation(); moveTable(t.id, -1); }
+    }) : null;
+    const moveRight = !isNovios && !isLast ? el('button', {
+      class: 'table-move-btn',
+      text: '\u25B6',
+      title: 'Mover mesa a la derecha',
+      onclick: (e) => { e.stopPropagation(); moveTable(t.id, 1); }
+    }) : null;
+
     const header = el('div', { class: 'table-header' }, [
+      moveLeft,
       el('span', { text: t.name }),
-      capBadge
+      capBadge,
+      moveRight
     ]);
     const seatsDiv = el('div', { class: 'seats' });
 
@@ -324,74 +344,14 @@ function renderTables() {
       seatsDiv.appendChild(emptySeat);
     }
 
-    // Table drag handle (grip icon at top-left)
-    const grip = el('span', {
-      class: 'table-grip',
-      text: '\u2630',
-      title: 'Arrastra para reordenar mesa',
-      draggable: true,
-      dataset: { tableId: t.id },
-      ondragstart: (e) => {
-        e.stopPropagation();
-        tableDragId = t.id;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', 'table:' + t.id);
-        // Mark the parent table as dragging after a tick
-        setTimeout(() => {
-          const tableEl = e.target.closest('.table');
-          if (tableEl) tableEl.classList.add('table-dragging');
-        }, 0);
-      },
-      ondragend: (e) => {
-        document.querySelectorAll('.table-dragging, .table-drag-over').forEach(x => {
-          x.classList.remove('table-dragging', 'table-drag-over');
-        });
-        tableDragId = null;
-      }
-    });
-
     const div = el('div', {
       class: classes.join(' '),
       dataset: { tableId: t.id },
       onclick: () => selectTable(t.id),
-      ondragover: (e) => {
-        e.preventDefault();
-        if (tableDragId) {
-          e.stopPropagation();
-          e.dataTransfer.dropEffect = 'move';
-          e.currentTarget.classList.add('table-drag-over');
-        } else {
-          handleDragOver(e);
-        }
-      },
-      ondragleave: (e) => {
-        if (tableDragId) {
-          if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('table-drag-over');
-        } else {
-          handleDragLeave(e);
-        }
-      },
-      ondrop: (e) => {
-        if (tableDragId) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.currentTarget.classList.remove('table-drag-over');
-          const targetId = e.currentTarget.dataset.tableId;
-          if (!targetId || targetId === tableDragId) return;
-          const fromIdx = state.tables.findIndex(x => x.id === tableDragId);
-          const toIdx = state.tables.findIndex(x => x.id === targetId);
-          if (fromIdx < 0 || toIdx < 0) return;
-          const [moved] = state.tables.splice(fromIdx, 1);
-          state.tables.splice(toIdx, 0, moved);
-          renumberTables();
-          tableDragId = null;
-          render();
-          toast(`${moved.name} movida`);
-        } else {
-          handleDrop(e);
-        }
-      }
-    }, [grip, header, seatsDiv]);
+      ondragover: handleDragOver,
+      ondragleave: handleDragLeave,
+      ondrop: handleDrop
+    }, [header, seatsDiv]);
     wrap.appendChild(div);
   });
 }
@@ -879,6 +839,20 @@ function moveGuestInTable(tableId, guestId, direction) {
 
 /* ── TABLE DRAG & DROP (reorder tables) ──── */
 let tableDragId = null;
+
+function moveTable(tableId, direction) {
+  const idx = state.tables.findIndex(t => t.id === tableId);
+  if (idx < 0) return;
+  const newIdx = idx + direction;
+  // Don't swap with novios table
+  if (newIdx < 0 || newIdx >= state.tables.length) return;
+  if (state.tables[newIdx].kind === 'novios') return;
+  const [moved] = state.tables.splice(idx, 1);
+  state.tables.splice(newIdx, 0, moved);
+  renumberTables();
+  render();
+  toast(`${moved.name} movida`);
+}
 
 function renumberTables() {
   let num = 1;

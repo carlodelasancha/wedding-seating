@@ -7,7 +7,15 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Seating Chart · Carlo & Laura · 9 Mayo 2026</title>
-<link rel="stylesheet" href="styles.css?v=20260412a">
+<link rel="stylesheet" href="styles.css">
+<script>
+// Force fresh CSS/JS on every load — no more Cmd+Shift+R needed
+(function(){
+  var t = Date.now();
+  var css = document.querySelector('link[rel="stylesheet"]');
+  if (css) css.href = 'styles.css?t=' + t;
+})();
+</script>
 </head>
 <body>
 
@@ -103,6 +111,13 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="app.js?v=20260412a"></script>
+<script>
+// Load app.js with cache-bust timestamp
+(function(){
+  var s = document.createElement('script');
+  s.src = 'app.js?t=' + Date.now();
+  document.body.appendChild(s);
+})();
+</script>
 </body>
 </html>
