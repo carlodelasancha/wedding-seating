@@ -552,16 +552,21 @@ function renderMealTab() {
     { icon: '\uD83E\uDD6C', label: 'Vegetariano', count: counts.veg, key: 'veg' },
     { icon: '\uD83C\uDF7D', label: 'Sin elegir', count: counts.none, key: 'none' }
   ].forEach(item => {
-    const row = el('div', { class: 'meal-row clickable', onclick: () => {
-      // Toggle: if already showing this filter, collapse
-      const list = $('#meal-guest-list');
-      const sel = $('#meal-filter');
-      if (sel && sel.value === item.key) {
-        sel.value = '';
+    const isActive = renderMealTab._activeFilter === item.key;
+    const row = el('div', { class: 'meal-row clickable' + (isActive ? ' active' : ''), onclick: () => {
+      if (renderMealTab._activeFilter === item.key) {
+        renderMealTab._activeFilter = null;
         renderMealGuestList('');
       } else {
-        if (sel) sel.value = item.key;
+        renderMealTab._activeFilter = item.key;
         renderMealGuestList(item.key);
+      }
+      // Update active highlight on rows
+      document.querySelectorAll('.meal-row.clickable').forEach(r => r.classList.remove('active'));
+      if (renderMealTab._activeFilter) {
+        document.querySelectorAll('.meal-row.clickable').forEach(r => {
+          if (r.textContent.includes(item.label) && renderMealTab._activeFilter === item.key) r.classList.add('active');
+        });
       }
     }}, [
       el('span', { text: `${item.icon} ${item.label}` }),
@@ -570,6 +575,36 @@ function renderMealTab() {
     summary.appendChild(row);
   });
   md.appendChild(summary);
+
+  // Guest list filtered by meal (right below summary for easy access)
+  md.appendChild(el('div', { id: 'meal-guest-list', style: { marginTop: '4px' } }));
+
+  // Allergies section
+  const allergyGuests = state.guests.filter(g => {
+    const n = (g.notes || '').toLowerCase();
+    return n.includes('allerg') || n.includes('gluten') || n.includes('lactose') ||
+           n.includes('intolerant') || n.includes('pescatarian') ||
+           n.includes('no meat') || n.includes('no dairy') || n.includes('no egg') ||
+           (n.includes('pork') && !n.includes('nope') && n.length < 30) ||
+           (n.includes('camar') && n.length < 30) ||
+           n.includes('capsaicin') || n.includes('cow\'s milk') ||
+           n.includes('carnes fr');
+  });
+  if (allergyGuests.length > 0) {
+    md.appendChild(el('h3', { style: { marginTop: '18px' }, text: '\u26A0 Alergias / Restricciones' }));
+    const allergyDiv = el('div', { class: 'allergy-list' });
+    allergyGuests.sort((a, b) => a.name.localeCompare(b.name)).forEach(g => {
+      const table = state.tables.find(t => t.id === g.tableId);
+      allergyDiv.appendChild(el('div', { class: 'allergy-card' }, [
+        el('div', { class: 'allergy-name' }, [
+          el('span', { text: g.name }),
+          el('span', { class: 'meal-table-tag', text: table ? table.name : 'Pendiente' })
+        ]),
+        el('div', { class: 'allergy-detail', text: g.notes })
+      ]));
+    });
+    md.appendChild(allergyDiv);
+  }
 
   // Per-table breakdown
   md.appendChild(el('h3', { style: { marginTop: '18px' }, text: 'Por mesa' }));
@@ -595,19 +630,6 @@ function renderMealTab() {
     ]));
   });
 
-  // Guest list filtered by meal
-  md.appendChild(el('h3', { style: { marginTop: '18px' }, text: 'Filtrar por comida' }));
-  const filterSel = el('select', {
-    id: 'meal-filter',
-    onchange: (e) => renderMealGuestList(e.target.value)
-  });
-  filterSel.appendChild(el('option', { value: '', text: 'Selecciona...' }));
-  filterSel.appendChild(el('option', { value: 'filet', text: '\uD83E\uDD69 Filet Mignon (' + counts.filet + ')' }));
-  filterSel.appendChild(el('option', { value: 'fish', text: '\uD83D\uDC1F Pescado (' + counts.fish + ')' }));
-  filterSel.appendChild(el('option', { value: 'veg', text: '\uD83E\uDD6C Vegetariano (' + counts.veg + ')' }));
-  if (counts.none) filterSel.appendChild(el('option', { value: 'none', text: '\uD83C\uDF7D Sin elegir (' + counts.none + ')' }));
-  md.appendChild(filterSel);
-  md.appendChild(el('div', { id: 'meal-guest-list' }));
 }
 
 function renderMealGuestList(filter) {

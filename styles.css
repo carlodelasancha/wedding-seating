@@ -404,6 +404,8 @@ h1, h2, h3 { font-weight: 600; }
 .meal-row:last-child { border-bottom: none; }
 .meal-row.clickable { cursor: pointer; border-radius: 4px; transition: background 0.15s; }
 .meal-row.clickable:hover { background: var(--cream-dark); }
+.meal-row.clickable.active { background: var(--burgundy); color: #fff; border-radius: 4px; }
+.meal-row.clickable.active .meal-count { color: #fff; }
 .meal-count { font-weight: 600; color: var(--burgundy); font-size: 15px; }
 .meal-table-row {
   display: flex;
@@ -428,6 +430,29 @@ h1, h2, h3 { font-weight: 600; }
   font-size: 12px;
   border-bottom: 1px solid var(--cream-dark);
 }
+/* ── ALLERGY SECTION ────────────────────────── */
+.allergy-list { display: flex; flex-direction: column; gap: 6px; }
+.allergy-card {
+  background: #fef6f5;
+  border: 1px solid #f0d0cc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.allergy-name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: var(--burgundy);
+  margin-bottom: 3px;
+}
+.allergy-detail {
+  color: var(--bad);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 .meal-table-tag {
   font-size: 10px;
   background: var(--cream);
