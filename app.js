@@ -552,10 +552,22 @@ function renderMealTab() {
     { icon: '\uD83E\uDD6C', label: 'Vegetariano', count: counts.veg, key: 'veg' },
     { icon: '\uD83C\uDF7D', label: 'Sin elegir', count: counts.none, key: 'none' }
   ].forEach(item => {
-    summary.appendChild(el('div', { class: 'meal-row' }, [
+    const row = el('div', { class: 'meal-row clickable', onclick: () => {
+      // Toggle: if already showing this filter, collapse
+      const list = $('#meal-guest-list');
+      const sel = $('#meal-filter');
+      if (sel && sel.value === item.key) {
+        sel.value = '';
+        renderMealGuestList('');
+      } else {
+        if (sel) sel.value = item.key;
+        renderMealGuestList(item.key);
+      }
+    }}, [
       el('span', { text: `${item.icon} ${item.label}` }),
       el('span', { class: 'meal-count', text: String(item.count) })
-    ]));
+    ]);
+    summary.appendChild(row);
   });
   md.appendChild(summary);
 

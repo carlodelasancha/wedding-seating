@@ -402,6 +402,8 @@ h1, h2, h3 { font-weight: 600; }
   border-bottom: 1px solid var(--border);
 }
 .meal-row:last-child { border-bottom: none; }
+.meal-row.clickable { cursor: pointer; border-radius: 4px; transition: background 0.15s; }
+.meal-row.clickable:hover { background: var(--cream-dark); }
 .meal-count { font-weight: 600; color: var(--burgundy); font-size: 15px; }
 .meal-table-row {
   display: flex;
