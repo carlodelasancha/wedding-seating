@@ -4,7 +4,9 @@
    ============================================ */
 
 const STORAGE_KEY = 'wedding-seating-state-v1';
-const DATA_VERSION = 5; // bump this number every time server data changes → forces refresh on all browsers
+const DATA_VERSION = 5;
+const MAX_UNDO = 50;
+const undoStack = [];
 
 const state = {
   tables: [],
@@ -103,6 +105,34 @@ function loadLocal() {
   catch(e) { return null; }
 }
 
+/* ── UNDO ─────────────────────────────────── */
+function snapshotState() {
+  return JSON.stringify({ tables: state.tables, guests: state.guests, groups: state.groups, rules: state.rules });
+}
+function pushUndo() {
+  const snap = snapshotState();
+  // Don't push if identical to last snapshot
+  if (undoStack.length && undoStack[undoStack.length - 1] === snap) return;
+  undoStack.push(snap);
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  updateUndoButton();
+}
+function undo() {
+  if (undoStack.length < 2) { toast('Nada que deshacer'); return; }
+  undoStack.pop(); // remove current state
+  const prev = JSON.parse(undoStack[undoStack.length - 1]);
+  state.tables = prev.tables;
+  state.guests = prev.guests;
+  state.groups = prev.groups;
+  state.rules = prev.rules;
+  render();
+  toast('Deshecho');
+}
+function updateUndoButton() {
+  const btn = $('#btn-undo');
+  if (btn) btn.disabled = undoStack.length < 2;
+}
+
 /* ── RENDER ────────────────────────────────── */
 function render() {
   renderUnassigned();
@@ -110,6 +140,7 @@ function render() {
   renderStats();
   renderRightPanel();
   saveLocal();
+  pushUndo();
 }
 
 function renderStats() {
@@ -1134,6 +1165,10 @@ function attachEvents() {
     });
     render();
   };
+  $('#btn-undo').onclick = undo;
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+  });
   $('#btn-add-group').onclick = () => {
     const name = prompt('Nombre del grupo (ej: "Primos Carlo", "UCSF compañeros"):');
     if (!name || !name.trim()) return;
