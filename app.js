@@ -222,6 +222,7 @@ function renderTables() {
     occupants.forEach((g, idx) => {
       const sideTag = el('span', { class: `side side-${g.side||'otro'}`, text: (g.side||'otro').slice(0,1).toUpperCase() });
       const nameSpan = el('span', { class: 'seat-name', text: g.name });
+      const mealBadge = g.meal ? el('span', { class: 'meal-badge', text: mealIcon(g.meal), title: mealLabel(g.meal) }) : null;
 
       const arrows = el('span', { class: 'seat-arrows' }, [
         el('button', {
@@ -250,7 +251,7 @@ function renderTables() {
         ondragover: handleSeatDragOver,
         ondragleave: handleSeatDragLeave,
         ondrop: handleSeatDrop
-      }, [sideTag, nameSpan, arrows]);
+      }, [sideTag, nameSpan, mealBadge, arrows]);
       seatsDiv.appendChild(seat);
     });
     for (let i = 0; i < emptySeats; i++) {
@@ -340,6 +341,7 @@ function renderTables() {
 function renderRightPanel() {
   renderGuestTab();
   renderTableTab();
+  renderMealTab();
   renderGroupsAndRules();
 }
 
@@ -467,6 +469,99 @@ function renderTableTab() {
     onchange: e => { const v = parseInt(e.target.value); if (v >= 1) { t.capacity = v; render(); } }
   }));
   td.appendChild(el('p', { class: 'hint', text: 'Cambiar si confirmas con Fernanda mesas de 8 vs 10.' }));
+}
+
+function renderMealTab() {
+  const md = $('#meal-detail');
+  clear(md);
+
+  // Count by meal type
+  const counts = { filet: 0, fish: 0, veg: 0, none: 0 };
+  state.guests.forEach(g => {
+    const m = (g.meal || '').toLowerCase();
+    if (m.includes('filet') || m.includes('mignon')) counts.filet++;
+    else if (m.includes('fish') || m.includes('pescado')) counts.fish++;
+    else if (m.includes('vegetar')) counts.veg++;
+    else counts.none++;
+  });
+
+  // Summary
+  md.appendChild(el('h3', { text: 'Resumen' }));
+  const summary = el('div', { class: 'meal-summary' });
+  [
+    { icon: '\uD83E\uDD69', label: 'Filet Mignon', count: counts.filet, key: 'filet' },
+    { icon: '\uD83D\uDC1F', label: 'Pescado', count: counts.fish, key: 'fish' },
+    { icon: '\uD83E\uDD6C', label: 'Vegetariano', count: counts.veg, key: 'veg' },
+    { icon: '\uD83C\uDF7D', label: 'Sin elegir', count: counts.none, key: 'none' }
+  ].forEach(item => {
+    summary.appendChild(el('div', { class: 'meal-row' }, [
+      el('span', { text: `${item.icon} ${item.label}` }),
+      el('span', { class: 'meal-count', text: String(item.count) })
+    ]));
+  });
+  md.appendChild(summary);
+
+  // Per-table breakdown
+  md.appendChild(el('h3', { style: { marginTop: '18px' }, text: 'Por mesa' }));
+  state.tables.forEach(t => {
+    const occ = state.guests.filter(g => g.tableId === t.id);
+    if (occ.length === 0) return;
+    const tc = { filet: 0, fish: 0, veg: 0, none: 0 };
+    occ.forEach(g => {
+      const m = (g.meal || '').toLowerCase();
+      if (m.includes('filet') || m.includes('mignon')) tc.filet++;
+      else if (m.includes('fish') || m.includes('pescado')) tc.fish++;
+      else if (m.includes('vegetar')) tc.veg++;
+      else tc.none++;
+    });
+    const parts = [];
+    if (tc.filet) parts.push(`\uD83E\uDD69${tc.filet}`);
+    if (tc.fish) parts.push(`\uD83D\uDC1F${tc.fish}`);
+    if (tc.veg) parts.push(`\uD83E\uDD6C${tc.veg}`);
+    if (tc.none) parts.push(`\uD83C\uDF7D${tc.none}`);
+    md.appendChild(el('div', { class: 'meal-table-row' }, [
+      el('span', { class: 'meal-table-name', text: t.name }),
+      el('span', { text: parts.join('  ') })
+    ]));
+  });
+
+  // Guest list filtered by meal
+  md.appendChild(el('h3', { style: { marginTop: '18px' }, text: 'Filtrar por comida' }));
+  const filterSel = el('select', {
+    id: 'meal-filter',
+    onchange: (e) => renderMealGuestList(e.target.value)
+  });
+  filterSel.appendChild(el('option', { value: '', text: 'Selecciona...' }));
+  filterSel.appendChild(el('option', { value: 'filet', text: '\uD83E\uDD69 Filet Mignon (' + counts.filet + ')' }));
+  filterSel.appendChild(el('option', { value: 'fish', text: '\uD83D\uDC1F Pescado (' + counts.fish + ')' }));
+  filterSel.appendChild(el('option', { value: 'veg', text: '\uD83E\uDD6C Vegetariano (' + counts.veg + ')' }));
+  if (counts.none) filterSel.appendChild(el('option', { value: 'none', text: '\uD83C\uDF7D Sin elegir (' + counts.none + ')' }));
+  md.appendChild(filterSel);
+  md.appendChild(el('div', { id: 'meal-guest-list' }));
+}
+
+function renderMealGuestList(filter) {
+  const container = $('#meal-guest-list');
+  clear(container);
+  if (!filter) return;
+  const filtered = state.guests.filter(g => {
+    const m = (g.meal || '').toLowerCase();
+    if (filter === 'filet') return m.includes('filet') || m.includes('mignon');
+    if (filter === 'fish') return m.includes('fish') || m.includes('pescado');
+    if (filter === 'veg') return m.includes('vegetar');
+    if (filter === 'none') return !m;
+    return false;
+  }).sort((a, b) => a.name.localeCompare(b.name));
+
+  const ul = el('ul', { class: 'meal-filtered-list' });
+  filtered.forEach(g => {
+    const table = state.tables.find(t => t.id === g.tableId);
+    ul.appendChild(el('li', {}, [
+      el('span', { text: g.name }),
+      el('span', { class: 'meal-table-tag', text: table ? table.name : 'Pendiente' })
+    ]));
+  });
+  container.appendChild(ul);
 }
 
 function renderGroupsAndRules() {

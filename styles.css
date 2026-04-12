@@ -377,6 +377,62 @@ h1, h2, h3 { font-weight: 600; }
 .table-grip:active { cursor: grabbing; }
 .table.table-dragging { opacity: 0.4; transform: scale(0.96); }
 .table.table-drag-over { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(201,168,107,0.3), var(--shadow); }
+
+/* ── MEAL BADGE (on seats) ─────────────────── */
+.meal-badge {
+  font-size: 11px;
+  margin-left: auto;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+/* ── MEAL TAB ──────────────────────────────── */
+.meal-summary {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+}
+.meal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 4px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.meal-row:last-child { border-bottom: none; }
+.meal-count { font-weight: 600; color: var(--burgundy); font-size: 15px; }
+.meal-table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.meal-table-name { font-weight: 600; color: var(--burgundy); font-size: 12px; }
+.meal-filtered-list {
+  list-style: none;
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.meal-filtered-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.meal-table-tag {
+  font-size: 10px;
+  background: var(--cream);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--muted);
+}
 .guest-list.drag-over { background: var(--cream-dark); }
 
 /* ── RIGHT PANEL ─────────────────────────────── */
