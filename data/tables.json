@@ -104,9 +104,9 @@
     {
       "id": "larga",
       "name": "Mesa 14",
-      "shape": "long",
-      "capacity": 16,
-      "kind": "larga"
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
     },
     {
       "id": "vmex",
@@ -142,6 +142,13 @@
       "shape": "rect",
       "capacity": 10,
       "kind": "rectangular"
+    },
+    {
+      "id": "v20",
+      "name": "Mesa 20",
+      "shape": "round",
+      "capacity": 10,
+      "kind": "redonda"
     }
   ],
   "totalCapacity": 148
