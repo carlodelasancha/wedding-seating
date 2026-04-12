@@ -272,17 +272,67 @@ function renderTables() {
       text: '\u2630',
       title: 'Arrastra para reordenar mesa',
       draggable: true,
-      ondragstart: handleTableDragStart,
-      ondragend: handleTableDragEnd
+      dataset: { tableId: t.id },
+      ondragstart: (e) => {
+        e.stopPropagation();
+        tableDragId = t.id;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', 'table:' + t.id);
+        // Mark the parent table as dragging after a tick
+        setTimeout(() => {
+          const tableEl = e.target.closest('.table');
+          if (tableEl) tableEl.classList.add('table-dragging');
+        }, 0);
+      },
+      ondragend: (e) => {
+        document.querySelectorAll('.table-dragging, .table-drag-over').forEach(x => {
+          x.classList.remove('table-dragging', 'table-drag-over');
+        });
+        tableDragId = null;
+      }
     });
 
     const div = el('div', {
       class: classes.join(' '),
       dataset: { tableId: t.id },
       onclick: () => selectTable(t.id),
-      ondragover: (e) => { handleDragOver(e); handleTableDragOverTable(e); },
-      ondragleave: (e) => { handleDragLeave(e); handleTableDragLeaveTable(e); },
-      ondrop: (e) => { if (tableDragId) { handleTableDropOnTable(e); } else { handleDrop(e); } }
+      ondragover: (e) => {
+        e.preventDefault();
+        if (tableDragId) {
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = 'move';
+          e.currentTarget.classList.add('table-drag-over');
+        } else {
+          handleDragOver(e);
+        }
+      },
+      ondragleave: (e) => {
+        if (tableDragId) {
+          if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('table-drag-over');
+        } else {
+          handleDragLeave(e);
+        }
+      },
+      ondrop: (e) => {
+        if (tableDragId) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.currentTarget.classList.remove('table-drag-over');
+          const targetId = e.currentTarget.dataset.tableId;
+          if (!targetId || targetId === tableDragId) return;
+          const fromIdx = state.tables.findIndex(x => x.id === tableDragId);
+          const toIdx = state.tables.findIndex(x => x.id === targetId);
+          if (fromIdx < 0 || toIdx < 0) return;
+          const [moved] = state.tables.splice(fromIdx, 1);
+          state.tables.splice(toIdx, 0, moved);
+          renumberTables();
+          tableDragId = null;
+          render();
+          toast(`${moved.name} movida`);
+        } else {
+          handleDrop(e);
+        }
+      }
     }, [grip, header, seatsDiv]);
     wrap.appendChild(div);
   });
@@ -587,30 +637,41 @@ function handleSeatDrop(e) {
   if (targetGuestId && targetGuestId === dragPayload.guestId) return;
 
   // Find partners (must-sit-with) of the dragged guest
-  const partners = getPartners(draggedGuest.id);
+  const dragPartners = getPartners(draggedGuest.id);
 
   if (targetGuestId) {
     const targetGuest = state.guests.find(x => x.id === targetGuestId);
     if (!targetGuest) return;
+    // Partners of target must move with them too
+    const targetPartners = getPartners(targetGuest.id);
     const sourceTableId = draggedGuest.tableId;
-    targetGuest.tableId = sourceTableId;
+
+    // Check capacity: target table needs room for dragged + their partners
+    // Source table (or null) needs room for target + their partners
+    const destTable = state.tables.find(x => x.id === tableId);
+    const srcTable = sourceTableId ? state.tables.find(x => x.id === sourceTableId) : null;
+
+    // Move dragged group to target table
     draggedGuest.tableId = tableId;
-    // Move partners too
-    partners.forEach(p => { p.tableId = tableId; });
+    dragPartners.forEach(p => { p.tableId = tableId; });
+    // Move target group to source table (or null = pending)
+    targetGuest.tableId = sourceTableId;
+    targetPartners.forEach(p => { p.tableId = sourceTableId; });
+
     toast(sourceTableId
-      ? `Swap: ${targetGuest.name} ↔ ${draggedGuest.name}${partners.length ? ' + pareja' : ''}`
-      : `${targetGuest.name} desplazado a pendientes`);
+      ? `Swap: ${targetGuest.name}${targetPartners.length ? ' + pareja' : ''} ↔ ${draggedGuest.name}${dragPartners.length ? ' + pareja' : ''}`
+      : `${targetGuest.name}${targetPartners.length ? ' + pareja' : ''} → pendientes`);
   } else {
     const t = state.tables.find(x => x.id === tableId);
     const occupants = state.guests.filter(x => x.tableId === tableId).length;
-    const needed = 1 + partners.filter(p => p.tableId !== tableId).length;
+    const needed = 1 + dragPartners.filter(p => p.tableId !== tableId).length;
     if (draggedGuest.tableId !== tableId && occupants + needed > t.capacity) {
       toast(`${t.name}: no caben ${needed} personas (pareja incluida)`);
       return;
     }
     draggedGuest.tableId = tableId;
-    partners.forEach(p => { p.tableId = tableId; });
-    if (partners.length) toast(`${draggedGuest.name} + ${partners.map(p=>p.name).join(', ')}`);
+    dragPartners.forEach(p => { p.tableId = tableId; });
+    if (dragPartners.length) toast(`${draggedGuest.name} + ${dragPartners.map(p=>p.name).join(', ')}`);
   }
   render();
 }
@@ -632,52 +693,6 @@ function moveGuestInTable(tableId, guestId, direction) {
 
 /* ── TABLE DRAG & DROP (reorder tables) ──── */
 let tableDragId = null;
-function handleTableDragStart(e) {
-  const tableId = e.currentTarget.dataset.tableId;
-  if (!tableId) return;
-  tableDragId = tableId;
-  e.currentTarget.classList.add('table-dragging');
-  e.dataTransfer.effectAllowed = 'move';
-  // Set minimal data so browser allows drag
-  e.dataTransfer.setData('text/plain', tableId);
-  e.stopPropagation();
-}
-function handleTableDragEnd(e) {
-  e.currentTarget.classList.remove('table-dragging');
-  document.querySelectorAll('.table-drag-over').forEach(x => x.classList.remove('table-drag-over'));
-  tableDragId = null;
-}
-function handleTableDragOverTable(e) {
-  if (!tableDragId) return;
-  e.preventDefault();
-  e.stopPropagation();
-  e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('table-drag-over');
-}
-function handleTableDragLeaveTable(e) {
-  if (!tableDragId) return;
-  e.stopPropagation();
-  if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('table-drag-over');
-}
-function handleTableDropOnTable(e) {
-  if (!tableDragId) return;
-  e.preventDefault();
-  e.stopPropagation();
-  e.currentTarget.classList.remove('table-drag-over');
-  const targetId = e.currentTarget.dataset.tableId;
-  if (!targetId || targetId === tableDragId) return;
-  const fromIdx = state.tables.findIndex(t => t.id === tableDragId);
-  const toIdx = state.tables.findIndex(t => t.id === targetId);
-  if (fromIdx < 0 || toIdx < 0) return;
-  // Move table from fromIdx to toIdx
-  const [moved] = state.tables.splice(fromIdx, 1);
-  state.tables.splice(toIdx, 0, moved);
-  // Renumber tables (skip novios)
-  renumberTables();
-  tableDragId = null;
-  render();
-  toast(`${moved.name} movida`);
-}
 
 function renumberTables() {
   let num = 1;
@@ -977,7 +992,7 @@ function attachEvents() {
   $('#file-input').onchange = e => { if (e.target.files[0]) importFile(e.target.files[0]); };
   $('#btn-export-json').onclick = exportJSON;
   $('#btn-export-print').onclick = () => window.print();
-  $('#btn-autoseat').onclick = autoSeat;
+  // Auto-seat removed from UI to avoid accidental clicks
   $('#btn-reset').onclick = async () => {
     if (confirm('¿Restaurar todo al estado original? Se perderán tus cambios manuales.')) {
       localStorage.removeItem(STORAGE_KEY);
