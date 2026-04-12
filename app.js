@@ -8,6 +8,22 @@ const DATA_VERSION = 5;
 const MAX_UNDO = 50;
 const undoStack = [];
 
+/* ── FIREBASE CONFIG ─────────────────────── */
+const firebaseConfig = {
+  apiKey: "AIzaSyC0h1hxkQ0puWZKIHxtMaliFgxVUDvE5zA",
+  authDomain: "wedding-seating-868f4.firebaseapp.com",
+  databaseURL: "https://wedding-seating-868f4-default-rtdb.firebaseio.com",
+  projectId: "wedding-seating-868f4",
+  storageBucket: "wedding-seating-868f4.firebasestorage.app",
+  messagingSenderId: "874972147654",
+  appId: "1:874972147654:web:768ab680585e99b99e4cc7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const dbRef = db.ref('seating');
+let firebaseReady = false;
+let suppressFirebaseWrite = false;
+
 const state = {
   tables: [],
   guests: [],       // {id, name, side, groups:[], tableId:null}
@@ -48,18 +64,50 @@ function $(sel) { return document.querySelector(sel); }
 
 /* ── BOOT ──────────────────────────────────── */
 async function boot() {
-  const persisted = loadLocal();
-
-  if (persisted && persisted.guests && persisted.guests.length > 10) {
-    // Always restore user's saved state — NEVER reset without explicit action
-    Object.assign(state, persisted);
-    // One-time migrations (safe to leave — they no-op if already applied)
-    state.rules = state.rules.filter(r => r.id !== 'rule_ahmad_mohamed');
-  } else {
-    // First visit only — load from server preset
-    await loadPreset('merged');
-    toast('Datos cargados por primera vez');
+  // Try Firebase first (cloud = source of truth)
+  try {
+    const snap = await dbRef.once('value');
+    const fbData = snap.val();
+    if (fbData && fbData.guests && fbData.guests.length > 10) {
+      state.tables = fbData.tables || [];
+      state.guests = (fbData.guests || []).map(g => ({ ...g, tableId: g.tableId || null, groups: g.groups || [] }));
+      state.groups = fbData.groups || [];
+      state.rules = (fbData.rules || []).filter(r => r.id !== 'rule_ahmad_mohamed');
+      firebaseReady = true;
+      toast('Sincronizado con la nube');
+    } else {
+      throw new Error('Firebase empty');
+    }
+  } catch (e) {
+    console.warn('Firebase load failed, using local/preset:', e.message);
+    const persisted = loadLocal();
+    if (persisted && persisted.guests && persisted.guests.length > 10) {
+      Object.assign(state, persisted);
+      state.rules = state.rules.filter(r => r.id !== 'rule_ahmad_mohamed');
+    } else {
+      await loadPreset('merged');
+    }
+    firebaseReady = true;
   }
+
+  // Listen for real-time changes from other devices
+  dbRef.on('value', (snap) => {
+    const fbData = snap.val();
+    if (!fbData || !fbData.guests || suppressFirebaseWrite) return;
+    // Only update if data is different (avoid infinite loops)
+    const incoming = JSON.stringify({ guests: fbData.guests, tables: fbData.tables, groups: fbData.groups, rules: fbData.rules });
+    const current = JSON.stringify({ guests: state.guests, tables: state.tables, groups: state.groups, rules: state.rules });
+    if (incoming === current) return;
+    suppressFirebaseWrite = true;
+    state.tables = fbData.tables || [];
+    state.guests = (fbData.guests || []).map(g => ({ ...g, tableId: g.tableId || null, groups: g.groups || [] }));
+    state.groups = fbData.groups || [];
+    state.rules = fbData.rules || [];
+    render();
+    toast('Actualizado desde otro dispositivo');
+    suppressFirebaseWrite = false;
+  });
+
   attachEvents();
   render();
 }
@@ -93,10 +141,18 @@ async function loadPreset(which) {
 /* ── PERSISTENCE ───────────────────────────── */
 function saveLocal() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      tables: state.tables, guests: state.guests, groups: state.groups, rules: state.rules,
-      _dataVersion: DATA_VERSION
-    }));
+    const data = { tables: state.tables, guests: state.guests, groups: state.groups, rules: state.rules, _dataVersion: DATA_VERSION };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // Save to Firebase (debounced)
+    if (firebaseReady && !suppressFirebaseWrite) {
+      clearTimeout(saveLocal._fbTimer);
+      saveLocal._fbTimer = setTimeout(() => {
+        suppressFirebaseWrite = true;
+        dbRef.set({ tables: state.tables, guests: state.guests, groups: state.groups, rules: state.rules })
+          .then(() => { suppressFirebaseWrite = false; })
+          .catch(e => { console.warn('Firebase save error:', e); suppressFirebaseWrite = false; });
+      }, 1000); // debounce 1 second
+    }
     // Flash "guardado" badge
     const badge = document.getElementById('autosave-badge');
     if (badge) { badge.style.opacity = '1'; clearTimeout(saveLocal._t); saveLocal._t = setTimeout(() => badge.style.opacity = '0', 1500); }
