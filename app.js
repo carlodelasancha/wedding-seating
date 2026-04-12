@@ -47,15 +47,14 @@ function $(sel) { return document.querySelector(sel); }
 /* ── BOOT ──────────────────────────────────── */
 async function boot() {
   const persisted = loadLocal();
-  const savedVersion = persisted ? persisted._dataVersion : 0;
 
-  if (persisted && persisted.guests && persisted.guests.length > 10 && savedVersion === DATA_VERSION) {
-    // Same version → use local changes (user's drag-drop edits preserved)
+  if (persisted && persisted.guests && persisted.guests.length > 10) {
+    // Always restore user's saved state — NEVER reset without explicit action
     Object.assign(state, persisted);
   } else {
-    // New version or first visit → load fresh from server
+    // First visit only — load from server preset
     await loadPreset('merged');
-    toast('Datos actualizados');
+    toast('Datos cargados por primera vez');
   }
   attachEvents();
   render();
@@ -978,6 +977,22 @@ function getPartners(guestId) {
 /* ── UTILITIES ─────────────────────────────── */
 function slug(s) { return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
 function labelSide(s) { return {carlo:'Lado Carlo',laura:'Lado Laura',ambos:'Ambos',otro:'Otro'}[s||'otro']; }
+function mealIcon(meal) {
+  if (!meal) return '';
+  const m = meal.toLowerCase();
+  if (m.includes('filet') || m.includes('mignon')) return '\uD83E\uDD69';
+  if (m.includes('fish') || m.includes('pescado')) return '\uD83D\uDC1F';
+  if (m.includes('vegetar')) return '\uD83E\uDD6C';
+  return '\uD83C\uDF7D';
+}
+function mealLabel(meal) {
+  if (!meal) return 'Sin elegir';
+  const m = meal.toLowerCase();
+  if (m.includes('filet') || m.includes('mignon')) return 'Filet Mignon';
+  if (m.includes('fish') || m.includes('pescado')) return 'Pescado';
+  if (m.includes('vegetar')) return 'Vegetariano';
+  return meal;
+}
 function toast(msg) {
   const t = $('#toast');
   t.textContent = msg;
