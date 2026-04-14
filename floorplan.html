@@ -225,6 +225,28 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 .party-mode .seat.occupied { opacity: 0.15; }
 .party-mode .seat-name { display: none; }
 
+/* Speech bubble */
+.speech-bubble {
+  position: absolute; z-index: 100; pointer-events: none;
+  background: #fff; color: #3a1c12; font-size: 9px; padding: 5px 8px;
+  border-radius: 10px; max-width: 120px; text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-weight: 500;
+  animation: bubble-pop 4s ease-out forwards;
+  transform: translateX(-50%);
+}
+.speech-bubble::after {
+  content: ''; position: absolute; bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-top: 6px solid #fff;
+}
+@keyframes bubble-pop {
+  0% { opacity: 0; transform: translateX(-50%) translateY(5px) scale(0.8); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
 #btn-party {
   background: #e8508a !important; border-color: #fff !important; color: #fff !important;
 }
@@ -1404,6 +1426,11 @@ function startParty() {
     setTimeout(function() { moveOneWalker(w); }, 500 + idx * 30);
   });
 
+  // Speech bubbles
+  var chatTimer = setInterval(showRandomBubble, 6000);
+  walkerTimers.push(chatTimer);
+  setTimeout(showRandomBubble, 2000);
+
   // Novios: alternate between together and apart every ~10s
   var noviosTogether = true;
   var noviosTimer = setInterval(function() {
@@ -1488,6 +1515,68 @@ function findDetourPoint(x1, y1, x2, y2, obstacle) {
     x: mx + Math.cos(perpAng) * r,
     y: my + Math.sin(perpAng) * r
   };
+}
+
+// ============================================================
+// SPEECH BUBBLES
+// ============================================================
+var partyPhrases = [
+  'What a beautiful wedding!',
+  'How do you know Carlo?',
+  'How do you know Laura?',
+  'The venue is gorgeous!',
+  'I love this music!',
+  'Have you tried the tacos?',
+  'What did you order to eat?',
+  "Can't wait for the meal!",
+  'This band is amazing!',
+  'Cheers!',
+  'To the bride and groom!',
+  'Such a lovely couple!',
+  'Best wedding ever!',
+  "Laura's dress is stunning!",
+  'Carlo looks so happy!',
+  'Love the decorations!',
+  'Let me get another drink',
+  "Let's hit the dance floor!",
+  'Great photo booth!',
+  "Where's the bar?",
+  'Salud!',
+  'Viva los novios!',
+  'What a party!',
+  'The flowers are beautiful',
+  'I need more tacos',
+  'This mezcal is smooth',
+  'Did you see the sunset?',
+  'Ensenada is beautiful!',
+  'Casa de los 7 Patios.. wow',
+  'Save me a seat!',
+];
+
+function showRandomBubble() {
+  if (!partyMode || walkerElements.length === 0) return;
+
+  // Pick random walker
+  var idx = Math.floor(Math.random() * walkerElements.length);
+  var walker = walkerElements[idx];
+  if (!walker || !walker.parentNode) return;
+
+  // Don't stack bubbles
+  if (walker.querySelector('.speech-bubble')) return;
+
+  var phrase = partyPhrases[Math.floor(Math.random() * partyPhrases.length)];
+  var bubble = document.createElement('div');
+  bubble.className = 'speech-bubble';
+  bubble.textContent = phrase;
+  bubble.style.left = '50%';
+  bubble.style.bottom = '100%';
+  bubble.style.marginBottom = '4px';
+  walker.appendChild(bubble);
+
+  // Remove after animation
+  setTimeout(function() {
+    if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+  }, 4200);
 }
 
 // Keep Carlo and Laura together
