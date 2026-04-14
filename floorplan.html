@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laura & Carlo - Floor Plan</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+:root {
+  --red: #c41e3a; --orange: #e88a20; --gold: #f5c842; --pink: #e8508a;
+  --blue: #3a8abd; --cream: #faf3e8; --brown: #3a1c12; --tile: #f0e4d0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; }
+
+#canvas-wrap {
+  width: 100vw; height: 100vh; overflow: hidden; position: relative; cursor: grab;
+}
+#canvas-wrap.dragging-table { cursor: grabbing; }
+#canvas-wrap.dragging-person { cursor: grabbing; }
+
+#world {
+  position: absolute; width: 2400px; height: 1800px;
+  background: var(--cream);
+  background-image:
+    linear-gradient(var(--tile) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tile) 1px, transparent 1px);
+  background-size: 80px 80px;
+  transform-origin: 0 0;
+}
+
+/* Dance floor */
+#dance-floor {
+  position: absolute; left: 1030px; top: 730px; width: 340px; height: 340px;
+  background: #f5e6c8; border: 3px solid #d4a030; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font: bold 22px Georgia, serif; color: #c4883a; opacity: 0.6;
+  text-align: center; line-height: 1.3; pointer-events: none;
+}
+
+/* Border decoration */
+#world::before {
+  content: ''; position: absolute; inset: 30px;
+  border: 4px solid rgba(196,30,58,0.3); pointer-events: none;
+}
+
+/* Tables */
+.table-group {
+  position: absolute; cursor: grab;
+}
+.table-group.dragging { cursor: grabbing; z-index: 100; opacity: 0.9; }
+.table-group.drop-target .table-shape { transform: scale(1.08); filter: brightness(1.2); }
+
+.table-shape {
+  border: 2.5px solid rgba(255,255,255,0.4);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; font-weight: bold; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.15s, filter 0.15s;
+  z-index: 5;
+}
+.table-shape:hover { filter: brightness(1.05); }
+.move-mode .table-group { cursor: crosshair; }
+.move-mode .table-group .table-shape { animation: pulse-glow 1.5s infinite; }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 4px 4px 12px rgba(0,0,0,0.15); }
+  50% { box-shadow: 0 0 20px rgba(245,200,66,0.5); }
+}
+#move-banner {
+  position: fixed; top: 50px; left: 50%; transform: translateX(-50%); z-index: 60;
+  background: rgba(232,168,50,0.95); color: var(--brown); padding: 10px 20px;
+  border-radius: 10px; font-size: 14px; font-weight: 600; display: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2); text-align: center;
+}
+#move-banner button {
+  background: var(--brown); color: var(--gold); border: none; padding: 4px 12px;
+  border-radius: 4px; cursor: pointer; margin-left: 10px; font-size: 12px;
+}
+.table-shape.round {
+  width: 104px; height: 104px; border-radius: 50%;
+  background: var(--red);
+}
+.table-shape.rect {
+  width: 130px; height: 64px; border-radius: 10px;
+  background: var(--orange);
+}
+.table-shape.novios {
+  width: 130px; height: 64px; border-radius: 10px;
+  background: var(--red); border-color: var(--gold); border-width: 3px;
+}
+.table-count { font-size: 10px; font-weight: normal; opacity: 0.85; margin-top: 2px; }
+
+/* Seats around tables */
+.seat {
+  position: absolute; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; transition: transform 0.1s;
+  z-index: 10;
+}
+.seat.occupied { cursor: grab; z-index: 15; }
+.seat.occupied:hover { transform: scale(1.3); z-index: 20; }
+.seat.occupied.being-moved { opacity: 0.3; transform: scale(0.7); }
+.seat.empty {
+  border: 2px dashed #c4b498; opacity: 0.4;
+}
+.person-move-active .seat.empty {
+  opacity: 1; border: 2.5px solid var(--gold);
+  background: rgba(245,200,66,0.25);
+  width: 38px; height: 38px; margin: -4px;
+}
+.seat.nearest-target {
+  outline: 3px solid var(--gold); transform: scale(1.5) !important;
+  background: rgba(245,200,66,0.5) !important; border-radius: 50%;
+  opacity: 1 !important; z-index: 25;
+}
+#person-drag-clone {
+  position: fixed; z-index: 300; pointer-events: none; display: none;
+  transform: scale(1.5);
+}
+
+/* Venue stations */
+.venue-station {
+  position: absolute; border-radius: 10px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  cursor: grab; box-shadow: 3px 3px 10px rgba(0,0,0,0.12); z-index: 6;
+}
+.venue-station:hover { filter: brightness(1.1); }
+.venue-station.dragging { cursor: grabbing; opacity: 0.8; }
+#bar-station {
+  left: 1800px; top: 180px; width: 260px; height: 120px;
+  background: linear-gradient(135deg, #2d1b4e, #5b2d8e); font-size: 18px;
+  border: 3px solid #c9a0ff; border-radius: 14px;
+  box-shadow: 0 0 20px rgba(91,45,142,0.3);
+}
+#tacos-station {
+  left: 120px; top: 1300px; width: 240px; height: 110px;
+  background: linear-gradient(135deg, #b85c00, #e8a020); font-size: 17px;
+  border: 3px solid #ffe082; border-radius: 14px;
+  box-shadow: 0 0 20px rgba(232,160,32,0.3);
+}
+#photobooth-station {
+  left: 1850px; top: 1250px; width: 230px; height: 110px;
+  background: linear-gradient(135deg, #1a6b5a, #2ea88a); font-size: 17px;
+  border: 3px solid #80ffd4; border-radius: 14px;
+  box-shadow: 0 0 20px rgba(46,168,138,0.3);
+}
+.station-emoji { font-size: 36px; margin-bottom: 4px; }
+
+/* Walking person */
+.walking-person {
+  position: absolute; z-index: 50; pointer-events: none;
+  transition: left 2.5s ease-in-out, top 2.5s ease-in-out;
+}
+.walking-person .wp-head {
+  width: 20px; height: 20px; border-radius: 50%; background: #f5d5a8;
+  border: 2px solid rgba(58,32,16,0.25); margin: 0 auto;
+}
+.walking-person .wp-body {
+  width: 22px; height: 22px; border-radius: 5px; margin: -2px auto 0;
+}
+.walking-person.male .wp-body { background: #3a8abd; }
+.walking-person.female .wp-body { background: #e8508a; }
+.walking-person.unknown .wp-body { background: #e88a20; }
+
+/* Novios special styling */
+.walking-person.bride .wp-body {
+  background: #fff; border: 1px solid #e0d0b8;
+  border-radius: 3px 3px 8px 8px; height: 28px; width: 24px; margin-left: -1px;
+}
+.walking-person.bride .wp-head { border: 2px solid #e0d0b8; }
+.walking-person.bride .wp-legs .wp-leg { background: #fff; }
+.walking-person.bride .wp-veil {
+  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  width: 28px; height: 12px; background: rgba(255,255,255,0.7);
+  border-radius: 50% 50% 0 0; border: 1px solid #e0d0b8;
+}
+.walking-person.groom .wp-body {
+  background: #6b1f2a; border-radius: 3px;
+}
+.walking-person.groom .wp-head { border: 2px solid #5a1a22; }
+.walking-person.groom .wp-legs .wp-leg { background: #3a1c12; }
+.walking-person.groom .wp-tie {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 8px; background: #c41e3a;
+}
+
+/* Novios in seats too */
+.seat .person.bride .body {
+  background: #fff !important; border: 1px solid #e0d0b8;
+  border-radius: 2px 2px 6px 6px; height: 16px !important;
+}
+.seat .person.groom .body {
+  background: #6b1f2a !important;
+}
+.walking-person .wp-name {
+  font-size: 8px; color: #3a1c12; text-align: center; white-space: nowrap;
+  margin-top: 1px; background: rgba(250,243,232,0.9); padding: 1px 4px;
+  border-radius: 3px; font-weight: 600;
+}
+.walking-person .wp-legs {
+  display: flex; justify-content: center; gap: 4px; margin-top: -1px;
+}
+.walking-person .wp-leg {
+  width: 6px; height: 10px; background: #5a3020; border-radius: 0 0 3px 3px;
+}
+.walking-person.walking .wp-leg:first-child { animation: legL 0.5s infinite; }
+.walking-person.walking .wp-leg:last-child { animation: legR 0.5s infinite; }
+@keyframes legL { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+@keyframes legR { 0%,100% { transform: rotate(10deg); } 50% { transform: rotate(-10deg); } }
+
+/* Staff at stations */
+.station-staff {
+  position: absolute; z-index: 8; pointer-events: none; text-align: center;
+}
+.station-staff .staff-label {
+  font-size: 7px; color: #fff; background: rgba(0,0,0,0.4);
+  padding: 1px 4px; border-radius: 3px; margin-top: 2px;
+}
+.station-staff .wp-body { background: #3a1c12; }
+
+/* Party mode */
+.party-mode .seat.occupied { opacity: 0.15; }
+.party-mode .seat-name { display: none; }
+
+#btn-party {
+  background: #e8508a !important; border-color: #fff !important; color: #fff !important;
+}
+#btn-party.active {
+  background: #4a8c3f !important;
+}
+
+/* Music player - Spotify embed */
+#music-player {
+  position: fixed; bottom: 12px; right: 12px; z-index: 50;
+  background: rgba(139,35,35,0.92); border: 2px solid var(--gold);
+  border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px;
+}
+#music-player .music-header {
+  display: flex; align-items: center; gap: 8px; color: var(--cream); font-size: 12px; cursor: pointer;
+}
+#music-player .music-header button {
+  background: none; border: none; color: var(--gold); font-size: 16px; cursor: pointer;
+}
+#spotify-embed { display: none; border-radius: 8px; }
+.seat.dragging-person {
+  z-index: 200; cursor: grabbing; transform: scale(1.3);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+/* Person sprite (CSS) */
+.person { pointer-events: none; position: relative; }
+.person .body {
+  width: 14px; height: 14px; border-radius: 3px; margin: 0 auto;
+}
+.person .head {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #f5d5a8; border: 1px solid rgba(58,32,16,0.2);
+  margin: -2px auto 0; position: relative;
+}
+.person.male .body { background: var(--blue); }
+.person.female .body { background: var(--pink); }
+.person.unknown .body { background: var(--orange); }
+.person .hair {
+  position: absolute; top: -3px; left: 0; right: 0; height: 5px;
+  background: #3a2010; border-radius: 5px 5px 0 0;
+}
+.person.female .hair { border-radius: 50%; top: -4px; height: 6px; }
+
+/* Name labels */
+.seat-name {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  font-size: 7px; color: #5a3020; white-space: nowrap; margin-top: 2px;
+  background: rgba(250,243,232,0.85); padding: 1px 3px; border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Toolbar */
+#toolbar {
+  position: fixed; top: 12px; left: 12px; z-index: 50;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+#toolbar button {
+  background: rgba(139,35,35,0.92); border: 2px solid var(--gold); color: var(--gold);
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px;
+  font-weight: 600; transition: all 0.2s;
+}
+#toolbar button:hover, #toolbar button.active { background: var(--gold); color: var(--brown); }
+
+/* Title */
+#title-bar {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 50;
+  text-align: center; pointer-events: none;
+}
+#title-bar h1 { font-size: 22px; font-weight: 700; letter-spacing: 3px; color: #8b2323; text-transform: uppercase; }
+#title-bar small { color: #c45a20; font-size: 11px; }
+
+/* Stats */
+#stats {
+  position: fixed; bottom: 12px; left: 12px; z-index: 50;
+  background: rgba(139,35,35,0.92); border: 2px solid var(--gold); color: var(--cream);
+  padding: 10px 16px; border-radius: 10px; font-size: 12px;
+}
+
+/* Ghost */
+#drag-ghost {
+  position: fixed; z-index: 200; pointer-events: none; display: none;
+  background: rgba(232,168,50,0.95); color: var(--brown); padding: 6px 12px;
+  border-radius: 8px; font-size: 12px; font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Sidebar */
+#sidebar {
+  position: fixed; right: 0; top: 0; width: 320px; height: 100vh;
+  background: rgba(58,28,18,0.96); border-left: 3px solid var(--gold);
+  color: var(--cream); padding: 16px; overflow-y: auto; z-index: 60;
+  transform: translateX(100%); transition: transform 0.3s;
+}
+#sidebar.open { transform: translateX(0); }
+#sidebar h2 { color: var(--gold); font-size: 18px; margin-bottom: 8px; }
+#sidebar .close-btn {
+  position: absolute; top: 8px; right: 8px; background: none; border: none;
+  color: var(--gold); font-size: 22px; cursor: pointer;
+}
+.guest-item {
+  padding: 8px 10px; margin: 2px 0; border-radius: 6px; font-size: 13px;
+  display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06);
+  cursor: grab; transition: background 0.15s, transform 0.15s, opacity 0.15s;
+  touch-action: none;
+}
+.guest-item:hover { background: rgba(255,255,255,0.15); }
+.guest-item.dragging-item {
+  opacity: 0.4; transform: scale(0.95);
+}
+.guest-item.drag-over {
+  border-top: 3px solid var(--gold); margin-top: -1px;
+}
+.seat-num {
+  width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: var(--gold); flex-shrink: 0; font-weight: bold;
+}
+.grip-icon {
+  color: rgba(255,255,255,0.3); font-size: 14px; flex-shrink: 0; cursor: grab;
+  margin-right: 2px;
+}
+.guest-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.guest-side {
+  margin-left: auto; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  font-weight: bold; background: rgba(255,255,255,0.1);
+}
+</style>
+</head>
+<body>
+
+<div id="canvas-wrap">
+  <div id="world">
+    <div id="dance-floor">PISTA<br>DE BAILE</div>
+    <div class="venue-station" id="bar-station"><span class="station-emoji">&#127867;</span>BARRA</div>
+    <div class="venue-station" id="tacos-station"><span class="station-emoji">&#127790;</span>TACOS</div>
+    <div class="venue-station" id="photobooth-station"><span class="station-emoji">&#128248;</span>PHOTO BOOTH</div>
+  </div>
+</div>
+
+<div id="title-bar">
+  <h1>Laura &amp; Carlo</h1>
+  <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
+</div>
+
+<div id="toolbar">
+  <button id="btn-fit">Zoom Fit (F)</button>
+  <button id="btn-names" class="active">Nombres (N)</button>
+  <button id="btn-party">Fiesta!</button>
+  <button id="btn-grid">Grid (G)</button>
+  <button id="btn-save">Guardar</button>
+  <button id="btn-reset">Reset</button>
+</div>
+
+<div id="stats"></div>
+<div id="drag-ghost"></div>
+<div id="person-drag-clone"></div>
+<div id="move-banner"></div>
+
+<div id="music-player">
+  <div class="music-header" id="music-toggle">
+    <button>&#9835;</button>
+    <span>Boleros</span>
+  </div>
+  <iframe id="spotify-embed" style="border-radius:12px"
+    src="https://open.spotify.com/embed/playlist/7skhVBoiTy8Po9UdfkJ4Gy?utm_source=generator&theme=0"
+    width="280" height="152" frameBorder="0" allowfullscreen=""
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+</div>
+
+<div id="sidebar">
+  <button class="close-btn" id="btn-close-sidebar">&times;</button>
+  <h2 id="sidebar-title"></h2>
+  <div id="sidebar-info"></div>
+  <div id="sidebar-guests"></div>
+</div>
+
+<script>
+// ============================================================
+// FIREBASE - same DB as main seating app
+// ============================================================
+firebase.initializeApp({
+  apiKey: "AIzaSyC0h1hxkQ0puWZKIHxtMaliFgxVUDvE5zA",
+  authDomain: "wedding-seating-868f4.firebaseapp.com",
+  databaseURL: "https://wedding-seating-868f4-default-rtdb.firebaseio.com",
+  projectId: "wedding-seating-868f4",
+});
+var db = firebase.database();
+var dbRef = db.ref('seating');
+
+// ============================================================
+// STATE
+// ============================================================
+var tables = [], guests = [], groups = [];
+var showNames = true, showGridLines = true;
+var savedPositions = {};
+var zoom = 1, panX = 0, panY = 0;
+var WORLD_W = 2400, WORLD_H = 1800;
+
+// Gender inference
+var FEM = new Set(['laura','maria','gabriela','patricia','ana','rosa','sandra','karla','sofia','leah','beatrice','bea','elizabeth','liz','alexis','lexi','nikki','jasmine','jenny','gesenia','terray','karina','sabreen','olta','anabel','stephanie','dennisse','radhika','adriana','america','antje','cleydi','fernanda','paulina','alejandra','meron','sarah','rachel','emily','jessica','ashley','amanda','nicole','katherine','kathryn','catherine','abigail','victoria','grace','natalie','emma','olivia','ava','mia','isabella','julia','valeria','daniela','andrea','mariana','camila','luciana','valentina','elena','carolina','paula','diana','lorena','monica','veronica','silvia','claudia','martha','carmen','alicia','teresa','irma','leticia','norma','yolanda','guadalupe','josefina','bertha','cristina','maribel','brenda','fabiola','cecilia','perla','rebeca','miriam','yulia','damaris','melissa','jacqueline','wendy','ivonne','esmeralda','marisol','dulce','nayeli','itzel','ximena','renata','jimena','paola','liliana','mayra','rocio','dara','suzanne','margaret','helen','susan','linda','barbara','dorothy','lisa','nancy','betty','carol','donna','sharon','cynthia','kelsey','madison','taylor','morgan','casey','robin','devin','amy','ellie','callie','cheryl','maddie','rose','paddy','zoe','meg','paty','lupita','arminda','elvira','edna','lilia','juana','cynthia','reyna','roxana','carolina','brianda','cassandra','giovanna','blanca','larissa','lizbeth','paola','irma','karen','claudia','marisol','brisa','daniela','valeria','cleydi','anabel','karina','stephanie','dennisse','adriana','luz','josue','edith']);
+var MAL = new Set(['carlo','carlos','pedro','oscar','alberto','manuel','salvador','marco','fernando','javier','francisco','jesus','wily','dan','daniel','kenneth','edwin','ahmad','mohamed','bertim','matthias','bruno','alejandro','diego','miguel','jorge','luis','jose','antonio','rafael','sergio','ricardo','roberto','hugo','arturo','gabriel','enrique','guillermo','alfonso','hector','ramon','mario','pablo','victor','julio','ignacio','ernesto','federico','gonzalo','tomas','benjamin','sebastian','mateo','santiago','emilio','adrian','nicolas','leonardo','martin','david','john','james','robert','michael','william','richard','joseph','thomas','charles','christopher','matthew','anthony','mark','steven','paul','andrew','joshua','kevin','brian','edward','timothy','jason','jeffrey','ryan','jacob','gary','nicholas','eric','jonathan','stephen','scott','frank','matt','charlie','barnaby','nestor','alan','cesar','rodrigo','bhoomi','esteban','melchor','rafael','josue','efrain','juan','edgar','miguel']);
+
+function gender(name) {
+  var f = name.split(' ')[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if (FEM.has(f)) return 'F'; if (MAL.has(f)) return 'M';
+  if (f.endsWith('a') && f.length > 2) return 'F';
+  if (f.endsWith('o') && f.length > 2) return 'M';
+  return 'U';
+}
+
+// ============================================================
+// LOAD FROM FIREBASE
+// ============================================================
+dbRef.on('value', function(snap) {
+  var data = snap.val();
+  if (!data) return;
+  tables = data.tables || [];
+  guests = (data.guests || []).map(function(g) {
+    g.gender = gender(g.name); return g;
+  });
+  groups = data.groups || [];
+
+  try { savedPositions = JSON.parse(localStorage.getItem('fp2-pos') || '{}'); } catch(e) { savedPositions = {}; }
+  loadSeatMap();
+  renderAll();
+  updateStats();
+});
+
+// ============================================================
+// RENDER
+// ============================================================
+var world = document.getElementById('world');
+var wrap = document.getElementById('canvas-wrap');
+
+function renderAll() {
+  // Clear existing tables
+  world.querySelectorAll('.table-group').forEach(function(el) { el.remove(); });
+
+  var cx = WORLD_W / 2, cy = WORLD_H / 2;
+  var rounds = tables.filter(function(t) { return t.shape === 'round'; });
+  var rects = tables.filter(function(t) { return t.shape === 'rect' && t.id !== 'novios'; });
+
+  var defaults = {};
+  defaults['novios'] = { x: cx, y: cy - 310 };
+  rounds.forEach(function(t, i) {
+    var a = Math.PI + (i / Math.max(rounds.length - 1, 1)) * Math.PI;
+    defaults[t.id] = { x: cx + Math.cos(a) * 470, y: cy + Math.sin(a) * 360 - 20 };
+  });
+  rects.forEach(function(t, i) {
+    var s = i % 2 === 0 ? -1 : 1, row = Math.floor(i / 2);
+    defaults[t.id] = { x: cx + s * 570 + s * row * 20, y: 180 + row * 150 };
+  });
+
+  tables.forEach(function(t) {
+    var pos = savedPositions[t.id] || defaults[t.id] || { x: 400, y: 400 };
+    renderTable(t, pos.x, pos.y);
+  });
+
+  applyTransform();
+}
+
+function renderTable(table, x, y) {
+  var tg = document.createElement('div');
+  tg.className = 'table-group';
+  tg.dataset.tableId = table.id;
+  tg.style.left = x + 'px';
+  tg.style.top = y + 'px';
+
+  var cap = table.capacity || 10;
+  var tGuestsAll = guests.filter(function(g) { return g.tableId === table.id; });
+  var isRound = table.shape === 'round';
+  var isNovios = table.id === 'novios';
+
+  // Ensure seat map is initialized for this table
+  ensureSeatMap(table.id);
+
+  // Table shape
+  var shape = document.createElement('div');
+  shape.className = 'table-shape ' + (isNovios ? 'novios' : isRound ? 'round' : 'rect');
+  var lbl = document.createElement('div'); lbl.textContent = table.name; shape.appendChild(lbl);
+  var cnt = document.createElement('div'); cnt.className = 'table-count';
+  cnt.textContent = tGuestsAll.length + '/' + cap; shape.appendChild(cnt);
+  tg.appendChild(shape);
+
+  // Center offset
+  var shapeW = isRound ? 104 : 130;
+  var shapeH = isRound ? 104 : 64;
+  shape.style.position = 'absolute';
+  shape.style.left = (-shapeW/2) + 'px';
+  shape.style.top = (-shapeH/2) + 'px';
+
+  // Seats -- use seat map for fixed positions
+  var seatCount = Math.max(cap, tGuestsAll.length);
+  var radius = isRound ? 72 : 0;
+
+  for (var i = 0; i < seatCount; i++) {
+    var guest = guestAtSeat(table.id, i);
+    var sx, sy;
+
+    if (isRound) {
+      var a = (i / seatCount) * Math.PI * 2 - Math.PI / 2;
+      sx = Math.cos(a) * radius;
+      sy = Math.sin(a) * radius;
+    } else {
+      var peri = 2 * (130 + 64);
+      var p = (i / seatCount) * peri;
+      var hw = 130/2 + 22, hh = 64/2 + 22;
+      if (p < 130) { sx = -hw + 22 + p; sy = -hh; }
+      else if (p < 130+64) { sx = hw; sy = -hh + (p - 130); }
+      else if (p < 260+64) { sx = hw - (p - 130 - 64); sy = hh; }
+      else { sx = -hw; sy = hh - (p - 260 - 64); }
+    }
+
+    var seat = document.createElement('div');
+    seat.className = 'seat ' + (guest ? 'occupied' : 'empty');
+    seat.style.left = (sx - 15) + 'px';
+    seat.style.top = (sy - 15) + 'px';
+
+    seat.dataset.seatIdx = String(i);
+    seat.dataset.tableId = table.id;
+
+    if (guest) {
+      seat.dataset.guestId = guest.id;
+
+      var person = document.createElement('div');
+      var g = guest.gender;
+      var isBride = guest.id === 'novia_laura';
+      var isGroom = guest.id === 'novio_carlo';
+      var personClass = isBride ? 'bride' : isGroom ? 'groom' : (g === 'F' ? 'female' : g === 'M' ? 'male' : 'unknown');
+      person.className = 'person ' + personClass;
+      var hair = document.createElement('div'); hair.className = 'hair';
+      var head = document.createElement('div'); head.className = 'head';
+      head.appendChild(hair);
+      var body = document.createElement('div'); body.className = 'body';
+      person.appendChild(head); person.appendChild(body);
+      seat.appendChild(person);
+
+      if (showNames) {
+        var nm = document.createElement('div'); nm.className = 'seat-name';
+        nm.textContent = guest.name.split(' ').slice(0, 2).join(' ');
+        seat.appendChild(nm);
+      }
+    }
+
+    tg.appendChild(seat);
+  }
+
+  // Table click for sidebar
+  shape.addEventListener('click', function(e) {
+    if (tg.dataset.wasDragged === 'true') { tg.dataset.wasDragged = 'false'; return; }
+    openSidebar(table, getTableGuestsOrdered(table.id));
+  });
+
+  world.appendChild(tg);
+}
+
+// ============================================================
+// PAN & ZOOM (on the wrap div)
+// ============================================================
+var isPanning = false, panStartX, panStartY, panOrigX, panOrigY;
+
+wrap.addEventListener('pointerdown', function(e) {
+  // Only pan if click is directly on wrap or world (not on a table/seat)
+  if (e.target === wrap || e.target === world || e.target.id === 'dance-floor') {
+    isPanning = true;
+    panStartX = e.clientX; panStartY = e.clientY;
+    panOrigX = panX; panOrigY = panY;
+    wrap.style.cursor = 'grabbing';
+    e.preventDefault();
+  }
+});
+
+window.addEventListener('pointermove', function(e) {
+  if (isPanning) {
+    panX = panOrigX + (e.clientX - panStartX);
+    panY = panOrigY + (e.clientY - panStartY);
+    applyTransform();
+  }
+});
+
+window.addEventListener('pointerup', function() {
+  if (isPanning) { isPanning = false; wrap.style.cursor = 'grab'; }
+});
+
+wrap.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  var oldZoom = zoom;
+  zoom = Math.max(0.15, Math.min(3, zoom - e.deltaY * 0.001));
+  // Zoom toward pointer
+  var rect = wrap.getBoundingClientRect();
+  var mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  panX = mx - (mx - panX) * (zoom / oldZoom);
+  panY = my - (my - panY) * (zoom / oldZoom);
+  applyTransform();
+}, { passive: false });
+
+function applyTransform() {
+  world.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+}
+
+function zoomFit() {
+  var ww = window.innerWidth, wh = window.innerHeight;
+  zoom = Math.min(ww / WORLD_W, wh / WORLD_H) * 0.9;
+  panX = (ww - WORLD_W * zoom) / 2;
+  panY = (wh - WORLD_H * zoom) / 2;
+  applyTransform();
+}
+
+// ============================================================
+// TABLE DRAG (native pointer events)
+// ============================================================
+var dragTable = null, dragTableStartX, dragTableStartY, dragTableOrigLeft, dragTableOrigTop;
+
+world.addEventListener('pointerdown', function(e) {
+  // Person drag takes priority over table drag
+  if (e.target.closest('.seat.occupied')) return;
+
+  // Find closest .table-shape
+  var shape = e.target.closest('.table-shape');
+  if (!shape) return;
+  var tg = shape.closest('.table-group');
+  if (!tg) return;
+
+  dragTable = tg;
+  dragTable.classList.add('dragging');
+  wrap.classList.add('dragging-table');
+  dragTableStartX = e.clientX;
+  dragTableStartY = e.clientY;
+  dragTableOrigLeft = parseInt(tg.style.left);
+  dragTableOrigTop = parseInt(tg.style.top);
+  tg.dataset.wasDragged = 'false';
+  e.preventDefault();
+  e.stopPropagation();
+});
+
+window.addEventListener('pointermove', function(e) {
+  if (dragTable) {
+    var dx = (e.clientX - dragTableStartX) / zoom;
+    var dy = (e.clientY - dragTableStartY) / zoom;
+    dragTable.style.left = (dragTableOrigLeft + dx) + 'px';
+    dragTable.style.top = (dragTableOrigTop + dy) + 'px';
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) dragTable.dataset.wasDragged = 'true';
+  }
+});
+
+window.addEventListener('pointerup', function() {
+  if (dragTable) {
+    dragTable.classList.remove('dragging');
+    wrap.classList.remove('dragging-table');
+    savedPositions[dragTable.dataset.tableId] = {
+      x: parseInt(dragTable.style.left), y: parseInt(dragTable.style.top)
+    };
+    localStorage.setItem('fp2-pos', JSON.stringify(savedPositions));
+    dragTable = null;
+  }
+});
+
+// ============================================================
+// REORDER SEATS (drag within sidebar list)
+// ============================================================
+var sidebarCurrentTableId = null;
+var dragItem = null;
+
+document.getElementById('sidebar-guests').addEventListener('dragstart', function(e) {
+  var item = e.target.closest('.guest-item');
+  if (!item) return;
+  dragItem = item;
+  item.classList.add('dragging-item');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', item.dataset.guestId);
+});
+
+document.getElementById('sidebar-guests').addEventListener('dragend', function(e) {
+  if (dragItem) dragItem.classList.remove('dragging-item');
+  document.querySelectorAll('.guest-item.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
+  dragItem = null;
+});
+
+document.getElementById('sidebar-guests').addEventListener('dragover', function(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  var item = e.target.closest('.guest-item');
+  if (!item || item === dragItem) return;
+  document.querySelectorAll('.guest-item.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
+  item.classList.add('drag-over');
+});
+
+document.getElementById('sidebar-guests').addEventListener('dragleave', function(e) {
+  var item = e.target.closest('.guest-item');
+  if (item) item.classList.remove('drag-over');
+});
+
+document.getElementById('sidebar-guests').addEventListener('drop', function(e) {
+  e.preventDefault();
+  document.querySelectorAll('.guest-item.drag-over').forEach(function(el) { el.classList.remove('drag-over'); });
+  if (!dragItem || !sidebarCurrentTableId) return;
+
+  var dropTarget = e.target.closest('.guest-item');
+  if (!dropTarget || dropTarget === dragItem) return;
+
+  var dragId = dragItem.dataset.guestId;
+  var dropId = dropTarget.dataset.guestId;
+
+  // Get current order of guests at this table
+  var tableGuests = guests.filter(function(g) { return g.tableId === sidebarCurrentTableId; });
+  var dragIdx = tableGuests.findIndex(function(g) { return g.id === dragId; });
+  var dropIdx = tableGuests.findIndex(function(g) { return g.id === dropId; });
+
+  if (dragIdx < 0 || dropIdx < 0) return;
+
+  // Reorder in the main guests array by swapping their positions in the array
+  var dragGuest = tableGuests[dragIdx];
+  var mainDragIdx = guests.indexOf(dragGuest);
+  var mainDropIdx = guests.indexOf(tableGuests[dropIdx]);
+
+  // Remove dragged guest and insert before/after drop target
+  guests.splice(mainDragIdx, 1);
+  var newDropIdx = guests.indexOf(tableGuests[dropIdx]);
+  if (dragIdx < dropIdx) {
+    guests.splice(newDropIdx + 1, 0, dragGuest);
+  } else {
+    guests.splice(newDropIdx, 0, dragGuest);
+  }
+
+  // Save full guest order to Firebase
+  dbRef.child('guests').set(guests);
+
+  // Re-render
+  renderAll();
+  var table = tables.find(function(t) { return t.id === sidebarCurrentTableId; });
+  var newGuests = guests.filter(function(g) { return g.tableId === sidebarCurrentTableId; });
+  openSidebar(table, newGuests);
+});
+
+function getGuestById(id) {
+  return guests.find(function(g) { return g.id === id; }) || null;
+}
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function openSidebar(table, tGuests) {
+  sidebarCurrentTableId = table.id;
+  document.getElementById('sidebar-title').textContent = table.name +
+    (table.kind ? ' (' + table.kind + ')' : '');
+
+  var info = document.getElementById('sidebar-info');
+  while (info.firstChild) info.removeChild(info.firstChild);
+  var d = document.createElement('div');
+  d.style.cssText = 'margin-bottom:6px;font-size:12px;color:#c4a070;';
+  d.textContent = tGuests.length + '/' + (table.capacity||10) + ' -- ' +
+    (table.shape==='round'?'Redonda':'Rectangular');
+  info.appendChild(d);
+
+  var hint = document.createElement('div');
+  hint.style.cssText = 'margin-bottom:8px;font-size:11px;color:#e8a832;font-style:italic;';
+  hint.textContent = 'Arrastra nombres o munequitos para cambiar asiento';
+  info.appendChild(hint);
+
+  // Swap table button
+  var swapDiv = document.createElement('div');
+  swapDiv.style.cssText = 'margin-bottom:12px;';
+  var swapBtn = document.createElement('button');
+  swapBtn.style.cssText = 'background:rgba(232,168,50,0.3);border:1px solid #e8a832;color:#f5c842;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;width:100%;';
+  swapBtn.textContent = 'Intercambiar invitados con otra mesa...';
+  swapBtn.addEventListener('click', function() {
+    startTableSwap(table);
+  });
+  swapDiv.appendChild(swapBtn);
+  info.appendChild(swapDiv);
+
+  var list = document.getElementById('sidebar-guests');
+  while (list.firstChild) list.removeChild(list.firstChild);
+
+  tGuests.forEach(function(g, idx) {
+    var item = document.createElement('div'); item.className = 'guest-item';
+
+    var grip = document.createElement('span'); grip.className = 'grip-icon';
+    grip.textContent = '\u2630'; item.appendChild(grip);
+
+    var seatNum = document.createElement('span'); seatNum.className = 'seat-num';
+    seatNum.textContent = String(idx + 1); item.appendChild(seatNum);
+
+    var dot = document.createElement('span'); dot.className = 'guest-dot';
+    dot.style.background = g.gender==='F'?'#e8508a':g.gender==='M'?'#3a8abd':'#e88a20';
+    item.appendChild(dot);
+    var nmWrap = document.createElement('div');
+    nmWrap.style.cssText = 'display:flex;flex-direction:column;';
+    var nm = document.createElement('span'); nm.textContent = g.name; nmWrap.appendChild(nm);
+    if (g.meal) {
+      var ml = document.createElement('span');
+      ml.style.cssText = 'font-size:12px;margin-top:1px;';
+      var mealLower = g.meal.toLowerCase();
+      if (mealLower.indexOf('mignon') >= 0 || mealLower.indexOf('filet') >= 0 || mealLower.indexOf('steak') >= 0) {
+        ml.textContent = '\ud83e\udd69'; // steak emoji
+      } else if (mealLower.indexOf('fish') >= 0 || mealLower.indexOf('pescado') >= 0 || mealLower.indexOf('salmon') >= 0) {
+        ml.textContent = '\ud83d\udc1f'; // fish emoji
+      } else if (mealLower.indexOf('vegetar') >= 0 || mealLower.indexOf('vegan') >= 0) {
+        ml.textContent = '\ud83e\udd66'; // broccoli emoji
+      } else {
+        ml.textContent = '\ud83c\udf7d\ufe0f'; // plate emoji
+      }
+      ml.title = g.meal;
+      nmWrap.appendChild(ml);
+    }
+    item.appendChild(nmWrap);
+
+    var sd = document.createElement('span'); sd.className = 'guest-side';
+    sd.textContent = g.side==='carlo'?'C':g.side==='laura'?'L':'?';
+    sd.style.color = g.side==='carlo'?'#d94f30':'#3a8abd';
+    item.appendChild(sd);
+
+    item.dataset.guestId = g.id;
+    item.dataset.guestIdx = String(idx);
+    item.draggable = true;
+    list.appendChild(item);
+  });
+
+  var empty = (table.capacity||10) - tGuests.length;
+  if (empty > 0) {
+    var em = document.createElement('div');
+    em.style.cssText = 'color:#8a7050;font-style:italic;padding:6px 8px;font-size:13px;';
+    em.textContent = empty + ' libre' + (empty>1?'s':'');
+    list.appendChild(em);
+  }
+
+  document.getElementById('sidebar').classList.add('open');
+}
+
+document.getElementById('btn-close-sidebar').addEventListener('click', function() {
+  document.getElementById('sidebar').classList.remove('open');
+});
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  var assigned = guests.filter(function(g) { return g.tableId; }).length;
+  var el = document.getElementById('stats');
+  while (el.firstChild) el.removeChild(el.firstChild);
+  el.appendChild(document.createTextNode(assigned + '/' + guests.length + ' asignados -- ' + tables.length + ' mesas -- '));
+  var mc = document.createElement('span'); mc.style.color='#3a8abd'; mc.textContent='\u25CF'; el.appendChild(mc);
+  el.appendChild(document.createTextNode(' H '));
+  var fc = document.createElement('span'); fc.style.color='#e8508a'; fc.textContent='\u25CF'; el.appendChild(fc);
+  el.appendChild(document.createTextNode(' M -- Arrastra mesas o personas'));
+}
+
+// ============================================================
+// TOOLBAR
+// ============================================================
+document.getElementById('btn-fit').addEventListener('click', zoomFit);
+document.getElementById('btn-names').addEventListener('click', function() {
+  showNames = !showNames;
+  this.classList.toggle('active', showNames);
+  renderAll();
+});
+document.getElementById('btn-grid').addEventListener('click', function() {
+  showGridLines = !showGridLines;
+  this.classList.toggle('active', showGridLines);
+  world.style.backgroundImage = showGridLines ?
+    'linear-gradient(#f0e4d0 1px, transparent 1px), linear-gradient(90deg, #f0e4d0 1px, transparent 1px)' : 'none';
+});
+document.getElementById('btn-save').addEventListener('click', function() {
+  world.querySelectorAll('.table-group').forEach(function(tg) {
+    savedPositions[tg.dataset.tableId] = { x: parseInt(tg.style.left), y: parseInt(tg.style.top) };
+  });
+  localStorage.setItem('fp2-pos', JSON.stringify(savedPositions));
+  var btn = this; btn.textContent = 'Guardado!'; btn.style.background = '#4a8c3f';
+  setTimeout(function() { btn.textContent = 'Guardar'; btn.style.background = ''; }, 1500);
+});
+document.getElementById('btn-reset').addEventListener('click', function() {
+  if (confirm('Resetear posiciones de mesas?')) {
+    localStorage.removeItem('fp2-pos'); savedPositions = {}; renderAll();
+  }
+});
+
+window.addEventListener('keydown', function(e) {
+  if (e.key === 'f') zoomFit();
+  if (e.key === 'n') document.getElementById('btn-names').click();
+  if (e.key === 'g') document.getElementById('btn-grid').click();
+  if (e.key === 's' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); document.getElementById('btn-save').click(); }
+  if (e.key === 'Escape') document.getElementById('sidebar').classList.remove('open');
+});
+
+// ============================================================
+// TABLE SWAP (swap all guests between two tables)
+// ============================================================
+var swapSourceTable = null;
+
+function startTableSwap(sourceTable) {
+  swapSourceTable = sourceTable;
+  document.getElementById('sidebar').classList.remove('open');
+
+  // Show swap banner
+  var banner = document.getElementById('move-banner');
+  while (banner.firstChild) banner.removeChild(banner.firstChild);
+  banner.appendChild(document.createTextNode('Intercambiar ' + sourceTable.name + ' con... click en la otra mesa '));
+  var cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.addEventListener('click', cancelTableSwap);
+  banner.appendChild(cancelBtn);
+  banner.style.display = 'block';
+  world.classList.add('move-mode');
+}
+
+function cancelTableSwap() {
+  swapSourceTable = null;
+  document.getElementById('move-banner').style.display = 'none';
+  world.classList.remove('move-mode');
+}
+
+// Override table click when swap is active
+world.addEventListener('click', function(e) {
+  if (!swapSourceTable) return;
+  var shape = e.target.closest('.table-shape');
+  if (!shape) return;
+  var tg = shape.closest('.table-group');
+  if (!tg) return;
+
+  var targetId = tg.dataset.tableId;
+  if (targetId === swapSourceTable.id) return; // can't swap with self
+
+  var targetTable = tables.find(function(t) { return t.id === targetId; });
+  if (!targetTable) return;
+
+  // Swap all guests between the two tables
+  var sourceGuests = guests.filter(function(g) { return g.tableId === swapSourceTable.id; });
+  var targetGuests = guests.filter(function(g) { return g.tableId === targetId; });
+
+  sourceGuests.forEach(function(g) { g.tableId = targetId; });
+  targetGuests.forEach(function(g) { g.tableId = swapSourceTable.id; });
+
+  // Save to Firebase
+  dbRef.child('guests').set(guests);
+
+  cancelTableSwap();
+  renderAll();
+  updateStats();
+
+  // Open sidebar on original source table (now with new guests)
+  openSidebar(swapSourceTable, guests.filter(function(g) { return g.tableId === swapSourceTable.id; }));
+});
+
+// ============================================================
+// MAP SEAT MOVE (pointer events - much more reliable than drag API)
+// ============================================================
+var movingSeat = null;      // the .seat element being moved
+var movingTableId = null;   // which table it belongs to
+var moveStarted = false;    // did the pointer actually move (vs just click)
+var moveStartX = 0, moveStartY = 0;
+var dragClone = document.getElementById('person-drag-clone');
+var dragGhostEl = document.getElementById('drag-ghost');
+
+world.addEventListener('pointerdown', function(e) {
+  var seat = e.target.closest('.seat.occupied');
+  if (!seat || dragTable) return; // don't interfere with table drag
+
+  movingSeat = seat;
+  movingTableId = seat.dataset.tableId;
+  moveStarted = false;
+  moveStartX = e.clientX;
+  moveStartY = e.clientY;
+
+  e.preventDefault();
+  e.stopPropagation();
+});
+
+window.addEventListener('pointermove', function(e) {
+  if (!movingSeat) return;
+
+  var dx = e.clientX - moveStartX;
+  var dy = e.clientY - moveStartY;
+
+  // Only start move after 5px threshold (avoid accidental drags)
+  if (!moveStarted && Math.abs(dx) + Math.abs(dy) < 5) return;
+
+  if (!moveStarted) {
+    moveStarted = true;
+    movingSeat.classList.add('being-moved');
+    world.classList.add('person-move-active');
+
+    // Show clone following cursor
+    var personEl = movingSeat.querySelector('.person');
+    if (personEl) {
+      dragClone.textContent = '';
+      dragClone.appendChild(personEl.cloneNode(true));
+      dragClone.style.display = 'block';
+    }
+
+    // Show name ghost
+    var guest = getGuestById(movingSeat.dataset.guestId);
+    if (guest) {
+      dragGhostEl.textContent = guest.name;
+      dragGhostEl.style.display = 'block';
+    }
+  }
+
+  // Move clone with cursor
+  dragClone.style.left = (e.clientX - 12) + 'px';
+  dragClone.style.top = (e.clientY - 18) + 'px';
+  dragGhostEl.style.left = (e.clientX + 20) + 'px';
+  dragGhostEl.style.top = (e.clientY - 8) + 'px';
+
+  // Highlight nearest seat
+  world.querySelectorAll('.seat.nearest-target').forEach(function(el) { el.classList.remove('nearest-target'); });
+  var nearest = findNearestSeat(e.clientX, e.clientY);
+  if (nearest) nearest.classList.add('nearest-target');
+});
+
+window.addEventListener('pointerup', function(e) {
+  if (!movingSeat) return;
+
+  // Clean up visuals
+  movingSeat.classList.remove('being-moved');
+  world.classList.remove('person-move-active');
+  dragClone.style.display = 'none';
+  dragGhostEl.style.display = 'none';
+  world.querySelectorAll('.seat.nearest-target').forEach(function(el) { el.classList.remove('nearest-target'); });
+
+  if (moveStarted) {
+    var target = findNearestSeat(e.clientX, e.clientY);
+    if (target && target !== movingSeat) {
+      handleSeatDrop(movingSeat, target);
+    }
+  } else {
+    // Was just a click, not a drag -- open sidebar
+    var tableId = movingSeat.dataset.tableId;
+    var table = tables.find(function(t) { return t.id === tableId; });
+    if (table) {
+      openSidebar(table, getTableGuestsOrdered(tableId));
+    }
+  }
+
+  movingSeat = null;
+  movingTableId = null;
+  moveStarted = false;
+});
+
+function findNearestSeat(clientX, clientY) {
+  if (!movingTableId) return null;
+  var best = null, bestDist = 80; // 80px radius
+  var selector = '.table-group[data-table-id="' + movingTableId + '"] .seat';
+  world.querySelectorAll(selector).forEach(function(s) {
+    if (s === movingSeat) return;
+    var rect = s.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var dist = Math.sqrt((clientX - cx) * (clientX - cx) + (clientY - cy) * (clientY - cy));
+    if (dist < bestDist) { bestDist = dist; best = s; }
+  });
+  return best;
+}
+
+// ============================================================
+// SEAT POSITION MAP -- fixed positions per table
+// Each table has N seats (0..N-1). Each guest is assigned to a specific seat index.
+// Stored in localStorage as: { tableId: { seatIdx: guestId, ... } }
+// ============================================================
+var seatMap = {}; // tableId -> { 0: guestId, 1: guestId, ... }
+
+function loadSeatMap() {
+  try { seatMap = JSON.parse(localStorage.getItem('fp2-seatmap') || '{}'); } catch(e) { seatMap = {}; }
+}
+
+function saveSeatMap() {
+  localStorage.setItem('fp2-seatmap', JSON.stringify(seatMap));
+}
+
+// Initialize seat map for a table (first time or if guests changed)
+function ensureSeatMap(tableId) {
+  var tableGuests = guests.filter(function(g) { return g.tableId === tableId; });
+  var table = tables.find(function(t) { return t.id === tableId; });
+  var cap = table ? (table.capacity || 10) : 10;
+
+  if (!seatMap[tableId]) seatMap[tableId] = {};
+
+  // Check if all current guests are already mapped
+  var mapped = seatMap[tableId];
+  var assignedIds = new Set(Object.values(mapped));
+  var needsRebuild = false;
+
+  // Check if any guest in this table is NOT in the map
+  tableGuests.forEach(function(g) {
+    if (!assignedIds.has(g.id)) needsRebuild = true;
+  });
+
+  // Check if any mapped guest is no longer at this table
+  Object.keys(mapped).forEach(function(idx) {
+    var gId = mapped[idx];
+    var g = guests.find(function(x) { return x.id === gId; });
+    if (!g || g.tableId !== tableId) needsRebuild = true;
+  });
+
+  if (needsRebuild) {
+    // Rebuild: keep existing assignments that are still valid, fill gaps
+    var newMap = {};
+    var usedSeats = new Set();
+    var unmapped = [];
+
+    // Keep valid existing assignments
+    Object.keys(mapped).forEach(function(idx) {
+      var gId = mapped[idx];
+      var g = guests.find(function(x) { return x.id === gId; });
+      if (g && g.tableId === tableId && parseInt(idx) < cap) {
+        newMap[idx] = gId;
+        usedSeats.add(parseInt(idx));
+      }
+    });
+
+    // Find unmapped guests
+    tableGuests.forEach(function(g) {
+      var found = false;
+      Object.values(newMap).forEach(function(id) { if (id === g.id) found = true; });
+      if (!found) unmapped.push(g);
+    });
+
+    // Assign unmapped to first available seats
+    var seatIdx = 0;
+    unmapped.forEach(function(g) {
+      while (usedSeats.has(seatIdx) && seatIdx < cap) seatIdx++;
+      if (seatIdx < cap) {
+        newMap[String(seatIdx)] = g.id;
+        usedSeats.add(seatIdx);
+        seatIdx++;
+      }
+    });
+
+    seatMap[tableId] = newMap;
+    saveSeatMap();
+  }
+
+  return seatMap[tableId];
+}
+
+// Get guest at a specific seat, or null
+function guestAtSeat(tableId, seatIdx) {
+  var map = seatMap[tableId] || {};
+  var gId = map[String(seatIdx)];
+  if (!gId) return null;
+  return guests.find(function(g) { return g.id === gId; }) || null;
+}
+
+function handleSeatDrop(fromSeat, toSeat) {
+  var tableId = fromSeat.dataset.tableId;
+  var fromIdx = fromSeat.dataset.seatIdx;
+  var toIdx = toSeat.dataset.seatIdx;
+  var map = seatMap[tableId] || {};
+
+  if (toSeat.classList.contains('empty')) {
+    // Move to empty: guest goes to new seat, old seat becomes empty
+    map[toIdx] = map[fromIdx];
+    delete map[fromIdx];
+  } else {
+    // Swap: exchange the two guests
+    var temp = map[fromIdx];
+    map[fromIdx] = map[toIdx];
+    map[toIdx] = temp;
+  }
+
+  seatMap[tableId] = map;
+  saveSeatMap();
+
+  renderAll();
+  if (sidebarCurrentTableId === tableId) {
+    var table = tables.find(function(t) { return t.id === tableId; });
+    openSidebar(table, getTableGuestsOrdered(tableId));
+  }
+}
+
+// Get guests for a table in seat order
+function getTableGuestsOrdered(tableId) {
+  var table = tables.find(function(t) { return t.id === tableId; });
+  var cap = table ? (table.capacity || 10) : 10;
+  var map = ensureSeatMap(tableId);
+  var ordered = [];
+  for (var i = 0; i < cap; i++) {
+    var g = guestAtSeat(tableId, i);
+    if (g) ordered.push(g);
+  }
+  return ordered;
+}
+
+// ============================================================
+// MUSIC PLAYER (Spotify embed)
+// ============================================================
+var spotifyEmbed = document.getElementById('spotify-embed');
+var musicToggle = document.getElementById('music-toggle');
+var musicShown = false;
+
+musicToggle.addEventListener('click', function() {
+  musicShown = !musicShown;
+  spotifyEmbed.style.display = musicShown ? 'block' : 'none';
+});
+
+// ============================================================
+// VENUE STATION DRAG
+// ============================================================
+var dragStation = null, stationStartX, stationStartY, stationOrigLeft, stationOrigTop;
+
+document.querySelectorAll('.venue-station').forEach(function(st) {
+  // Initialize inline styles from computed CSS if not set
+  if (!st.style.left || st.style.left === '') {
+    var comp = getComputedStyle(st);
+    st.style.left = comp.left;
+    st.style.top = comp.top;
+  }
+  // Load saved position
+  try {
+    var sp = JSON.parse(localStorage.getItem('fp2-stations') || '{}');
+    if (sp[st.id]) { st.style.left = sp[st.id].x + 'px'; st.style.top = sp[st.id].y + 'px'; }
+  } catch(e) {}
+
+  st.addEventListener('pointerdown', function(e) {
+    dragStation = st;
+    st.classList.add('dragging');
+    stationStartX = e.clientX; stationStartY = e.clientY;
+    stationOrigLeft = parseInt(st.style.left); stationOrigTop = parseInt(st.style.top);
+    e.preventDefault(); e.stopPropagation();
+  });
+});
+
+window.addEventListener('pointermove', function(e) {
+  if (!dragStation) return;
+  var dx = (e.clientX - stationStartX) / zoom;
+  var dy = (e.clientY - stationStartY) / zoom;
+  dragStation.style.left = (stationOrigLeft + dx) + 'px';
+  dragStation.style.top = (stationOrigTop + dy) + 'px';
+});
+
+window.addEventListener('pointerup', function() {
+  if (!dragStation) return;
+  dragStation.classList.remove('dragging');
+  // Save positions
+  var sp = {};
+  document.querySelectorAll('.venue-station').forEach(function(st) {
+    sp[st.id] = { x: parseInt(st.style.left), y: parseInt(st.style.top) };
+  });
+  localStorage.setItem('fp2-stations', JSON.stringify(sp));
+  dragStation = null;
+});
+
+// ============================================================
+// STATION STAFF (taqueros, bartenders)
+// ============================================================
+function createStaff() {
+  // Bar staff
+  var barStation = document.getElementById('bar-station');
+  addStaffMember(barStation, -30, 30, 'Barman');
+  addStaffMember(barStation, 50, 35, 'Barman');
+
+  // Taco staff
+  var tacoStation = document.getElementById('tacos-station');
+  addStaffMember(tacoStation, -20, 25, 'Taquero');
+  addStaffMember(tacoStation, 40, 30, 'Taquero');
+
+  // Photobooth staff
+  var pbStation = document.getElementById('photobooth-station');
+  addStaffMember(pbStation, 10, 30, 'Staff');
+}
+
+function addStaffMember(parent, offsetX, offsetY, label) {
+  var staff = document.createElement('div');
+  staff.className = 'station-staff';
+  staff.style.left = offsetX + 'px';
+  staff.style.top = offsetY + 'px';
+
+  var head = document.createElement('div');
+  head.style.cssText = 'width:14px;height:14px;border-radius:50%;background:#f5d5a8;border:1px solid rgba(58,32,16,0.3);margin:0 auto;';
+
+  var body = document.createElement('div');
+  body.style.cssText = 'width:16px;height:16px;border-radius:4px;background:#3a1c12;margin:-1px auto 0;';
+
+  var lbl = document.createElement('div');
+  lbl.className = 'staff-label';
+  lbl.textContent = label;
+
+  staff.appendChild(head);
+  staff.appendChild(body);
+  staff.appendChild(lbl);
+  parent.appendChild(staff);
+}
+
+// ============================================================
+// PARTY MODE - each walker moves independently
+// ============================================================
+var partyMode = false;
+var walkerElements = [];
+var walkerTimers = [];
+
+document.getElementById('btn-party').addEventListener('click', function() {
+  partyMode = !partyMode;
+  this.textContent = partyMode ? 'Sentarse' : 'Fiesta!';
+  this.classList.toggle('active', partyMode);
+  if (partyMode) startParty(); else endParty();
+});
+
+function getTablePos(tableId) {
+  var el = world.querySelector('.table-group[data-table-id="' + tableId + '"]');
+  if (el) return { x: parseInt(el.style.left), y: parseInt(el.style.top) };
+  return { x: WORLD_W / 2, y: WORLD_H / 2 };
+}
+
+function makeWalker(g) {
+  var isBride = g.id === 'novia_laura';
+  var isGroom = g.id === 'novio_carlo';
+  var gen = isBride ? 'bride' : isGroom ? 'groom' : (g.gender === 'F' ? 'female' : g.gender === 'M' ? 'male' : 'unknown');
+  var w = document.createElement('div');
+  w.className = 'walking-person walking ' + gen;
+
+  // Veil for bride
+  if (isBride) {
+    var veil = document.createElement('div'); veil.className = 'wp-veil';
+    w.appendChild(veil);
+  }
+
+  var head = document.createElement('div'); head.className = 'wp-head';
+  var body = document.createElement('div'); body.className = 'wp-body';
+
+  // Tie for groom
+  if (isGroom) {
+    var tie = document.createElement('div'); tie.className = 'wp-tie';
+    w.appendChild(tie);
+  }
+
+  var legs = document.createElement('div'); legs.className = 'wp-legs';
+  var l1 = document.createElement('div'); l1.className = 'wp-leg'; legs.appendChild(l1);
+  var l2 = document.createElement('div'); l2.className = 'wp-leg'; legs.appendChild(l2);
+
+  w.appendChild(head); w.appendChild(body); w.appendChild(legs);
+
+  if (showNames) {
+    var nm = document.createElement('div'); nm.className = 'wp-name';
+    nm.textContent = g.name.split(' ')[0];
+    w.appendChild(nm);
+  }
+  w.guestData = g;
+  return w;
+}
+
+function startParty() {
+  world.classList.add('party-mode');
+  refreshTableZones();
+
+  // Spread guests across the entire venue initially
+  var assigned = guests.filter(function(g) { return g.tableId; });
+  assigned.forEach(function(g, idx) {
+    var w = makeWalker(g);
+
+    // Distribute across venue, avoiding tables
+    var startX, startY, tries = 0;
+    do {
+      startX = 120 + Math.random() * (WORLD_W - 240);
+      startY = 120 + Math.random() * (WORLD_H - 240);
+      tries++;
+    } while (isInsideTable(startX, startY) && tries < 20);
+    w.style.left = startX + 'px';
+    w.style.top = startY + 'px';
+
+    world.appendChild(w);
+    walkerElements.push(w);
+
+    // Each walker moves on its own timer with random interval
+    var delay = 2000 + Math.random() * 6000; // 2-8 seconds between moves
+    var timer = setInterval(function() { moveOneWalker(w); }, delay);
+    walkerTimers.push(timer);
+
+    // Stagger first move
+    setTimeout(function() { moveOneWalker(w); }, 500 + idx * 30);
+  });
+
+  // Show music
+  if (!musicShown) musicToggle.click();
+}
+
+// Get table obstacle zones (cached, refreshed on render)
+var tableZones = [];
+function refreshTableZones() {
+  tableZones = [];
+  world.querySelectorAll('.table-group').forEach(function(tg) {
+    var x = parseInt(tg.style.left);
+    var y = parseInt(tg.style.top);
+    var t = tables.find(function(t) { return t.id === tg.dataset.tableId; });
+    var r = (t && t.shape === 'round') ? 70 : 80; // avoidance radius
+    tableZones.push({ x: x, y: y, r: r });
+  });
+  // Also add dance floor
+  tableZones.push({ x: WORLD_W/2 + 170, y: WORLD_H/2 + 170, r: 180 });
+}
+
+function isInsideTable(px, py) {
+  for (var i = 0; i < tableZones.length; i++) {
+    var z = tableZones[i];
+    var dx = px - z.x, dy = py - z.y;
+    if (dx * dx + dy * dy < z.r * z.r) return z;
+  }
+  return null;
+}
+
+function lineIntersectsTable(x1, y1, x2, y2) {
+  // Check if straight line from (x1,y1) to (x2,y2) passes through any table
+  // Sample points along the line
+  var steps = 8;
+  for (var s = 1; s < steps; s++) {
+    var t = s / steps;
+    var px = x1 + (x2 - x1) * t;
+    var py = y1 + (y2 - y1) * t;
+    var hit = isInsideTable(px, py);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function findDetourPoint(x1, y1, x2, y2, obstacle) {
+  // Go around the obstacle: find a point perpendicular to the line, outside the obstacle
+  var mx = obstacle.x, my = obstacle.y, r = obstacle.r + 30;
+  // Angle from obstacle center to midpoint of path
+  var midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+  var ang = Math.atan2(midY - my, midX - mx);
+  // Pick perpendicular direction (left or right of obstacle)
+  var side = (Math.random() < 0.5) ? 1 : -1;
+  var perpAng = ang + side * Math.PI / 2;
+  return {
+    x: mx + Math.cos(perpAng) * r,
+    y: my + Math.sin(perpAng) * r
+  };
+}
+
+function moveOneWalker(w) {
+  if (!partyMode) return;
+  var cx = parseInt(w.style.left) || WORLD_W / 2;
+  var cy = parseInt(w.style.top) || WORLD_H / 2;
+
+  // Pick target that's NOT inside a table
+  var tx, ty, attempts = 0;
+  do {
+    var stepSize = 80 + Math.random() * 120;
+    var angle = Math.random() * Math.PI * 2;
+    tx = cx + Math.cos(angle) * stepSize;
+    ty = cy + Math.sin(angle) * stepSize;
+    tx = Math.max(100, Math.min(WORLD_W - 100, tx));
+    ty = Math.max(100, Math.min(WORLD_H - 100, ty));
+    attempts++;
+  } while (isInsideTable(tx, ty) && attempts < 10);
+
+  // Check if path goes through a table
+  var obstacle = lineIntersectsTable(cx, cy, tx, ty);
+
+  if (obstacle) {
+    // Walk around: go to detour point first, then to target
+    var detour = findDetourPoint(cx, cy, tx, ty, obstacle);
+    detour.x = Math.max(100, Math.min(WORLD_W - 100, detour.x));
+    detour.y = Math.max(100, Math.min(WORLD_H - 100, detour.y));
+
+    var speed1 = 1.5 + Math.random() * 1.5;
+    var speed2 = 1.5 + Math.random() * 1.5;
+
+    // First leg: to detour point
+    w.style.transition = 'left ' + speed1 + 's ease-in-out, top ' + speed1 + 's ease-in-out';
+    w.style.left = detour.x + 'px';
+    w.style.top = detour.y + 'px';
+
+    // Second leg: to final target (after first leg finishes)
+    setTimeout(function() {
+      if (!partyMode) return;
+      w.style.transition = 'left ' + speed2 + 's ease-in-out, top ' + speed2 + 's ease-in-out';
+      w.style.left = tx + 'px';
+      w.style.top = ty + 'px';
+    }, speed1 * 1000 + 100);
+  } else {
+    // Clear path - go directly
+    var speed = 3 + Math.random() * 3;
+    w.style.transition = 'left ' + speed + 's ease-in-out, top ' + speed + 's ease-in-out';
+    w.style.left = tx + 'px';
+    w.style.top = ty + 'px';
+  }
+}
+
+function endParty() {
+  partyMode = false;
+  world.classList.remove('party-mode');
+
+  // Stop all individual timers
+  walkerTimers.forEach(function(t) { clearInterval(t); });
+  walkerTimers = [];
+
+  // Walk back to seats
+  walkerElements.forEach(function(w) {
+    w.classList.remove('walking');
+    w.style.transition = 'left 2s ease-in-out, top 2s ease-in-out';
+    var g = w.guestData;
+    var pos = getTablePos(g.tableId);
+    var tgEl = world.querySelector('.table-group[data-table-id="' + g.tableId + '"]');
+    if (tgEl) {
+      var map = seatMap[g.tableId] || {};
+      var si = null;
+      Object.keys(map).forEach(function(k) { if (map[k] === g.id) si = parseInt(k); });
+      if (si !== null) {
+        var seatEl = tgEl.querySelector('.seat[data-seat-idx="' + si + '"]');
+        if (seatEl) {
+          w.style.left = (pos.x + parseInt(seatEl.style.left) + 15) + 'px';
+          w.style.top = (pos.y + parseInt(seatEl.style.top) + 15) + 'px';
+          return;
+        }
+      }
+    }
+    w.style.left = pos.x + 'px'; w.style.top = pos.y + 'px';
+  });
+
+  setTimeout(function() {
+    walkerElements.forEach(function(w) { if (w.parentNode) w.parentNode.removeChild(w); });
+    walkerElements = [];
+  }, 2500);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', function() {
+  zoomFit();
+  createStaff();
+});
+window.addEventListener('resize', function() {
+  // keep current view
+});
+</script>
+</body>
+</html>
