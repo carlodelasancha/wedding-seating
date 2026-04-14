@@ -481,8 +481,6 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   <button id="btn-pending">Pendientes</button>
   <button id="btn-party">Fiesta!</button>
   <button id="btn-grid">Grid (G)</button>
-  <button id="btn-save">Guardar</button>
-  <button id="btn-reset">Reset</button>
 </div>
 
 <div id="stats"></div>
@@ -506,6 +504,9 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
     <h2>Pendientes</h2>
     <button class="close-btn" id="btn-close-pending">&times;</button>
   </div>
+  <input type="text" id="guest-search" placeholder="Buscar invitado..."
+    style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid #c4a070;background:rgba(255,255,255,0.1);color:#faf3e8;font-size:13px;margin-bottom:10px;outline:none;">
+  <div id="search-results" style="display:none;margin-bottom:12px;"></div>
   <div id="pending-count"></div>
   <div id="pending-list"></div>
 </div>
@@ -1021,26 +1022,16 @@ document.getElementById('btn-grid').addEventListener('click', function() {
   world.style.backgroundImage = showGridLines ?
     'linear-gradient(#f0e4d0 1px, transparent 1px), linear-gradient(90deg, #f0e4d0 1px, transparent 1px)' : 'none';
 });
-document.getElementById('btn-save').addEventListener('click', function() {
-  world.querySelectorAll('.table-group').forEach(function(tg) {
-    savedPositions[tg.dataset.tableId] = { x: parseInt(tg.style.left), y: parseInt(tg.style.top) };
-  });
-  localStorage.setItem('fp2-pos', JSON.stringify(savedPositions));
-  var btn = this; btn.textContent = 'Guardado!'; btn.style.background = '#4a8c3f';
-  setTimeout(function() { btn.textContent = 'Guardar'; btn.style.background = ''; }, 1500);
-});
-document.getElementById('btn-reset').addEventListener('click', function() {
-  if (confirm('Resetear posiciones de mesas?')) {
-    localStorage.removeItem('fp2-pos'); savedPositions = {}; renderAll();
-  }
-});
-
 window.addEventListener('keydown', function(e) {
   if (e.key === 'f') zoomFit();
   if (e.key === 'n') document.getElementById('btn-names').click();
   if (e.key === 'g') document.getElementById('btn-grid').click();
-  if (e.key === 's' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); document.getElementById('btn-save').click(); }
-  if (e.key === 'Escape') document.getElementById('sidebar').classList.remove('open');
+  if (e.key === 'Escape') {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('pending-panel').classList.remove('open');
+    cancelAssign();
+    cancelTableSwap();
+  }
 });
 
 // ============================================================
@@ -1367,6 +1358,83 @@ document.getElementById('btn-pending').addEventListener('click', function() {
 document.getElementById('btn-close-pending').addEventListener('click', function() {
   pendingOpen = false;
   document.getElementById('pending-panel').classList.remove('open');
+});
+
+// Guest search
+document.getElementById('guest-search').addEventListener('input', function() {
+  var query = this.value.toLowerCase().trim();
+  var resultsDiv = document.getElementById('search-results');
+  while (resultsDiv.firstChild) resultsDiv.removeChild(resultsDiv.firstChild);
+
+  if (query.length < 2) { resultsDiv.style.display = 'none'; return; }
+
+  var matches = guests.filter(function(g) {
+    return g.name.toLowerCase().indexOf(query) >= 0;
+  });
+
+  if (matches.length === 0) {
+    resultsDiv.style.display = 'block';
+    var noResult = document.createElement('div');
+    noResult.style.cssText = 'color:#8a7050;font-style:italic;padding:6px;font-size:12px;';
+    noResult.textContent = 'No encontrado';
+    resultsDiv.appendChild(noResult);
+    return;
+  }
+
+  resultsDiv.style.display = 'block';
+  matches.slice(0, 10).forEach(function(g) {
+    var item = document.createElement('div');
+    item.className = 'pending-item';
+    item.style.cursor = 'pointer';
+
+    var dot = document.createElement('span');
+    dot.className = 'guest-dot';
+    dot.style.background = g.gender === 'F' ? '#e8508a' : g.gender === 'M' ? '#3a8abd' : '#e88a20';
+    item.appendChild(dot);
+
+    var nmWrap = document.createElement('div');
+    var nm = document.createElement('span');
+    nm.textContent = g.name;
+    nm.style.fontSize = '12px';
+    nmWrap.appendChild(nm);
+
+    if (g.tableId) {
+      var tbl = tables.find(function(t) { return t.id === g.tableId; });
+      var tblName = document.createElement('div');
+      tblName.style.cssText = 'font-size:10px;color:#c4a070;';
+      tblName.textContent = tbl ? tbl.name : g.tableId;
+      nmWrap.appendChild(tblName);
+    } else {
+      var pending = document.createElement('div');
+      pending.style.cssText = 'font-size:10px;color:#f08080;';
+      pending.textContent = 'Sin mesa';
+      nmWrap.appendChild(pending);
+    }
+    item.appendChild(nmWrap);
+
+    // Click to open their table sidebar
+    item.addEventListener('click', function() {
+      if (g.tableId) {
+        var table = tables.find(function(t) { return t.id === g.tableId; });
+        if (table) {
+          openSidebar(table, getTableGuestsOrdered(g.tableId));
+          // Scroll/zoom to that table
+          var tgEl = world.querySelector('[data-table-id="' + g.tableId + '"]');
+          if (tgEl) {
+            var tx = parseInt(tgEl.style.left), ty = parseInt(tgEl.style.top);
+            zoom = 1.2;
+            panX = -tx * zoom + window.innerWidth / 2;
+            panY = -ty * zoom + window.innerHeight / 2;
+            applyTransform();
+          }
+        }
+      }
+      document.getElementById('guest-search').value = '';
+      resultsDiv.style.display = 'none';
+    });
+
+    resultsDiv.appendChild(item);
+  });
 });
 
 function renderPendingList() {
