@@ -509,6 +509,7 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   <div id="search-results" style="display:none;margin-bottom:12px;"></div>
   <div id="pending-count"></div>
   <div id="pending-list"></div>
+  <div id="confirmed-count" style="margin-top:16px;padding:12px;background:rgba(74,140,63,0.2);border:1px solid #4a8c3f;border-radius:8px;text-align:center;"></div>
 </div>
 
 <div id="sidebar">
@@ -1480,6 +1481,23 @@ function renderPendingList() {
     empty.textContent = 'Todos asignados!';
     panel.appendChild(empty);
   }
+
+  // Confirmed count
+  var assigned = guests.filter(function(g) { return g.tableId; }).length;
+  var confirmedDiv = document.getElementById('confirmed-count');
+  while (confirmedDiv.firstChild) confirmedDiv.removeChild(confirmedDiv.firstChild);
+  var bigNum = document.createElement('div');
+  bigNum.style.cssText = 'font-size:28px;font-weight:bold;color:#4a8c3f;';
+  bigNum.textContent = String(assigned);
+  confirmedDiv.appendChild(bigNum);
+  var label = document.createElement('div');
+  label.style.cssText = 'font-size:12px;color:#8fdc6a;';
+  label.textContent = 'invitados confirmados en mesa';
+  confirmedDiv.appendChild(label);
+  var pendingLabel = document.createElement('div');
+  pendingLabel.style.cssText = 'font-size:11px;color:#f08080;margin-top:4px;';
+  pendingLabel.textContent = pending.length + ' pendientes -- ' + guests.length + ' total';
+  confirmedDiv.appendChild(pendingLabel);
 }
 
 // Assign guest from pending to a table
@@ -1543,7 +1561,7 @@ function sendToPending(guest) {
   }
   renderAll();
   updateStats();
-  if (pendingOpen) renderPendingList();
+  renderPendingList();
 }
 
 // ============================================================
