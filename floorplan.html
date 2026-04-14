@@ -565,9 +565,16 @@ dbRef.on('value', function(snap) {
   });
   groups = data.groups || [];
 
-  try { savedPositions = JSON.parse(localStorage.getItem('fp2-pos') || '{}'); } catch(e) { savedPositions = {}; }
-  loadSeatMap();
-  renderAll();
+  // Load positions + seat map from Firebase
+  Promise.all([
+    db.ref('floorplan/tablePositions').once('value'),
+    db.ref('floorplan/seatMap').once('value')
+  ]).then(function(snaps) {
+    savedPositions = snaps[0].val() || {};
+    seatMap = snaps[1].val() || {};
+    renderAll();
+    updateStats();
+  });
   updateStats();
 });
 
@@ -799,7 +806,7 @@ window.addEventListener('pointerup', function() {
     savedPositions[dragTable.dataset.tableId] = {
       x: parseInt(dragTable.style.left), y: parseInt(dragTable.style.top)
     };
-    localStorage.setItem('fp2-pos', JSON.stringify(savedPositions));
+    db.ref('floorplan/tablePositions').set(savedPositions);
     dragTable = null;
   }
 });
@@ -1218,11 +1225,11 @@ function findNearestSeat(clientX, clientY) {
 var seatMap = {}; // tableId -> { 0: guestId, 1: guestId, ... }
 
 function loadSeatMap() {
-  try { seatMap = JSON.parse(localStorage.getItem('fp2-seatmap') || '{}'); } catch(e) { seatMap = {}; }
+  // Loaded from Firebase in dbRef.on('value') callback
 }
 
 function saveSeatMap() {
-  localStorage.setItem('fp2-seatmap', JSON.stringify(seatMap));
+  db.ref('floorplan/seatMap').set(seatMap);
 }
 
 // Initialize seat map for a table (first time or if guests changed)
@@ -1576,11 +1583,6 @@ document.querySelectorAll('.venue-station').forEach(function(st) {
     st.style.left = comp.left;
     st.style.top = comp.top;
   }
-  // Load saved position
-  try {
-    var sp = JSON.parse(localStorage.getItem('fp2-stations') || '{}');
-    if (sp[st.id]) { st.style.left = sp[st.id].x + 'px'; st.style.top = sp[st.id].y + 'px'; }
-  } catch(e) {}
 
   st.addEventListener('pointerdown', function(e) {
     dragStation = st;
@@ -1607,7 +1609,7 @@ window.addEventListener('pointerup', function() {
   document.querySelectorAll('.venue-station').forEach(function(st) {
     sp[st.id] = { x: parseInt(st.style.left), y: parseInt(st.style.top) };
   });
-  localStorage.setItem('fp2-stations', JSON.stringify(sp));
+  db.ref('floorplan/stationPositions').set(sp);
   dragStation = null;
 });
 
@@ -2044,6 +2046,16 @@ function endParty() {
 window.addEventListener('load', function() {
   zoomFit();
   createStaff();
+  // Load station positions from Firebase
+  db.ref('floorplan/stationPositions').once('value').then(function(snap) {
+    var sp = snap.val() || {};
+    document.querySelectorAll('.venue-station').forEach(function(st) {
+      if (sp[st.id]) {
+        st.style.left = sp[st.id].x + 'px';
+        st.style.top = sp[st.id].y + 'px';
+      }
+    });
+  });
 });
 window.addEventListener('resize', function() {
   // keep current view
