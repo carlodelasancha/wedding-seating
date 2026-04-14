@@ -1391,14 +1391,47 @@ function startParty() {
     world.appendChild(w);
     walkerElements.push(w);
 
-    // Each walker moves on its own timer with random interval
-    var delay = 2000 + Math.random() * 6000; // 2-8 seconds between moves
-    var timer = setInterval(function() { moveOneWalker(w); }, delay);
-    walkerTimers.push(timer);
+    var isNovio = g.id === 'novio_carlo' || g.id === 'novia_laura';
+    if (isNovio) {
+      // Novios share a timer -- set up once below
+    } else {
+      var delay = 2000 + Math.random() * 6000;
+      var timer = setInterval(function() { moveOneWalker(w); }, delay);
+      walkerTimers.push(timer);
+    }
 
     // Stagger first move
     setTimeout(function() { moveOneWalker(w); }, 500 + idx * 30);
   });
+
+  // Novios: alternate between together and apart every ~10s
+  var noviosTogether = true;
+  var noviosTimer = setInterval(function() {
+    noviosTogether = !noviosTogether;
+    if (noviosTogether) {
+      moveNoviosWalker(); // pick shared target
+    }
+    walkerElements.forEach(function(w) {
+      if (w.guestData && (w.guestData.id === 'novio_carlo' || w.guestData.id === 'novia_laura')) {
+        if (noviosTogether) {
+          moveOneWalker(w); // uses shared noviosWalkerTarget
+        } else {
+          // Separate: move independently like everyone else
+          var cx = parseInt(w.style.left) || WORLD_W / 2;
+          var cy = parseInt(w.style.top) || WORLD_H / 2;
+          var step = 80 + Math.random() * 120;
+          var ang = Math.random() * Math.PI * 2;
+          var tx = Math.max(100, Math.min(WORLD_W - 100, cx + Math.cos(ang) * step));
+          var ty = Math.max(100, Math.min(WORLD_H - 100, cy + Math.sin(ang) * step));
+          var sp = 3 + Math.random() * 3;
+          w.style.transition = 'left ' + sp + 's ease-in-out, top ' + sp + 's ease-in-out';
+          w.style.left = tx + 'px';
+          w.style.top = ty + 'px';
+        }
+      }
+    });
+  }, 8000);
+  walkerTimers.push(noviosTimer);
 
   // Show music
   if (!musicShown) musicToggle.click();
@@ -1457,10 +1490,38 @@ function findDetourPoint(x1, y1, x2, y2, obstacle) {
   };
 }
 
+// Keep Carlo and Laura together
+var noviosWalkerTarget = null;
+
+function moveNoviosWalker() {
+  if (!partyMode) return;
+  var stepSize = 80 + Math.random() * 120;
+  var angle = Math.random() * Math.PI * 2;
+  var base = noviosWalkerTarget || { x: WORLD_W / 2, y: WORLD_H / 2 };
+  var tx = base.x + Math.cos(angle) * stepSize;
+  var ty = base.y + Math.sin(angle) * stepSize;
+  tx = Math.max(100, Math.min(WORLD_W - 100, tx));
+  ty = Math.max(100, Math.min(WORLD_H - 100, ty));
+  noviosWalkerTarget = { x: tx, y: ty };
+  return noviosWalkerTarget;
+}
+
 function moveOneWalker(w) {
   if (!partyMode) return;
   var cx = parseInt(w.style.left) || WORLD_W / 2;
   var cy = parseInt(w.style.top) || WORLD_H / 2;
+
+  var isNovio = w.guestData && (w.guestData.id === 'novio_carlo' || w.guestData.id === 'novia_laura');
+  if (isNovio) {
+    // Move together -- same target, slight offset so they're side by side
+    if (!noviosWalkerTarget) moveNoviosWalker();
+    var offset = w.guestData.id === 'novio_carlo' ? 15 : -15;
+    var speed = 4 + Math.random() * 2;
+    w.style.transition = 'left ' + speed + 's ease-in-out, top ' + speed + 's ease-in-out';
+    w.style.left = (noviosWalkerTarget.x + offset) + 'px';
+    w.style.top = noviosWalkerTarget.y + 'px';
+    return;
+  }
 
   // Pick target that's NOT inside a table
   var tx, ty, attempts = 0;
