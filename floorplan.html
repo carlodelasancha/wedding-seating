@@ -87,7 +87,8 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 }
 .table-shape.novios {
   width: 130px; height: 64px; border-radius: 10px;
-  background: var(--red); border-color: var(--gold); border-width: 3px;
+  background: linear-gradient(135deg, #d4a030, #f5c842, #d4a030);
+  border: 3px solid #fff; box-shadow: 0 0 15px rgba(245,200,66,0.4);
 }
 .table-count { font-size: 10px; font-weight: normal; opacity: 0.85; margin-top: 2px; }
 
@@ -525,8 +526,8 @@ function renderTable(table, x, y) {
     var sx, sy;
 
     if (isNovios) {
-      // Special: side by side in front of the table
-      sx = (i === 0 ? -22 : 22);
+      // Special: side by side in front of the table (Laura left, Carlo right)
+      sx = (i === 0 ? 22 : -22);
       sy = -55;
     } else if (isRound) {
       var a = (i / seatCount) * Math.PI * 2 - Math.PI / 2;
