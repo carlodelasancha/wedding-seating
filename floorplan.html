@@ -289,6 +289,40 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
 }
 
+/* Pending panel */
+#pending-panel {
+  position: fixed; left: 0; top: 0; width: 300px; height: 100vh;
+  background: rgba(58,28,18,0.96); border-right: 3px solid var(--gold);
+  color: var(--cream); padding: 16px; overflow-y: auto; z-index: 60;
+  transform: translateX(-100%); transition: transform 0.3s;
+}
+#pending-panel.open { transform: translateX(0); }
+.pending-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.pending-header h2 { color: var(--gold); font-size: 18px; }
+.pending-header .close-btn {
+  background: none; border: none; color: var(--gold); font-size: 22px; cursor: pointer;
+}
+#pending-count { font-size: 12px; color: #c4a070; margin-bottom: 12px; }
+.pending-item {
+  padding: 8px 10px; margin: 3px 0; border-radius: 6px; font-size: 13px;
+  display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06);
+}
+.pending-item:hover { background: rgba(255,255,255,0.12); }
+.assign-btn {
+  background: rgba(74,140,63,0.4); border: 1px solid #4a8c3f; color: #8fdc6a;
+  padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;
+  margin-left: auto; white-space: nowrap;
+}
+.assign-btn:hover { background: #4a8c3f; color: #fff; }
+.remove-btn {
+  background: rgba(196,30,58,0.3); border: 1px solid #c41e3a; color: #f08080;
+  padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer;
+  margin-left: auto; white-space: nowrap;
+}
+.remove-btn:hover { background: #c41e3a; color: #fff; }
+
+#btn-pending { background: rgba(74,140,63,0.9) !important; }
+
 #btn-party {
   background: #e8508a !important; border-color: #fff !important; color: #fff !important;
 }
@@ -444,6 +478,7 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 <div id="toolbar">
   <button id="btn-fit">Zoom Fit (F)</button>
   <button id="btn-names" class="active">Nombres (N)</button>
+  <button id="btn-pending">Pendientes</button>
   <button id="btn-party">Fiesta!</button>
   <button id="btn-grid">Grid (G)</button>
   <button id="btn-save">Guardar</button>
@@ -464,6 +499,15 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
     src="https://open.spotify.com/embed/playlist/7skhVBoiTy8Po9UdfkJ4Gy?utm_source=generator&theme=0"
     width="280" height="152" frameBorder="0" allowfullscreen=""
     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+</div>
+
+<div id="pending-panel">
+  <div class="pending-header">
+    <h2>Pendientes</h2>
+    <button class="close-btn" id="btn-close-pending">&times;</button>
+  </div>
+  <div id="pending-count"></div>
+  <div id="pending-list"></div>
 </div>
 
 <div id="sidebar">
@@ -908,6 +952,20 @@ function openSidebar(table, tGuests) {
     }
     item.appendChild(nmWrap);
 
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = 'Quitar';
+    removeBtn.addEventListener('click', (function(guest, tbl) {
+      return function(ev) {
+        ev.stopPropagation();
+        sendToPending(guest);
+        // Refresh sidebar
+        var newGuests = getTableGuestsOrdered(tbl.id);
+        openSidebar(tbl, newGuests);
+      };
+    })(g, table));
+    item.appendChild(removeBtn);
+
     var sd = document.createElement('span'); sd.className = 'guest-side';
     sd.textContent = g.side==='carlo'?'C':g.side==='laura'?'L':'?';
     sd.style.color = g.side==='carlo'?'#d94f30':'#3a8abd';
@@ -1294,6 +1352,125 @@ musicToggle.addEventListener('click', function() {
   musicShown = !musicShown;
   spotifyEmbed.style.display = musicShown ? 'block' : 'none';
 });
+
+// ============================================================
+// PENDING PANEL
+// ============================================================
+var pendingOpen = false;
+
+document.getElementById('btn-pending').addEventListener('click', function() {
+  pendingOpen = !pendingOpen;
+  document.getElementById('pending-panel').classList.toggle('open', pendingOpen);
+  if (pendingOpen) renderPendingList();
+});
+
+document.getElementById('btn-close-pending').addEventListener('click', function() {
+  pendingOpen = false;
+  document.getElementById('pending-panel').classList.remove('open');
+});
+
+function renderPendingList() {
+  var panel = document.getElementById('pending-list');
+  while (panel.firstChild) panel.removeChild(panel.firstChild);
+
+  var pending = guests.filter(function(g) { return !g.tableId; });
+  document.getElementById('pending-count').textContent = pending.length + ' invitados sin mesa';
+
+  pending.forEach(function(g) {
+    var item = document.createElement('div');
+    item.className = 'pending-item';
+
+    var dot = document.createElement('span');
+    dot.className = 'guest-dot';
+    dot.style.background = g.gender === 'F' ? '#e8508a' : g.gender === 'M' ? '#3a8abd' : '#e88a20';
+    item.appendChild(dot);
+
+    var nm = document.createElement('span');
+    nm.textContent = g.name;
+    item.appendChild(nm);
+
+    var btn = document.createElement('button');
+    btn.className = 'assign-btn';
+    btn.textContent = 'Asignar';
+    btn.addEventListener('click', function() {
+      startAssignGuest(g);
+    });
+    item.appendChild(btn);
+
+    panel.appendChild(item);
+  });
+
+  if (pending.length === 0) {
+    var empty = document.createElement('div');
+    empty.style.cssText = 'color:#8a7050;font-style:italic;padding:10px;text-align:center;';
+    empty.textContent = 'Todos asignados!';
+    panel.appendChild(empty);
+  }
+}
+
+// Assign guest from pending to a table
+var assigningGuest = null;
+
+function startAssignGuest(guest) {
+  assigningGuest = guest;
+  // Close pending panel, show banner
+  document.getElementById('pending-panel').classList.remove('open');
+
+  var banner = document.getElementById('move-banner');
+  while (banner.firstChild) banner.removeChild(banner.firstChild);
+  banner.appendChild(document.createTextNode('Asignando: ' + guest.name + ' -- Click en la mesa destino '));
+  var cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.addEventListener('click', cancelAssign);
+  banner.appendChild(cancelBtn);
+  banner.style.display = 'block';
+}
+
+function cancelAssign() {
+  assigningGuest = null;
+  document.getElementById('move-banner').style.display = 'none';
+}
+
+// Listen for table clicks when assigning
+world.addEventListener('click', function(e) {
+  if (!assigningGuest) return;
+  var shape = e.target.closest('.table-shape');
+  if (!shape) return;
+  var tg = shape.closest('.table-group');
+  if (!tg) return;
+
+  var targetId = tg.dataset.tableId;
+  var targetTable = tables.find(function(t) { return t.id === targetId; });
+  var targetGuests = guests.filter(function(g) { return g.tableId === targetId; });
+
+  if (targetGuests.length >= (targetTable.capacity || 10)) {
+    shape.style.outline = '3px solid red';
+    setTimeout(function() { shape.style.outline = ''; }, 500);
+    return;
+  }
+
+  assigningGuest.tableId = targetId;
+  var gIdx = guests.indexOf(assigningGuest);
+  if (gIdx >= 0) {
+    dbRef.child('guests/' + gIdx + '/tableId').set(targetId);
+  }
+
+  cancelAssign();
+  renderAll();
+  updateStats();
+});
+
+// Remove guest from table (send to pending)
+function sendToPending(guest) {
+  guest.tableId = null;
+  var gIdx = guests.indexOf(guest);
+  if (gIdx >= 0) {
+    dbRef.child('guests/' + gIdx + '/tableId').set(null);
+  }
+  renderAll();
+  updateStats();
+  if (pendingOpen) renderPendingList();
+}
 
 // ============================================================
 // VENUE STATION DRAG
