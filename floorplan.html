@@ -524,7 +524,11 @@ function renderTable(table, x, y) {
     var guest = guestAtSeat(table.id, i);
     var sx, sy;
 
-    if (isRound) {
+    if (isNovios) {
+      // Special: side by side in front of the table
+      sx = (i === 0 ? -22 : 22);
+      sy = -55;
+    } else if (isRound) {
       var a = (i / seatCount) * Math.PI * 2 - Math.PI / 2;
       sx = Math.cos(a) * radius;
       sy = Math.sin(a) * radius;
