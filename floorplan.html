@@ -37,7 +37,49 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   display: flex; align-items: center; justify-content: center;
   font: bold 22px Georgia, serif; color: #c4883a; opacity: 0.6;
   text-align: center; line-height: 1.3; pointer-events: none;
+  overflow: hidden;
 }
+.party-mode #dance-floor {
+  opacity: 1;
+  background: #2a1a10;
+  border-color: #f5c842;
+  animation: floor-pulse 2s ease-in-out infinite;
+}
+@keyframes floor-pulse {
+  0%, 100% { box-shadow: inset 0 0 40px rgba(245,200,66,0.2); }
+  50% { box-shadow: inset 0 0 60px rgba(232,80,138,0.3); }
+}
+.party-mode #dance-floor .floor-text { color: #f5c842; }
+.disco-light {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  filter: blur(20px); opacity: 0;
+}
+.party-mode .disco-light { opacity: 0.5; }
+.disco-light.l1 {
+  width: 100px; height: 100px; background: #e8508a;
+  top: 20px; left: 30px; animation: disco1 3s ease-in-out infinite;
+}
+.disco-light.l2 {
+  width: 80px; height: 80px; background: #f5c842;
+  top: 150px; right: 20px; animation: disco2 2.5s ease-in-out infinite;
+}
+.disco-light.l3 {
+  width: 90px; height: 90px; background: #3a8abd;
+  bottom: 30px; left: 100px; animation: disco3 3.5s ease-in-out infinite;
+}
+.disco-light.l4 {
+  width: 70px; height: 70px; background: #4a8c3f;
+  top: 60px; right: 100px; animation: disco4 2s ease-in-out infinite;
+}
+.disco-light.l5 {
+  width: 60px; height: 60px; background: #c41e3a;
+  bottom: 80px; left: 20px; animation: disco5 2.8s ease-in-out infinite;
+}
+@keyframes disco1 { 0%,100% { transform: translate(0,0); opacity: 0.4; } 50% { transform: translate(80px,60px); opacity: 0.7; } }
+@keyframes disco2 { 0%,100% { transform: translate(0,0); opacity: 0.3; } 50% { transform: translate(-60px,40px); opacity: 0.6; } }
+@keyframes disco3 { 0%,100% { transform: translate(0,0); opacity: 0.35; } 50% { transform: translate(40px,-50px); opacity: 0.65; } }
+@keyframes disco4 { 0%,100% { transform: translate(0,0); opacity: 0.3; } 50% { transform: translate(-50px,70px); opacity: 0.6; } }
+@keyframes disco5 { 0%,100% { transform: translate(0,0); opacity: 0.4; } 50% { transform: translate(70px,-30px); opacity: 0.7; } }
 
 /* Border decoration */
 #world::before {
@@ -380,7 +422,14 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 
 <div id="canvas-wrap">
   <div id="world">
-    <div id="dance-floor">PISTA<br>DE BAILE</div>
+    <div id="dance-floor">
+      <div class="disco-light l1"></div>
+      <div class="disco-light l2"></div>
+      <div class="disco-light l3"></div>
+      <div class="disco-light l4"></div>
+      <div class="disco-light l5"></div>
+      <span class="floor-text">PISTA<br>DE BAILE</span>
+    </div>
     <div class="venue-station" id="bar-station"><span class="station-emoji">&#127867;</span>BARRA</div>
     <div class="venue-station" id="tacos-station"><span class="station-emoji">&#127790;</span>TACOS</div>
     <div class="venue-station" id="photobooth-station"><span class="station-emoji">&#128248;</span>PHOTO BOOTH</div>
