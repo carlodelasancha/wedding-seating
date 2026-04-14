@@ -1173,6 +1173,12 @@ window.addEventListener('pointerup', function(e) {
     var target = findNearestSeat(e.clientX, e.clientY);
     if (target && target !== movingSeat) {
       handleSeatDrop(movingSeat, target);
+    } else {
+      // Dropped outside any seat -- send to pending
+      var guest = getGuestById(movingSeat.dataset.guestId);
+      if (guest && confirm('Mover a ' + guest.name + ' a Pendientes?')) {
+        sendToPending(guest);
+      }
     }
   } else {
     // Was just a click, not a drag -- open sidebar
