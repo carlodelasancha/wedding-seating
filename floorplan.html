@@ -273,7 +273,7 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   background: #fff; color: #3a1c12; font-size: 9px; padding: 5px 8px;
   border-radius: 10px; max-width: 120px; text-align: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-weight: 500;
-  animation: bubble-pop 4s ease-out forwards;
+  animation: bubble-pop 8s ease-out forwards;
   transform: translateX(-50%);
 }
 .speech-bubble::after {
@@ -1651,7 +1651,7 @@ function showRandomBubble() {
   // Remove after animation
   setTimeout(function() {
     if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
-  }, 4200);
+  }, 8500);
 }
 
 // Keep Carlo and Laura together
