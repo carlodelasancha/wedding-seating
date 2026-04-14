@@ -367,6 +367,36 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 }
 .person.female .hair { border-radius: 50%; top: -4px; height: 6px; }
 
+/* Captain styling */
+.person.captain .head {
+  box-shadow: 0 0 8px 2px rgba(245,200,66,0.85);
+  border-color: var(--gold);
+}
+.person.captain .body {
+  box-shadow: 0 0 6px 1px rgba(245,200,66,0.6);
+}
+.captain-crown {
+  position: absolute; left: 50%; top: -10px; transform: translateX(-50%);
+  font-size: 10px; line-height: 1; pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+.captain-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(245,200,66,0.28), rgba(232,138,50,0.28));
+  border: 1px solid var(--gold); border-radius: 6px;
+  padding: 6px 10px; margin-bottom: 8px;
+  font-size: 12px; font-weight: 600; color: var(--gold);
+}
+.captain-badge.empty {
+  background: rgba(90,60,40,0.25);
+  border-color: rgba(196,160,112,0.3);
+  color: #c4a070; font-weight: 500; font-style: italic;
+}
+.guest-item .captain-star {
+  color: var(--gold); font-size: 12px; margin-right: 2px;
+  text-shadow: 0 0 3px rgba(245,200,66,0.6);
+}
+
 /* Name labels */
 .seat-name {
   position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
@@ -481,6 +511,7 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   <button id="btn-pending">Pendientes</button>
   <button id="btn-party">Fiesta!</button>
   <button id="btn-grid">Grid (G)</button>
+  <button id="btn-export" title="Descargar JSON con posiciones actuales">Exportar</button>
 </div>
 
 <div id="stats"></div>
@@ -536,6 +567,27 @@ var dbRef = db.ref('seating');
 // STATE
 // ============================================================
 var tables = [], guests = [], groups = [];
+
+var CAPTAIN_NAMES = [
+  'Karina Favela',
+  'Wily De la Sancha Verduzco',
+  'Carlos Alberto Arjona Morineau',
+  'Jesús Gonzalo Cervantes Robles',
+  'Karlo Velarde',
+  'Alfonso Morales Carranza',
+  'Juan Hurtado',
+  'José Eduardo Gil Rullan'
+];
+function isCaptain(guest) {
+  if (!guest || !guest.name) return false;
+  return CAPTAIN_NAMES.indexOf(guest.name) >= 0;
+}
+function findCaptainInTable(tableId) {
+  for (var i = 0; i < guests.length; i++) {
+    if (guests[i].tableId === tableId && isCaptain(guests[i])) return guests[i];
+  }
+  return null;
+}
 var showNames = true, showGridLines = true;
 var savedPositions = {};
 var zoom = 1, panX = 0, panY = 0;
@@ -570,13 +622,79 @@ dbRef.on('value', function(snap) {
     db.ref('floorplan/tablePositions').once('value'),
     db.ref('floorplan/seatMap').once('value')
   ]).then(function(snaps) {
-    savedPositions = snaps[0].val() || {};
+    var fbPositions = snaps[0].val() || {};
+    var fbCount = Object.keys(fbPositions).length;
+    var expectedMin = Math.max(tables.length - 2, 8);
+
+    if (fbCount < expectedMin) {
+      var backups = loadLocalBackups();
+      var bestBackup = null;
+      for (var i = 0; i < backups.length; i++) {
+        var bCount = Object.keys(backups[i].tablePositions || {}).length;
+        if (bCount >= expectedMin) { bestBackup = backups[i]; break; }
+      }
+      if (bestBackup) {
+        var msg = 'Firebase tiene solo ' + fbCount + ' posiciones de mesa (esperadas: ' + expectedMin + '+).\n' +
+          'Backup local disponible: ' + new Date(bestBackup.timestamp).toLocaleString() +
+          ' con ' + Object.keys(bestBackup.tablePositions).length + ' posiciones.\n\n' +
+          'Restaurar el backup local?';
+        if (confirm(msg)) {
+          savedPositions = bestBackup.tablePositions;
+          db.ref('floorplan/tablePositions').update(savedPositions);
+        } else {
+          savedPositions = fbPositions;
+        }
+      } else {
+        savedPositions = fbPositions;
+      }
+    } else {
+      savedPositions = fbPositions;
+    }
     seatMap = snaps[1].val() || {};
     renderAll();
     updateStats();
+    saveLocalBackup();
   });
   updateStats();
 });
+
+// ============================================================
+// LOCAL BACKUP (localStorage + manual export)
+// ============================================================
+function loadLocalBackups() {
+  try { return JSON.parse(localStorage.getItem('floorplan_backups') || '[]'); }
+  catch(e) { return []; }
+}
+function saveLocalBackup() {
+  try {
+    if (!savedPositions || Object.keys(savedPositions).length === 0) return;
+    var backups = loadLocalBackups();
+    var last = backups[0];
+    if (last && JSON.stringify(last.tablePositions) === JSON.stringify(savedPositions)) return;
+    backups.unshift({
+      timestamp: Date.now(),
+      tablePositions: JSON.parse(JSON.stringify(savedPositions)),
+      seatMap: JSON.parse(JSON.stringify(seatMap || {}))
+    });
+    backups = backups.slice(0, 20);
+    localStorage.setItem('floorplan_backups', JSON.stringify(backups));
+  } catch(e) { console.error('Backup failed:', e); }
+}
+function exportPositionsFile() {
+  var data = {
+    exportedAt: new Date().toISOString(),
+    tablePositions: savedPositions,
+    seatMap: seatMap,
+    tableCount: Object.keys(savedPositions || {}).length
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'floorplan-positions-' + new Date().toISOString().slice(0,19).replace(/[:.]/g,'-') + '.json';
+  a.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
 
 // ============================================================
 // RENDER
@@ -683,12 +801,19 @@ function renderTable(table, x, y) {
       var isBride = guest.id === 'novia_laura';
       var isGroom = guest.id === 'novio_carlo';
       var personClass = isBride ? 'bride' : isGroom ? 'groom' : (g === 'F' ? 'female' : g === 'M' ? 'male' : 'unknown');
+      if (isCaptain(guest)) personClass += ' captain';
       person.className = 'person ' + personClass;
       var hair = document.createElement('div'); hair.className = 'hair';
       var head = document.createElement('div'); head.className = 'head';
       head.appendChild(hair);
       var body = document.createElement('div'); body.className = 'body';
       person.appendChild(head); person.appendChild(body);
+      if (isCaptain(guest)) {
+        var crown = document.createElement('div');
+        crown.className = 'captain-crown';
+        crown.textContent = '\u2605';
+        person.appendChild(crown);
+      }
       seat.appendChild(person);
 
       if (showNames) {
@@ -803,10 +928,11 @@ window.addEventListener('pointerup', function() {
   if (dragTable) {
     dragTable.classList.remove('dragging');
     wrap.classList.remove('dragging-table');
-    savedPositions[dragTable.dataset.tableId] = {
-      x: parseInt(dragTable.style.left), y: parseInt(dragTable.style.top)
-    };
-    db.ref('floorplan/tablePositions').set(savedPositions);
+    var tid = dragTable.dataset.tableId;
+    var newPos = { x: parseInt(dragTable.style.left), y: parseInt(dragTable.style.top) };
+    savedPositions[tid] = newPos;
+    db.ref('floorplan/tablePositions/' + tid).set(newPos);
+    saveLocalBackup();
     dragTable = null;
   }
 });
@@ -913,6 +1039,17 @@ function openSidebar(table, tGuests) {
   hint.textContent = 'Arrastra nombres o munequitos para cambiar asiento';
   info.appendChild(hint);
 
+  var captain = findCaptainInTable(table.id);
+  var capBadge = document.createElement('div');
+  if (captain) {
+    capBadge.className = 'captain-badge';
+    capBadge.textContent = '\u2605 Capitán: ' + captain.name;
+  } else {
+    capBadge.className = 'captain-badge empty';
+    capBadge.textContent = 'Sin capitán asignado';
+  }
+  info.appendChild(capBadge);
+
   // Swap table button
   var swapDiv = document.createElement('div');
   swapDiv.style.cssText = 'margin-bottom:12px;';
@@ -942,7 +1079,17 @@ function openSidebar(table, tGuests) {
     item.appendChild(dot);
     var nmWrap = document.createElement('div');
     nmWrap.style.cssText = 'display:flex;flex-direction:column;';
-    var nm = document.createElement('span'); nm.textContent = g.name; nmWrap.appendChild(nm);
+    var nm = document.createElement('span');
+    if (isCaptain(g)) {
+      var star = document.createElement('span');
+      star.className = 'captain-star';
+      star.textContent = '\u2605';
+      nm.appendChild(star);
+      nm.appendChild(document.createTextNode(g.name));
+    } else {
+      nm.textContent = g.name;
+    }
+    nmWrap.appendChild(nm);
     if (g.meal) {
       var ml = document.createElement('span');
       ml.style.cssText = 'font-size:12px;margin-top:1px;';
@@ -1030,6 +1177,8 @@ document.getElementById('btn-grid').addEventListener('click', function() {
   world.style.backgroundImage = showGridLines ?
     'linear-gradient(#f0e4d0 1px, transparent 1px), linear-gradient(90deg, #f0e4d0 1px, transparent 1px)' : 'none';
 });
+document.getElementById('btn-export').addEventListener('click', exportPositionsFile);
+setInterval(saveLocalBackup, 5 * 60 * 1000);
 window.addEventListener('keydown', function(e) {
   if (e.key === 'f') zoomFit();
   if (e.key === 'n') document.getElementById('btn-names').click();
@@ -1229,6 +1378,10 @@ function loadSeatMap() {
 }
 
 function saveSeatMap() {
+  if (!seatMap || Object.keys(seatMap).length === 0) {
+    console.warn('saveSeatMap aborted: empty seatMap would overwrite Firebase');
+    return;
+  }
   db.ref('floorplan/seatMap').set(seatMap);
 }
 
