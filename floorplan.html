@@ -322,6 +322,57 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 .remove-btn:hover { background: #c41e3a; color: #fff; }
 
 #btn-pending { background: rgba(74,140,63,0.9) !important; }
+#btn-meals { background: rgba(232,138,50,0.9) !important; }
+
+/* Meals panel */
+#meals-panel {
+  position: fixed; left: 0; top: 0; width: 320px; height: 100vh;
+  background: rgba(58,28,18,0.96); border-right: 3px solid var(--gold);
+  color: var(--cream); padding: 16px; overflow-y: auto; z-index: 61;
+  transform: translateX(-100%); transition: transform 0.3s;
+}
+#meals-panel.open { transform: translateX(0); }
+.meals-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.meals-header h2 { color: var(--gold); font-size: 18px; }
+.meals-total {
+  padding: 10px 12px; margin-bottom: 14px; border-radius: 8px;
+  background: rgba(245,200,66,0.15); border: 1px solid var(--gold);
+  font-size: 13px; color: var(--gold); text-align: center; font-weight: 600;
+}
+.meal-category {
+  margin-bottom: 10px; border-radius: 8px; overflow: hidden;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(196,160,112,0.25);
+}
+.meal-category.open { border-color: var(--gold); }
+.meal-header {
+  padding: 10px 12px; cursor: pointer; display: flex; align-items: center;
+  gap: 10px; font-size: 14px; font-weight: 600; user-select: none;
+  transition: background 0.15s;
+}
+.meal-header:hover { background: rgba(255,255,255,0.08); }
+.meal-icon { font-size: 22px; }
+.meal-label { flex: 1; color: var(--cream); }
+.meal-count {
+  background: rgba(245,200,66,0.25); color: var(--gold); border: 1px solid var(--gold);
+  padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;
+}
+.meal-caret { color: #c4a070; font-size: 11px; transition: transform 0.2s; }
+.meal-category.open .meal-caret { transform: rotate(90deg); }
+.meal-list {
+  display: none; padding: 4px 12px 10px; max-height: 420px; overflow-y: auto;
+}
+.meal-category.open .meal-list { display: block; }
+.meal-guest {
+  padding: 5px 8px; margin: 2px 0; border-radius: 4px; font-size: 12px;
+  display: flex; align-items: center; gap: 8px; color: #e8dcc8;
+  background: rgba(0,0,0,0.15);
+}
+.meal-guest .mg-table {
+  margin-left: auto; font-size: 10px; color: #c4a070;
+  background: rgba(196,160,112,0.15); padding: 1px 6px; border-radius: 4px;
+}
+.meal-guest.no-table .mg-table { color: #e88a20; background: rgba(232,138,50,0.2); }
+.meal-empty { color: #8a7050; font-style: italic; padding: 8px; font-size: 12px; }
 
 #btn-party {
   background: #e8508a !important; border-color: #fff !important; color: #fff !important;
@@ -509,6 +560,7 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   <button id="btn-fit">Zoom Fit (F)</button>
   <button id="btn-names" class="active">Nombres (N)</button>
   <button id="btn-pending">Pendientes</button>
+  <button id="btn-meals">Comidas</button>
   <button id="btn-party">Fiesta!</button>
   <button id="btn-grid">Grid (G)</button>
   <button id="btn-export" title="Descargar JSON con posiciones actuales">Exportar</button>
@@ -541,6 +593,15 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
   <div id="pending-count"></div>
   <div id="pending-list"></div>
   <div id="confirmed-count" style="margin-top:16px;padding:12px;background:rgba(74,140,63,0.2);border:1px solid #4a8c3f;border-radius:8px;text-align:center;"></div>
+</div>
+
+<div id="meals-panel">
+  <div class="meals-header">
+    <h2>Comidas</h2>
+    <button class="close-btn" id="btn-close-meals" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;">&times;</button>
+  </div>
+  <div class="meals-total" id="meals-total"></div>
+  <div id="meals-list"></div>
 </div>
 
 <div id="sidebar">
@@ -1179,6 +1240,101 @@ document.getElementById('btn-grid').addEventListener('click', function() {
 });
 document.getElementById('btn-export').addEventListener('click', exportPositionsFile);
 setInterval(saveLocalBackup, 5 * 60 * 1000);
+
+// ============================================================
+// MEALS PANEL
+// ============================================================
+var MEAL_CATEGORIES = [
+  { key: 'filet', label: 'Filet Mignon', icon: '\ud83e\udd69',
+    match: function(m) { return m.indexOf('mignon') >= 0 || m.indexOf('filet') >= 0 || m.indexOf('steak') >= 0; } },
+  { key: 'fish', label: 'Pescado', icon: '\ud83d\udc1f',
+    match: function(m) { return m.indexOf('fish') >= 0 || m.indexOf('pescado') >= 0 || m.indexOf('salmon') >= 0; } },
+  { key: 'veg', label: 'Vegetariano', icon: '\ud83e\udd66',
+    match: function(m) { return m.indexOf('vegetar') >= 0 || m.indexOf('vegan') >= 0; } },
+  { key: 'unknown', label: 'Sin elegir', icon: '\u2753',
+    match: function(m) { return !m; } }
+];
+function classifyMeal(guest) {
+  var m = (guest.meal || '').toLowerCase().trim();
+  for (var i = 0; i < MEAL_CATEGORIES.length; i++) {
+    if (MEAL_CATEGORIES[i].match(m)) return MEAL_CATEGORIES[i].key;
+  }
+  return 'unknown';
+}
+var mealsOpen = false;
+var mealCategoryOpen = {};
+
+function renderMeals() {
+  var buckets = {};
+  MEAL_CATEGORIES.forEach(function(c) { buckets[c.key] = []; });
+  guests.forEach(function(g) {
+    if (g.id === 'novio_carlo' || g.id === 'novia_laura') return;
+    buckets[classifyMeal(g)].push(g);
+  });
+  var total = 0;
+  MEAL_CATEGORIES.forEach(function(c) { total += buckets[c.key].length; });
+  document.getElementById('meals-total').textContent = 'Total: ' + total + ' invitados';
+
+  var list = document.getElementById('meals-list');
+  while (list.firstChild) list.removeChild(list.firstChild);
+
+  MEAL_CATEGORIES.forEach(function(cat) {
+    var arr = buckets[cat.key];
+    if (arr.length === 0 && cat.key === 'unknown') return;
+    var wrap = document.createElement('div');
+    wrap.className = 'meal-category' + (mealCategoryOpen[cat.key] ? ' open' : '');
+
+    var header = document.createElement('div');
+    header.className = 'meal-header';
+    var icon = document.createElement('span'); icon.className = 'meal-icon'; icon.textContent = cat.icon;
+    var label = document.createElement('span'); label.className = 'meal-label'; label.textContent = cat.label;
+    var count = document.createElement('span'); count.className = 'meal-count'; count.textContent = arr.length;
+    var caret = document.createElement('span'); caret.className = 'meal-caret'; caret.textContent = '\u25b6';
+    header.appendChild(icon); header.appendChild(label); header.appendChild(count); header.appendChild(caret);
+    header.addEventListener('click', (function(key) {
+      return function() {
+        mealCategoryOpen[key] = !mealCategoryOpen[key];
+        renderMeals();
+      };
+    })(cat.key));
+    wrap.appendChild(header);
+
+    var sublist = document.createElement('div'); sublist.className = 'meal-list';
+    if (arr.length === 0) {
+      var em = document.createElement('div'); em.className = 'meal-empty';
+      em.textContent = 'Nadie en esta categoría';
+      sublist.appendChild(em);
+    } else {
+      arr.sort(function(a,b) { return a.name.localeCompare(b.name); });
+      arr.forEach(function(g) {
+        var item = document.createElement('div');
+        item.className = 'meal-guest' + (g.tableId ? '' : ' no-table');
+        var nm = document.createElement('span'); nm.textContent = g.name;
+        var tb = document.createElement('span'); tb.className = 'mg-table';
+        if (g.tableId) {
+          var t = tables.find(function(x) { return x.id === g.tableId; });
+          tb.textContent = t ? t.name : g.tableId;
+        } else {
+          tb.textContent = 'sin mesa';
+        }
+        item.appendChild(nm); item.appendChild(tb);
+        sublist.appendChild(item);
+      });
+    }
+    wrap.appendChild(sublist);
+    list.appendChild(wrap);
+  });
+}
+
+document.getElementById('btn-meals').addEventListener('click', function() {
+  mealsOpen = !mealsOpen;
+  document.getElementById('meals-panel').classList.toggle('open', mealsOpen);
+  if (mealsOpen) renderMeals();
+});
+document.getElementById('btn-close-meals').addEventListener('click', function() {
+  mealsOpen = false;
+  document.getElementById('meals-panel').classList.remove('open');
+});
 window.addEventListener('keydown', function(e) {
   if (e.key === 'f') zoomFit();
   if (e.key === 'n') document.getElementById('btn-names').click();
