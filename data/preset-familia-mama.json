@@ -3,75 +3,451 @@
   "source": "Mamá de Carlo — foto WhatsApp 11-Abr-2026",
   "totalGuests": 36,
   "groups": [
-    { "id": "gr_delasancha_nucleo", "name": "De la Sancha (núcleo)", "color": "#6b1f2a" },
-    { "id": "gr_amigos_pedro",      "name": "Amigos Pedro/Patricia/Oscar",  "color": "#8a2e3b" },
-    { "id": "gr_verduzco_extendida","name": "Verduzco extendida", "color": "#c9a86b" },
-    { "id": "gr_amigos_salvador",   "name": "Amigos Salvador/América/Marco", "color": "#a88449" }
+    {
+      "id": "gr_delasancha_nucleo",
+      "name": "De la Sancha (núcleo)",
+      "color": "#6b1f2a"
+    },
+    {
+      "id": "gr_amigos_pedro",
+      "name": "Amigos Pedro/Patricia/Oscar",
+      "color": "#8a2e3b"
+    },
+    {
+      "id": "gr_verduzco_extendida",
+      "name": "Verduzco extendida",
+      "color": "#c9a86b"
+    },
+    {
+      "id": "gr_amigos_salvador",
+      "name": "Amigos Salvador/América/Marco",
+      "color": "#a88449"
+    }
   ],
   "guests": [
-    { "id": "m_wilibaldo_delasancha", "name": "Wilibaldo de la Sancha", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_carmen_judith_verduzco", "name": "Carmen Judith Verduzco (esposa Wilibaldo)", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_federico_delasancha", "name": "Federico de la Sancha", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_juanita_porras", "name": "Juanita Porras (esposa Federico)", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_cesar_delasancha", "name": "Cesar de la Sancha", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_lilia_delasancha", "name": "Lilia de la Sancha", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_edna_delasancha", "name": "Edna de la Sancha", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_diana_renteria", "name": "Diana Rentería de la S.", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-    { "id": "m_iris_arellano", "name": "Iris Arellano Galarza", "side": "carlo", "groups": ["gr_delasancha_nucleo"], "tableId": null },
-
-    { "id": "m_pedro_velazco", "name": "Pedro Velazco", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_patricia_fuentes", "name": "Patricia Fuentes", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_oscar_moreno", "name": "Oscar Moreno", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_adela_guerena", "name": "Adela Guereña", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_lourdes_amparan", "name": "Lourdes Amparán", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_juan_manuel_perez", "name": "Juan Manuel Pérez", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_jesus_beas", "name": "Jesús Beas", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_silvia_gonzalez", "name": "Silvia Gonzalez", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_rafael_vazquez", "name": "Rafael Vázquez", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-    { "id": "m_luz_ma_galindo", "name": "Luz Ma Galindo", "side": "carlo", "groups": ["gr_amigos_pedro"], "tableId": null },
-
-    { "id": "m_fernando_verduzco", "name": "Fernando Verduzco", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_lupita_valdez", "name": "Lupita Valdez", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_alberto_verduzco", "name": "Alberto Verduzco", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_arminda_acosta", "name": "Arminda Acosta", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_javier_verduzco", "name": "Javier Verduzco", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_sandra_verduzco", "name": "Sandra Verduzco D.", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_elvira_quintanilla", "name": "Elvira Quintanilla", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_mercedes_verduzco", "name": "Mercedes Verduzco", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_silvestre_canedo", "name": "Silvestre Cañedo", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-    { "id": "m_jesus_garibay", "name": "Jesús Garibay", "side": "carlo", "groups": ["gr_verduzco_extendida"], "tableId": null },
-
-    { "id": "m_salvador_leon", "name": "Salvador León", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_america_glez", "name": "América González", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_marco_avalos", "name": "Marco Avalos", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_adriana_feliz", "name": "Adriana Feliz", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_roberto_arce", "name": "Roberto Arce", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_veronica_avalos", "name": "Veronica Avalos", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_melchor_flores", "name": "Melchor Flores", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null },
-    { "id": "m_laura_mejia", "name": "Laura Mejía", "side": "carlo", "groups": ["gr_amigos_salvador"], "tableId": null }
+    {
+      "id": "m_wilibaldo_delasancha",
+      "name": "Wilibaldo de la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_carmen_judith_verduzco",
+      "name": "Carmen Judith Verduzco (esposa Wilibaldo)",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_federico_delasancha",
+      "name": "Federico de la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_juanita_porras",
+      "name": "Juanita Porras (esposa Federico)",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_cesar_delasancha",
+      "name": "Cesar de la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_lilia_delasancha",
+      "name": "Lilia de la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_edna_delasancha",
+      "name": "Edna de la Sancha",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_diana_renteria",
+      "name": "Diana Rentería de la S.",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_iris_arellano",
+      "name": "Iris Arellano Galarza",
+      "side": "carlo",
+      "groups": [
+        "gr_delasancha_nucleo"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_pedro_velazco",
+      "name": "Pedro Velazco",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_patricia_fuentes",
+      "name": "Patricia Fuentes",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_lourdes_amparan",
+      "name": "Lourdes Amparán",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_juan_manuel_perez",
+      "name": "Juan Manuel Pérez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_jesus_beas",
+      "name": "Jesús Beas",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_silvia_gonzalez",
+      "name": "Silvia Gonzalez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_rafael_vazquez",
+      "name": "Rafael Vázquez",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_luz_ma_galindo",
+      "name": "Luz Ma Galindo",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_pedro"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_fernando_verduzco",
+      "name": "Fernando Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_lupita_valdez",
+      "name": "Lupita Valdez",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_alberto_verduzco",
+      "name": "Alberto Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_arminda_acosta",
+      "name": "Arminda Acosta",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_javier_verduzco",
+      "name": "Javier Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_sandra_verduzco",
+      "name": "Sandra Verduzco D.",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_elvira_quintanilla",
+      "name": "Elvira Quintanilla",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_mercedes_verduzco",
+      "name": "Mercedes Verduzco",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_silvestre_canedo",
+      "name": "Silvestre Cañedo",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_jesus_garibay",
+      "name": "Jesús Garibay",
+      "side": "carlo",
+      "groups": [
+        "gr_verduzco_extendida"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_salvador_leon",
+      "name": "Salvador León",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_america_glez",
+      "name": "América González",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_marco_avalos",
+      "name": "Marco Avalos",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_adriana_feliz",
+      "name": "Adriana Feliz",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_roberto_arce",
+      "name": "Roberto Arce",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_veronica_avalos",
+      "name": "Veronica Avalos",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_melchor_flores",
+      "name": "Melchor Flores",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    },
+    {
+      "id": "m_laura_mejia",
+      "name": "Laura Mejía",
+      "side": "carlo",
+      "groups": [
+        "gr_amigos_salvador"
+      ],
+      "tableId": null
+    }
   ],
   "rules": [],
   "layouts": {
     "mesas_de_10": {
       "description": "Propuesta de mamá con mesas de 10 (4 mesas, 36 personas)",
       "assignments": {
-        "r1": ["m_wilibaldo_delasancha","m_carmen_judith_verduzco","m_federico_delasancha","m_juanita_porras","m_cesar_delasancha","m_lilia_delasancha","m_edna_delasancha","m_diana_renteria","m_iris_arellano"],
-        "r2": ["m_pedro_velazco","m_patricia_fuentes","m_oscar_moreno","m_adela_guerena","m_lourdes_amparan","m_juan_manuel_perez","m_jesus_beas","m_silvia_gonzalez","m_mercedes_verduzco","m_silvestre_canedo"],
-        "r3": ["m_fernando_verduzco","m_lupita_valdez","m_alberto_verduzco","m_arminda_acosta","m_javier_verduzco","m_sandra_verduzco","m_elvira_quintanilla"],
-        "r4": ["m_salvador_leon","m_america_glez","m_marco_avalos","m_adriana_feliz","m_roberto_arce","m_veronica_avalos","m_melchor_flores","m_laura_mejia","m_rafael_vazquez","m_luz_ma_galindo"]
+        "r1": [
+          "m_wilibaldo_delasancha",
+          "m_carmen_judith_verduzco",
+          "m_federico_delasancha",
+          "m_juanita_porras",
+          "m_cesar_delasancha",
+          "m_lilia_delasancha",
+          "m_edna_delasancha",
+          "m_diana_renteria",
+          "m_iris_arellano"
+        ],
+        "r2": [
+          "m_pedro_velazco",
+          "m_patricia_fuentes",
+          "m_oscar_moreno",
+          "m_adela_guerena",
+          "m_lourdes_amparan",
+          "m_juan_manuel_perez",
+          "m_jesus_beas",
+          "m_silvia_gonzalez",
+          "m_mercedes_verduzco",
+          "m_silvestre_canedo"
+        ],
+        "r3": [
+          "m_fernando_verduzco",
+          "m_lupita_valdez",
+          "m_alberto_verduzco",
+          "m_arminda_acosta",
+          "m_javier_verduzco",
+          "m_sandra_verduzco",
+          "m_elvira_quintanilla"
+        ],
+        "r4": [
+          "m_salvador_leon",
+          "m_america_glez",
+          "m_marco_avalos",
+          "m_adriana_feliz",
+          "m_roberto_arce",
+          "m_veronica_avalos",
+          "m_melchor_flores",
+          "m_laura_mejia",
+          "m_rafael_vazquez",
+          "m_luz_ma_galindo"
+        ]
       },
-      "unassignedInThisLayout": ["m_jesus_garibay"]
+      "unassignedInThisLayout": [
+        "m_jesus_garibay"
+      ]
     },
     "mesas_de_8": {
       "description": "Propuesta de mamá con mesas de 8 (5 mesas, 36 personas)",
       "assignments": {
-        "r1": ["m_wilibaldo_delasancha","m_carmen_judith_verduzco","m_federico_delasancha","m_juanita_porras","m_cesar_delasancha","m_lilia_delasancha","m_edna_delasancha","m_diana_renteria"],
-        "r2": ["m_pedro_velazco","m_patricia_fuentes","m_oscar_moreno","m_adela_guerena","m_lourdes_amparan","m_juan_manuel_perez","m_rafael_vazquez","m_luz_ma_galindo"],
-        "r3": ["m_melchor_flores","m_laura_mejia","m_salvador_leon","m_america_glez","m_marco_avalos","m_adriana_feliz","m_roberto_arce","m_veronica_avalos"],
-        "r4": ["m_fernando_verduzco","m_lupita_valdez","m_silvestre_canedo","m_mercedes_verduzco","m_alberto_verduzco","m_arminda_acosta","m_jesus_garibay","m_silvia_gonzalez"],
-        "r5": ["m_sandra_verduzco","m_elvira_quintanilla","m_javier_verduzco","m_iris_arellano"]
+        "r1": [
+          "m_wilibaldo_delasancha",
+          "m_carmen_judith_verduzco",
+          "m_federico_delasancha",
+          "m_juanita_porras",
+          "m_cesar_delasancha",
+          "m_lilia_delasancha",
+          "m_edna_delasancha",
+          "m_diana_renteria"
+        ],
+        "r2": [
+          "m_pedro_velazco",
+          "m_patricia_fuentes",
+          "m_oscar_moreno",
+          "m_adela_guerena",
+          "m_lourdes_amparan",
+          "m_juan_manuel_perez",
+          "m_rafael_vazquez",
+          "m_luz_ma_galindo"
+        ],
+        "r3": [
+          "m_melchor_flores",
+          "m_laura_mejia",
+          "m_salvador_leon",
+          "m_america_glez",
+          "m_marco_avalos",
+          "m_adriana_feliz",
+          "m_roberto_arce",
+          "m_veronica_avalos"
+        ],
+        "r4": [
+          "m_fernando_verduzco",
+          "m_lupita_valdez",
+          "m_silvestre_canedo",
+          "m_mercedes_verduzco",
+          "m_alberto_verduzco",
+          "m_arminda_acosta",
+          "m_jesus_garibay",
+          "m_silvia_gonzalez"
+        ],
+        "r5": [
+          "m_sandra_verduzco",
+          "m_elvira_quintanilla",
+          "m_javier_verduzco",
+          "m_iris_arellano"
+        ]
       },
-      "unassignedInThisLayout": ["m_jesus_beas"]
+      "unassignedInThisLayout": [
+        "m_jesus_beas"
+      ]
     }
   }
 }

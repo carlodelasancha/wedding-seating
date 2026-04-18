@@ -293,15 +293,6 @@
       "notes": "Camaron"
     },
     {
-      "id": "z_claudia_castro_salgado_32",
-      "name": "Claudia Castro Salgado",
-      "side": "otro",
-      "groups": [],
-      "tableId": null,
-      "meal": "filet mignon - filete mignon",
-      "notes": "Camaron"
-    },
-    {
       "id": "z_maria_de_la_paz_campos_33",
       "name": "Maria De La Paz Campos",
       "side": "otro",
@@ -993,24 +984,6 @@
       "tableId": null,
       "meal": "filet mignon - filete mignon",
       "notes": "No"
-    },
-    {
-      "id": "z_oscar_moreno_lopez_110",
-      "name": "Oscar Moreno López",
-      "side": "otro",
-      "groups": [],
-      "tableId": null,
-      "meal": "filet mignon - filete mignon",
-      "notes": "Ninguna"
-    },
-    {
-      "id": "z_adela_guerena_111",
-      "name": "Adela Güereña",
-      "side": "otro",
-      "groups": [],
-      "tableId": null,
-      "meal": "filet mignon - filete mignon",
-      "notes": "Ninguna"
     },
     {
       "id": "z_carol_morgan_112",

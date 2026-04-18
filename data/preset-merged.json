@@ -1,6 +1,6 @@
 {
   "_notes": "Preset MAESTRO combinando Zola (181 attending) + mamá + Laura. Automatch cruzado. Unmatched quedan como side=\"otro\" para que Carlo asigne.",
-  "totalGuests": 181,
+  "totalGuests": 183,
   "sideCounts": {
     "carlo": 73,
     "otro": 62,
@@ -461,17 +461,6 @@
       "tableId": "x4",
       "meal": "filet mignon - filete mignon",
       "notes": "Camaron"
-    },
-    {
-      "id": "z_claudia_castro_salgado_32",
-      "name": "Claudia Castro Salgado",
-      "side": "carlo",
-      "groups": [
-        "gr_colegio_mexico_ensenada"
-      ],
-      "tableId": "x4",
-      "meal": "filet mignon - filete mignon",
-      "notes": "esposa Néstor David Bazan"
     },
     {
       "id": "z_maria_de_la_paz_campos_33",
@@ -1322,28 +1311,6 @@
       "notes": "acompañante Alfonso Morales"
     },
     {
-      "id": "z_oscar_moreno_lopez_110",
-      "name": "Oscar Moreno López",
-      "side": "carlo",
-      "groups": [
-        "gr_amigos_pedro"
-      ],
-      "tableId": "r2",
-      "meal": "filet mignon - filete mignon",
-      "notes": "Ninguna"
-    },
-    {
-      "id": "z_adela_guerena_111",
-      "name": "Adela Güereña",
-      "side": "carlo",
-      "groups": [
-        "gr_amigos_pedro"
-      ],
-      "tableId": "r2",
-      "meal": "filet mignon - filete mignon",
-      "notes": "Ninguna"
-    },
-    {
       "id": "z_carol_morgan_112",
       "name": "Carol Morgan",
       "side": "laura",
@@ -2101,18 +2068,6 @@
       "tableId": "r4",
       "meal": "filet mignon - filete mignon",
       "notes": ""
-    },
-    {
-      "id": "tentative_mohamed_amin_mustafa",
-      "name": "Mohamed Amin Mustafa (tentative)",
-      "side": "carlo",
-      "groups": [
-        "gr_indiana_university"
-      ],
-      "tableId": null,
-      "meal": "",
-      "notes": "TENTATIVE — No Response en Zola. Carlo quiere junto con Ahmad si viene.",
-      "tentative": true
     },
     {
       "id": "novio_carlo",
