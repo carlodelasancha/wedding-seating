@@ -929,6 +929,30 @@ function setTableCaptain(tableId, guestId) {
     db.ref('floorplan/captainByTable/' + tableId).set(guestId);
   }
 }
+// ============================================================
+// TABLE NAME OVERRIDES (renombrar mesa desde sidebar)
+// Persistido en Firebase: floorplan/tableNames: { [tableId]: "nombre custom" }
+// ============================================================
+var tableNameOverrides = {};
+function getTableDisplayName(table) {
+  if (!table) return '';
+  var o = tableNameOverrides[table.id];
+  return (o && o.trim()) ? o : table.name;
+}
+function setTableName(tableId, newName) {
+  if (!tableId) return;
+  var trimmed = (newName || '').trim();
+  if (!trimmed) {
+    // Empty → reset to default
+    delete tableNameOverrides[tableId];
+    db.ref('floorplan/tableNames/' + tableId).remove();
+  } else {
+    tableNameOverrides[tableId] = trimmed;
+    db.ref('floorplan/tableNames/' + tableId).set(trimmed);
+  }
+  renderAll();
+}
+
 function seedLegacyCaptainsIfEmpty() {
   // Only run if captainByTable is empty — auto-assigns legacy captains to their current tables
   if (Object.keys(captainByTable).length > 0) return;
@@ -974,13 +998,15 @@ dbRef.on('value', function(snap) {
   });
   groups = data.groups || [];
 
-  // Load positions + seat map + captains from Firebase
+  // Load positions + seat map + captains + table name overrides from Firebase
   Promise.all([
     db.ref('floorplan/tablePositions').once('value'),
     db.ref('floorplan/seatMap').once('value'),
-    db.ref('floorplan/captainByTable').once('value')
+    db.ref('floorplan/captainByTable').once('value'),
+    db.ref('floorplan/tableNames').once('value')
   ]).then(function(snaps) {
     captainByTable = snaps[2].val() || {};
+    tableNameOverrides = snaps[3].val() || {};
     if (Object.keys(captainByTable).length === 0) {
       seedLegacyCaptainsIfEmpty();
     }
@@ -1109,7 +1135,7 @@ function renderTable(table, x, y) {
   // Table shape
   var shape = document.createElement('div');
   shape.className = 'table-shape ' + (isNovios ? 'novios' : isRound ? 'round' : 'rect');
-  var lbl = document.createElement('div'); lbl.textContent = table.name; shape.appendChild(lbl);
+  var lbl = document.createElement('div'); lbl.textContent = getTableDisplayName(table); shape.appendChild(lbl);
   var cnt = document.createElement('div'); cnt.className = 'table-count';
   cnt.textContent = tGuestsAll.length + '/' + cap; shape.appendChild(cnt);
   tg.appendChild(shape);
@@ -1384,10 +1410,89 @@ function getGuestById(id) {
 // ============================================================
 // SIDEBAR
 // ============================================================
+function startRenameTable(table) {
+  var titleEl = document.getElementById('sidebar-title');
+  while (titleEl.firstChild) titleEl.removeChild(titleEl.firstChild);
+  titleEl.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.value = getTableDisplayName(table);
+  input.placeholder = table.name;
+  input.style.cssText = 'flex:1;padding:6px 10px;background:rgba(255,255,255,0.1);border:2px solid var(--gold);color:var(--gold);font-size:18px;font-weight:700;border-radius:6px;outline:none;font-family:inherit;';
+  titleEl.appendChild(input);
+
+  var saveBtn = document.createElement('button');
+  saveBtn.textContent = '\u2713';
+  saveBtn.title = 'Guardar';
+  saveBtn.style.cssText = 'background:#4a8c3f;border:none;color:#fff;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;padding:0;flex-shrink:0;';
+  titleEl.appendChild(saveBtn);
+
+  var cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '\u2715';
+  cancelBtn.title = 'Cancelar';
+  cancelBtn.style.cssText = 'background:rgba(196,30,58,0.6);border:none;color:#fff;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:14px;padding:0;flex-shrink:0;';
+  titleEl.appendChild(cancelBtn);
+
+  input.focus();
+  input.select();
+
+  function commit() {
+    var newName = input.value.trim();
+    if (newName && newName !== table.name) {
+      setTableName(table.id, newName);
+    } else if (!newName) {
+      // Empty → restore default
+      setTableName(table.id, '');
+    }
+    openSidebar(table, getTableGuestsOrdered(table.id));
+  }
+  function cancel() {
+    openSidebar(table, getTableGuestsOrdered(table.id));
+  }
+  saveBtn.addEventListener('click', commit);
+  cancelBtn.addEventListener('click', cancel);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+}
+
 function openSidebar(table, tGuests) {
   sidebarCurrentTableId = table.id;
-  document.getElementById('sidebar-title').textContent = table.name +
-    (table.kind ? ' (' + table.kind + ')' : '');
+  var titleEl = document.getElementById('sidebar-title');
+  // Clear title and build: <span name>...</span> + edit button
+  while (titleEl.firstChild) titleEl.removeChild(titleEl.firstChild);
+  titleEl.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+  var nameSpan = document.createElement('span');
+  nameSpan.textContent = getTableDisplayName(table) + (table.kind ? ' (' + table.kind + ')' : '');
+  nameSpan.style.cssText = 'flex:1;';
+  titleEl.appendChild(nameSpan);
+
+  var editBtn = document.createElement('button');
+  editBtn.textContent = '\u270e'; // pencil
+  editBtn.title = 'Cambiar nombre de la mesa';
+  editBtn.style.cssText = 'background:rgba(245,200,66,0.2);border:1px solid var(--gold);color:var(--gold);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;padding:0;flex-shrink:0;';
+  editBtn.addEventListener('click', function() {
+    startRenameTable(table);
+  });
+  titleEl.appendChild(editBtn);
+
+  // Reset button (only show if there's an override)
+  if (tableNameOverrides[table.id]) {
+    var resetBtn = document.createElement('button');
+    resetBtn.textContent = '\u21bb'; // reset arrow
+    resetBtn.title = 'Restaurar nombre original: ' + table.name;
+    resetBtn.style.cssText = 'background:rgba(196,30,58,0.2);border:1px solid #c41e3a;color:#f08080;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;padding:0;flex-shrink:0;';
+    resetBtn.addEventListener('click', function() {
+      if (confirm('¿Restaurar nombre original "' + table.name + '"?')) {
+        setTableName(table.id, '');
+        openSidebar(table, tGuests);
+      }
+    });
+    titleEl.appendChild(resetBtn);
+  }
 
   var info = document.getElementById('sidebar-info');
   while (info.firstChild) info.removeChild(info.firstChild);
@@ -1637,7 +1742,7 @@ function renderMeals() {
         var tb = document.createElement('span'); tb.className = 'mg-table';
         if (g.tableId) {
           var t = tables.find(function(x) { return x.id === g.tableId; });
-          tb.textContent = t ? t.name : g.tableId;
+          tb.textContent = t ? getTableDisplayName(t) : g.tableId;
         } else {
           tb.textContent = 'sin mesa';
         }
@@ -2111,6 +2216,31 @@ function renderPendingList() {
     });
     item.appendChild(btn);
 
+    // Botón "Cancelar" (eliminar invitado completamente)
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'remove-btn';
+    cancelBtn.textContent = 'Cancelar';
+    cancelBtn.title = 'Eliminar a ' + g.name + ' de la lista completa';
+    cancelBtn.style.marginLeft = '4px';
+    cancelBtn.addEventListener('click', (function(guest) {
+      return function(ev) {
+        ev.stopPropagation();
+        if (!confirm('¿Eliminar a "' + guest.name + '" de la lista de invitados?\n\n' +
+                     'Esto lo quita permanentemente (por ejemplo, si declinó).\n' +
+                     'No se puede deshacer desde la app — tendrías que volver a agregarlo manualmente.')) return;
+        var newGuests = guests.filter(function(x) { return x.id !== guest.id; });
+        db.ref('seating/guests').set(newGuests.map(function(g2) {
+          var clean = { id: g2.id, name: g2.name };
+          if (g2.side) clean.side = g2.side;
+          if (g2.tableId) clean.tableId = g2.tableId;
+          if (g2.meal) clean.meal = g2.meal;
+          if (g2.diet) clean.diet = g2.diet;
+          return clean;
+        }));
+      };
+    })(g));
+    item.appendChild(cancelBtn);
+
     panel.appendChild(item);
   });
 
@@ -2137,6 +2267,70 @@ function renderPendingList() {
   pendingLabel.style.cssText = 'font-size:11px;color:#f08080;margin-top:4px;';
   pendingLabel.textContent = pending.length + ' pendientes -- ' + guests.length + ' total';
   confirmedDiv.appendChild(pendingLabel);
+
+  // Botón "+ Agregar invitado" debajo del contador de confirmados
+  var addBtn = document.createElement('button');
+  addBtn.id = 'btn-add-guest';
+  addBtn.textContent = '+ Agregar invitado';
+  addBtn.style.cssText = 'display:block;width:100%;margin-top:10px;padding:10px;background:rgba(74,140,63,0.8);border:2px solid #8fdc6a;color:#fff;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;transition:all 0.15s;';
+  addBtn.addEventListener('mouseenter', function() { this.style.background = '#4a8c3f'; });
+  addBtn.addEventListener('mouseleave', function() { this.style.background = 'rgba(74,140,63,0.8)'; });
+  addBtn.addEventListener('click', openAddGuestForm);
+  confirmedDiv.appendChild(addBtn);
+}
+
+// ============================================================
+// ADD NEW GUEST (form en el panel de pendientes)
+// ============================================================
+function openAddGuestForm() {
+  var name = prompt('Nombre completo del nuevo invitado:');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+
+  // Check duplicate
+  var existing = guests.find(function(g) { return g.name.toLowerCase() === name.toLowerCase(); });
+  if (existing) {
+    alert('Ya existe un invitado con ese nombre: "' + existing.name + '". No se agregó.');
+    return;
+  }
+
+  var side = prompt('¿De qué lado? Escribe "laura" o "carlo" (dejar vacío si no sabes):', 'laura');
+  side = (side || '').trim().toLowerCase();
+  if (side !== 'laura' && side !== 'carlo') side = '';
+
+  var meal = prompt('Meal choice (opcional): filet mignon / seasonal fish / vegetarian / kids:');
+  meal = (meal || '').trim();
+
+  var diet = prompt('Alergias o restricciones dietéticas (opcional):');
+  diet = (diet || '').trim();
+
+  // Generate unique ID
+  var slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  var id = 'z_' + slug + '_' + Math.floor(Math.random() * 1000);
+
+  var newGuest = {
+    id: id,
+    name: name,
+    side: side,
+    tableId: null
+  };
+  if (meal) newGuest.meal = meal;
+  if (diet) newGuest.diet = diet;
+
+  // Add to guests array and save to Firebase
+  var newGuests = guests.slice();
+  newGuests.push(newGuest);
+  db.ref('seating/guests').set(newGuests.map(function(g) {
+    // Strip runtime-only props (gender, norm)
+    var clean = { id: g.id, name: g.name };
+    if (g.side) clean.side = g.side;
+    if (g.tableId) clean.tableId = g.tableId;
+    if (g.meal) clean.meal = g.meal;
+    if (g.diet) clean.diet = g.diet;
+    return clean;
+  }));
+
+  alert('✓ Agregado: ' + name + '\n\nAhora aparece en Pendientes. Arrástralo a una mesa o usa el botón "Asignar".');
 }
 
 // Assign guest from pending to a table
@@ -2981,6 +3175,20 @@ window.addEventListener('load', function() {
   // Live updates for captains
   db.ref('floorplan/captainByTable').on('value', function(snap) {
     captainByTable = snap.val() || {};
+  });
+
+  // Live updates for table name overrides
+  db.ref('floorplan/tableNames').on('value', function(snap) {
+    tableNameOverrides = snap.val() || {};
+    renderAll();
+    // If sidebar is open for a table, refresh title
+    if (sidebarCurrentTableId) {
+      var t = tables.find(function(x) { return x.id === sidebarCurrentTableId; });
+      if (t) {
+        var titleSpan = document.querySelector('#sidebar-title span');
+        if (titleSpan) titleSpan.textContent = getTableDisplayName(t) + (t.kind ? ' (' + t.kind + ')' : '');
+      }
+    }
   });
 });
 window.addEventListener('resize', function() {
