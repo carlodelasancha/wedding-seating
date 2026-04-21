@@ -1042,6 +1042,15 @@ dbRef.on('value', function(snap) {
     renderAll();
     updateStats();
     saveLocalBackup();
+    // Si el panel de Pendientes está abierto, refrescarlo para reflejar cambios en la lista de guests
+    if (pendingOpen) renderPendingList();
+    // Si el panel de Comidas está abierto, refrescar también
+    if (mealsOpen) renderMeals();
+    // Si el sidebar de mesa está abierto, refrescar sus invitados
+    if (sidebarCurrentTableId) {
+      var t = tables.find(function(x) { return x.id === sidebarCurrentTableId; });
+      if (t) openSidebar(t, getTableGuestsOrdered(t.id));
+    }
   });
   updateStats();
 });
