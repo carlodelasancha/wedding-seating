@@ -252,6 +252,9 @@ body.sidebar-open #element-palette { display: none; }
   width: 130px; height: 64px; border-radius: 10px;
   background: var(--orange);
 }
+.table-shape.rect.rotated {
+  width: 64px; height: 130px;
+}
 .table-shape.novios {
   width: 130px; height: 64px; border-radius: 10px;
   background: linear-gradient(135deg, #d4a030, #f5c842, #d4a030);
@@ -953,6 +956,26 @@ function setTableName(tableId, newName) {
   renderAll();
 }
 
+// ============================================================
+// TABLE ROTATIONS (rotar mesas rectangulares 90°, horizontal ⇄ vertical)
+// Persistido en Firebase: floorplan/tableRotations: { [tableId]: true }
+// Solo aplica a shape === 'rect' (no novios, no round).
+// ============================================================
+var tableRotations = {};
+function isTableRotated(tableId) {
+  return !!tableRotations[tableId];
+}
+function setTableRotation(tableId, rotated) {
+  if (!tableId) return;
+  if (rotated) {
+    tableRotations[tableId] = true;
+    db.ref('floorplan/tableRotations/' + tableId).set(true);
+  } else {
+    delete tableRotations[tableId];
+    db.ref('floorplan/tableRotations/' + tableId).remove();
+  }
+}
+
 function seedLegacyCaptainsIfEmpty() {
   // Only run if captainByTable is empty — auto-assigns legacy captains to their current tables
   if (Object.keys(captainByTable).length > 0) return;
@@ -1003,10 +1026,12 @@ dbRef.on('value', function(snap) {
     db.ref('floorplan/tablePositions').once('value'),
     db.ref('floorplan/seatMap').once('value'),
     db.ref('floorplan/captainByTable').once('value'),
-    db.ref('floorplan/tableNames').once('value')
+    db.ref('floorplan/tableNames').once('value'),
+    db.ref('floorplan/tableRotations').once('value')
   ]).then(function(snaps) {
     captainByTable = snaps[2].val() || {};
     tableNameOverrides = snaps[3].val() || {};
+    tableRotations = snaps[4].val() || {};
     if (Object.keys(captainByTable).length === 0) {
       seedLegacyCaptainsIfEmpty();
     }
@@ -1137,21 +1162,25 @@ function renderTable(table, x, y) {
   var tGuestsAll = guests.filter(function(g) { return g.tableId === table.id; });
   var isRound = table.shape === 'round';
   var isNovios = table.id === 'novios';
+  var isRectRotatable = table.shape === 'rect' && !isNovios;
+  var isRotated = isRectRotatable && isTableRotated(table.id);
 
   // Ensure seat map is initialized for this table
   ensureSeatMap(table.id);
 
   // Table shape
   var shape = document.createElement('div');
-  shape.className = 'table-shape ' + (isNovios ? 'novios' : isRound ? 'round' : 'rect');
+  var shapeClass = 'table-shape ' + (isNovios ? 'novios' : isRound ? 'round' : 'rect');
+  if (isRotated) shapeClass += ' rotated';
+  shape.className = shapeClass;
   var lbl = document.createElement('div'); lbl.textContent = getTableDisplayName(table); shape.appendChild(lbl);
   var cnt = document.createElement('div'); cnt.className = 'table-count';
   cnt.textContent = tGuestsAll.length + '/' + cap; shape.appendChild(cnt);
   tg.appendChild(shape);
 
-  // Center offset
-  var shapeW = isRound ? 104 : 130;
-  var shapeH = isRound ? 104 : 64;
+  // Center offset (rect base is 130×64; rotated is 64×130)
+  var shapeW = isRound ? 104 : (isRotated ? 64 : 130);
+  var shapeH = isRound ? 104 : (isRotated ? 130 : 64);
   shape.style.position = 'absolute';
   shape.style.left = (-shapeW/2) + 'px';
   shape.style.top = (-shapeH/2) + 'px';
@@ -1173,13 +1202,15 @@ function renderTable(table, x, y) {
       sx = Math.cos(a) * radius;
       sy = Math.sin(a) * radius;
     } else {
-      var peri = 2 * (130 + 64);
+      var rW = isRotated ? 64 : 130;
+      var rH = isRotated ? 130 : 64;
+      var peri = 2 * (rW + rH);
       var p = (i / seatCount) * peri;
-      var hw = 130/2 + 22, hh = 64/2 + 22;
-      if (p < 130) { sx = -hw + 22 + p; sy = -hh; }
-      else if (p < 130+64) { sx = hw; sy = -hh + (p - 130); }
-      else if (p < 260+64) { sx = hw - (p - 130 - 64); sy = hh; }
-      else { sx = -hw; sy = hh - (p - 260 - 64); }
+      var hw = rW/2 + 22, hh = rH/2 + 22;
+      if (p < rW) { sx = -hw + 22 + p; sy = -hh; }
+      else if (p < rW+rH) { sx = hw; sy = -hh + (p - rW); }
+      else if (p < 2*rW+rH) { sx = hw - (p - rW - rH); sy = hh; }
+      else { sx = -hw; sy = hh - (p - 2*rW - rH); }
     }
 
     var seat = document.createElement('div');
@@ -1510,6 +1541,22 @@ function openSidebar(table, tGuests) {
   d.textContent = tGuests.length + '/' + (table.capacity||10) + ' -- ' +
     (table.shape==='round'?'Redonda':'Rectangular');
   info.appendChild(d);
+
+  // Rotate button (only for rectangular tables, not novios)
+  if (table.shape === 'rect' && table.id !== 'novios') {
+    var rotated = isTableRotated(table.id);
+    var rotDiv = document.createElement('div');
+    rotDiv.style.cssText = 'margin-bottom:8px;';
+    var rotBtn = document.createElement('button');
+    rotBtn.style.cssText = 'background:rgba(232,168,50,0.2);border:1px solid #e8a832;color:#f5c842;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;width:100%;';
+    rotBtn.textContent = '↻ Rotar 90° (' + (rotated ? 'vertical' : 'horizontal') + ')';
+    rotBtn.title = 'Alternar entre orientación horizontal y vertical';
+    rotBtn.addEventListener('click', function() {
+      setTableRotation(table.id, !isTableRotated(table.id));
+    });
+    rotDiv.appendChild(rotBtn);
+    info.appendChild(rotDiv);
+  }
 
   var hint = document.createElement('div');
   hint.style.cssText = 'margin-bottom:8px;font-size:11px;color:#e8a832;font-style:italic;';
@@ -3197,6 +3244,17 @@ window.addEventListener('load', function() {
         var titleSpan = document.querySelector('#sidebar-title span');
         if (titleSpan) titleSpan.textContent = getTableDisplayName(t) + (t.kind ? ' (' + t.kind + ')' : '');
       }
+    }
+  });
+
+  // Live updates for table rotations (rotar mesas rect 90°)
+  db.ref('floorplan/tableRotations').on('value', function(snap) {
+    tableRotations = snap.val() || {};
+    renderAll();
+    // If sidebar is open, refresh it so the button label updates
+    if (sidebarCurrentTableId) {
+      var t = tables.find(function(x) { return x.id === sidebarCurrentTableId; });
+      if (t) openSidebar(t, getTableGuestsOrdered(t.id));
     }
   });
 });
