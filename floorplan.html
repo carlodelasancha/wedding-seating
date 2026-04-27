@@ -770,22 +770,25 @@ body.sidebar-open #element-palette { display: none; }
       </g>
 
       <!-- ============================================================ -->
-      <!-- PÉRGOLA (único anexo fijo) — reubicada a intersección 2↔3   -->
+      <!-- PÉRGOLA (movible, persiste offset en Firebase)               -->
       <!-- ============================================================ -->
-      <polygon points="
-        20,850
-        180,830
-        260,890
-        280,1020
-        260,1130
-        200,1200
-        100,1220
-        20,1180
-        0,1060
-        -10,940
-      " fill="url(#room-floor)" stroke="#2a1a10" stroke-width="2.5"/>
-      <text x="130" y="1040" font-family="Georgia,serif" font-size="46"
-            fill="#2a1a10" text-anchor="middle">Pérgola</text>
+      <g id="pergola-group" transform="translate(0,0)" style="cursor: move;">
+        <polygon id="pergola-polygon" points="
+          20,850
+          180,830
+          260,890
+          280,1020
+          260,1130
+          200,1200
+          100,1220
+          20,1180
+          0,1060
+          -10,940
+        " fill="url(#room-floor)" stroke="#2a1a10" stroke-width="2.5"
+          style="pointer-events: auto;"/>
+        <text id="pergola-text" x="130" y="1040" font-family="Georgia,serif" font-size="46"
+              fill="#2a1a10" text-anchor="middle" style="pointer-events: none;">Pérgola</text>
+      </g>
 
       <!-- ============================================================ -->
       <!-- ETIQUETAS OCÉANO PACÍFICO                                    -->
@@ -990,6 +993,12 @@ function seedLegacyCaptainsIfEmpty() {
 }
 var showNames = true, showGridLines = true;
 var savedPositions = {};
+var pergolaOffset = { dx: 0, dy: 0 };
+
+function applyPergolaOffset() {
+  var g = document.getElementById('pergola-group');
+  if (g) g.setAttribute('transform', 'translate(' + pergolaOffset.dx + ',' + pergolaOffset.dy + ')');
+}
 var zoom = 1, panX = 0, panY = 0;
 var WORLD_W = 2400, WORLD_H = 1800;
 // Bounding box del JARDÍN (zonas donde hay tierra firme, no océano).
@@ -1027,11 +1036,17 @@ dbRef.on('value', function(snap) {
     db.ref('floorplan/seatMap').once('value'),
     db.ref('floorplan/captainByTable').once('value'),
     db.ref('floorplan/tableNames').once('value'),
-    db.ref('floorplan/tableRotations').once('value')
+    db.ref('floorplan/tableRotations').once('value'),
+    db.ref('floorplan/pergolaOffset').once('value')
   ]).then(function(snaps) {
     captainByTable = snaps[2].val() || {};
     tableNameOverrides = snaps[3].val() || {};
     tableRotations = snaps[4].val() || {};
+    var po = snaps[5].val();
+    if (po && typeof po.dx === 'number' && typeof po.dy === 'number') {
+      pergolaOffset = po;
+      applyPergolaOffset();
+    }
     if (Object.keys(captainByTable).length === 0) {
       seedLegacyCaptainsIfEmpty();
     }
@@ -1269,6 +1284,10 @@ function renderTable(table, x, y) {
 var isPanning = false, panStartX, panStartY, panOrigX, panOrigY;
 
 wrap.addEventListener('pointerdown', function(e) {
+  // Pergola is interactive (draggable) → never pan when clicking on it
+  if (e.target.id === 'pergola-polygon' || e.target.closest && e.target.closest('#pergola-group')) {
+    return;
+  }
   // Only pan if click is directly on wrap, world, or on decorative venue SVG
   if (e.target === wrap || e.target === world || e.target.id === 'venue-svg'
       || (e.target.ownerSVGElement && e.target.ownerSVGElement.id === 'venue-svg')) {
@@ -1364,6 +1383,38 @@ window.addEventListener('pointerup', function() {
     saveLocalBackup();
     dragTable = null;
   }
+});
+
+// ============================================================
+// PERGOLA DRAG (mover pérgola por encima del SVG del venue)
+// State: pergolaOffset = { dx, dy }; persiste en floorplan/pergolaOffset
+// ============================================================
+var dragPergola = false, pergolaStartX, pergolaStartY, pergolaOrigDx, pergolaOrigDy;
+
+document.addEventListener('pointerdown', function(e) {
+  if (e.target.id !== 'pergola-polygon') return;
+  dragPergola = true;
+  pergolaStartX = e.clientX;
+  pergolaStartY = e.clientY;
+  pergolaOrigDx = pergolaOffset.dx;
+  pergolaOrigDy = pergolaOffset.dy;
+  e.preventDefault();
+  e.stopPropagation();
+}, true);
+
+window.addEventListener('pointermove', function(e) {
+  if (!dragPergola) return;
+  var dx = (e.clientX - pergolaStartX) / zoom;
+  var dy = (e.clientY - pergolaStartY) / zoom;
+  pergolaOffset.dx = pergolaOrigDx + dx;
+  pergolaOffset.dy = pergolaOrigDy + dy;
+  applyPergolaOffset();
+});
+
+window.addEventListener('pointerup', function() {
+  if (!dragPergola) return;
+  dragPergola = false;
+  db.ref('floorplan/pergolaOffset').set(pergolaOffset);
 });
 
 // ============================================================
@@ -3255,6 +3306,18 @@ window.addEventListener('load', function() {
     if (sidebarCurrentTableId) {
       var t = tables.find(function(x) { return x.id === sidebarCurrentTableId; });
       if (t) openSidebar(t, getTableGuestsOrdered(t.id));
+    }
+  });
+
+  // Live updates for pergola offset
+  db.ref('floorplan/pergolaOffset').on('value', function(snap) {
+    var po = snap.val();
+    if (po && typeof po.dx === 'number' && typeof po.dy === 'number') {
+      // Don't override while user is actively dragging
+      if (!dragPergola) {
+        pergolaOffset = po;
+        applyPergolaOffset();
+      }
     }
   });
 });
