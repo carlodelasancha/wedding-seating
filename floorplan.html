@@ -1217,15 +1217,36 @@ function renderTable(table, x, y) {
       sx = Math.cos(a) * radius;
       sy = Math.sin(a) * radius;
     } else {
+      // Rect tables: 4 seats on each long side + 1 centered on each short end (4+1+4+1=10).
+      // Index order is clockwise from top-left so existing non-rotated seatMaps remap cleanly.
       var rW = isRotated ? 64 : 130;
       var rH = isRotated ? 130 : 64;
-      var peri = 2 * (rW + rH);
-      var p = (i / seatCount) * peri;
       var hw = rW/2 + 22, hh = rH/2 + 22;
-      if (p < rW) { sx = -hw + 22 + p; sy = -hh; }
-      else if (p < rW+rH) { sx = hw; sy = -hh + (p - rW); }
-      else if (p < 2*rW+rH) { sx = hw - (p - rW - rH); sy = hh; }
-      else { sx = -hw; sy = hh - (p - 2*rW - rH); }
+      var longLen = 130;
+      var slot = function(k) { return ((k + 0.5) / 4) * longLen - longLen / 2; }; // 4 seats spread along long side
+      if (i < 10) {
+        if (isRotated) {
+          // Long sides vertical (left/right), short ends top/bottom
+          if (i === 0)      { sx = 0;   sy = -hh; }            // top end
+          else if (i <= 4)  { sx = hw;  sy = slot(i - 1); }    // right side, top→bottom
+          else if (i === 5) { sx = 0;   sy = hh; }             // bottom end
+          else              { sx = -hw; sy = slot(9 - i); }    // left side, bottom→top
+        } else {
+          // Long sides horizontal (top/bottom), short ends left/right
+          if (i <= 3)       { sx = slot(i);     sy = -hh; }    // top, left→right
+          else if (i === 4) { sx = hw;          sy = 0; }      // right end
+          else if (i <= 8)  { sx = slot(8 - i); sy = hh; }     // bottom, right→left
+          else              { sx = -hw;         sy = 0; }      // left end
+        }
+      } else {
+        // Fallback for any extra seats beyond cap=10: old perimeter walk
+        var peri = 2 * (rW + rH);
+        var p = (i / seatCount) * peri;
+        if (p < rW) { sx = -hw + 22 + p; sy = -hh; }
+        else if (p < rW+rH) { sx = hw; sy = -hh + (p - rW); }
+        else if (p < 2*rW+rH) { sx = hw - (p - rW - rH); sy = hh; }
+        else { sx = -hw; sy = hh - (p - 2*rW - rH); }
+      }
     }
 
     var seat = document.createElement('div');
