@@ -842,7 +842,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
-  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2058</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2111</small>
 </div>
 
 <div id="toolbar">
@@ -970,8 +970,21 @@ function findCaptainInTable(tableId) {
   var gid = captainByTable[tableId];
   if (!gid) return null;
   for (var i = 0; i < guests.length; i++) {
-    if (guests[i].id === gid) return guests[i];
+    if (guests[i].id === gid) {
+      // Stale-captain guard: if the guest moved to another table (via drag,
+      // swap, or pending), the captain entry is no longer valid. Clean it up
+      // silently so the sidebar/panel stops showing a ghost captain.
+      if (guests[i].tableId !== tableId) {
+        delete captainByTable[tableId];
+        db.ref('floorplan/captainByTable/' + tableId).remove();
+        return null;
+      }
+      return guests[i];
+    }
   }
+  // Guest no longer exists -- clean up too.
+  delete captainByTable[tableId];
+  db.ref('floorplan/captainByTable/' + tableId).remove();
   return null;
 }
 function setTableCaptain(tableId, guestId) {
@@ -1969,8 +1982,9 @@ function renderCaptainsList() {
 
   var assigned = 0;
   sorted.forEach(function(tbl) {
-    var capId = captainByTable[tbl.id];
-    var cap = capId ? guests.find(function(g) { return g.id === capId; }) : null;
+    // Use findCaptainInTable so stale captains get auto-cleaned and we never
+    // show a ghost (e.g. captain who got moved to another table via swap).
+    var cap = findCaptainInTable(tbl.id);
     if (cap) assigned++;
 
     var item = document.createElement('div');
