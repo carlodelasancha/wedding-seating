@@ -213,6 +213,8 @@ body.lock-active #btn-lock { box-shadow: 0 0 8px rgba(245,200,66,0.7); }
 #element-palette .pal-emoji { font-size: 15px; }
 /* Esconder palette cuando el sidebar de mesa está abierto */
 body.sidebar-open #element-palette { display: none; }
+/* Esconder palette cuando lockMode activo: en mobile estorba mucho y los papas no la necesitan */
+body.lock-active #element-palette { display: none; }
 
 /* Border decoration */
 #world::before {
@@ -628,7 +630,7 @@ body.sidebar-open #element-palette { display: none; }
 /* Toolbar */
 #toolbar {
   position: fixed; top: 12px; left: 12px; z-index: 50;
-  display: flex; gap: 8px; flex-wrap: wrap;
+  display: flex; gap: 8px; flex-wrap: wrap; max-width: calc(100vw - 24px);
 }
 #toolbar button {
   background: rgba(139,35,35,0.92); border: 2px solid var(--gold); color: var(--gold);
@@ -636,6 +638,21 @@ body.sidebar-open #element-palette { display: none; }
   font-weight: 600; transition: all 0.2s;
 }
 #toolbar button:hover, #toolbar button.active { background: var(--gold); color: var(--brown); }
+
+/* Mobile: compactar toolbar y ocultar controles avanzados */
+@media (max-width: 768px) {
+  #toolbar { gap: 5px; top: 8px; left: 8px; }
+  #toolbar button { padding: 6px 10px; font-size: 12px; border-width: 1px; }
+  /* Ocultar controles que solo Carlo necesita */
+  #toolbar #btn-names, #toolbar #btn-party, #toolbar #table-size-ctl { display: none !important; }
+  body.lock-active #toolbar #btn-pending,
+  body.lock-active #toolbar #btn-meals { display: none !important; }
+  /* Title bar mas compacto en mobile */
+  #title-bar h1 { font-size: 16px; letter-spacing: 1px; }
+  #title-bar small { font-size: 9px; }
+  #element-palette { width: auto; max-width: 110px; }
+  #element-palette button { padding: 4px 8px; font-size: 10px; }
+}
 
 /* Title */
 #title-bar {
@@ -872,7 +889,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
-  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-30-0853</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-30-0856</small>
 </div>
 
 <div id="toolbar">
@@ -1115,13 +1132,23 @@ function applyPergolaOffset() {
 var zoom = 1, panX = 0, panY = 0;
 
 // LOCK MODE: when true, prevents accidental drags (tables, persons, pergola, placed elements).
-// Persisted in localStorage so phone users (parents) keep it locked between sessions.
+// Persisted in localStorage. Default: lock ON in mobile (parents browsing from phone),
+// lock OFF in desktop (Carlo editing). User preference always wins once set.
 var lockMode = (function(){
-  try { return localStorage.getItem('floorplan_lockMode') === '1'; } catch(e) { return false; }
+  try {
+    var stored = localStorage.getItem('floorplan_lockMode');
+    if (stored === '1') return true;
+    if (stored === '0') return false;
+    // No preference saved yet -> mobile defaults to locked.
+    return window.innerWidth < 768;
+  } catch(e) { return false; }
 })();
-function setLockMode(on) {
+function setLockMode(on, opts) {
   lockMode = !!on;
-  try { localStorage.setItem('floorplan_lockMode', lockMode ? '1' : '0'); } catch(e) {}
+  // Only persist when the user explicitly toggled (not on initial UI sync).
+  if (!opts || opts.persist !== false) {
+    try { localStorage.setItem('floorplan_lockMode', lockMode ? '1' : '0'); } catch(e) {}
+  }
   var btn = document.getElementById('btn-lock');
   if (btn) {
     btn.textContent = lockMode ? '🔒 Bloqueado' : '🔓 Lock';
@@ -1443,6 +1470,7 @@ function renderTable(table, x, y) {
 var isPanning = false, panStartX, panStartY, panOrigX, panOrigY;
 
 wrap.addEventListener('pointerdown', function(e) {
+  if (lockMode) return; // pan blocked while locked -- plano queda anclado
   // Pergola is interactive (draggable) → never pan when clicking on it
   if (e.target.id === 'pergola-polygon' || e.target.closest && e.target.closest('#pergola-group')) {
     return;
@@ -3109,8 +3137,9 @@ document.getElementById('btn-zoom-out').addEventListener('click', function(){ zo
 document.getElementById('btn-lock').addEventListener('click', function(){
   setLockMode(!lockMode);
 });
-// Initialize button label/colors from persisted state
-setLockMode(lockMode);
+// Initialize button label/colors from current state, WITHOUT overwriting localStorage
+// (otherwise the mobile default would write '0' and never auto-lock again).
+setLockMode(lockMode, { persist: false });
 
 document.getElementById('btn-mesas-bigger').addEventListener('click', function() {
   tableMult = Math.min(2.0, Math.round((tableMult + 0.1) * 10) / 10);
@@ -3709,6 +3738,14 @@ function migrateLegacyStationPositions() {
 
 window.addEventListener('load', function() {
   zoomFit();
+  // Re-fit after layout settles (mobile browsers reflow when URL bar hides/shows)
+  setTimeout(zoomFit, 200);
+  setTimeout(zoomFit, 800);
+  // Re-fit on orientation change / resize
+  window.addEventListener('resize', function(){ setTimeout(zoomFit, 100); });
+  window.addEventListener('orientationchange', function(){ setTimeout(zoomFit, 300); });
+
+  // (Mobile default-to-lock is handled in lockMode initializer above.)
 
   // Load placed elements from Firebase (with migration + seeding)
   db.ref('floorplan/placedElements').once('value').then(function(snap) {
