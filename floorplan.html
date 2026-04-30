@@ -434,6 +434,30 @@ body.sidebar-open #element-palette { display: none; }
 #btn-pending { background: rgba(74,140,63,0.9) !important; }
 #btn-meals { background: rgba(232,138,50,0.9) !important; }
 #btn-captains { background: rgba(245,200,66,0.92) !important; color: #3a1c12 !important; }
+#btn-registro { background: rgba(120,80,160,0.92) !important; color: #fff !important; }
+
+/* Registro panel (text report for coordinator) */
+#registro-panel {
+  position: fixed; left: 0; top: 0; width: 420px; max-width: 95vw; height: 100vh;
+  background: rgba(58,28,18,0.97); border-right: 3px solid var(--gold);
+  color: var(--cream); padding: 16px; overflow-y: auto; z-index: 63;
+  transform: translateX(-100%); transition: transform 0.3s;
+  display: flex; flex-direction: column;
+}
+#registro-panel.open { transform: translateX(0); }
+.registro-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; }
+.registro-header h2 { color: var(--gold); font-size: 18px; }
+.registro-actions { display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0; }
+.registro-actions button {
+  flex: 1; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  background: rgba(245,200,66,0.85); border: 1px solid var(--gold); color: #3a1c12; font-weight: 600;
+}
+.registro-actions button:hover { background: rgba(245,200,66,1); }
+#registro-text {
+  flex: 1; min-height: 0; background: rgba(0,0,0,0.35); border: 1px solid rgba(245,200,66,0.3);
+  border-radius: 6px; padding: 10px; font-family: 'Menlo', 'Monaco', monospace; font-size: 11px;
+  color: #f0e6d6; white-space: pre-wrap; overflow-y: auto; line-height: 1.4;
+}
 
 /* Captains panel */
 #captains-panel {
@@ -848,7 +872,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
-  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-30-0846</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-30-0853</small>
 </div>
 
 <div id="toolbar">
@@ -856,6 +880,7 @@ body.sidebar-open #element-palette { display: none; }
   <button id="btn-pending">Pendientes</button>
   <button id="btn-meals">Comidas</button>
   <button id="btn-captains">Capitanes</button>
+  <button id="btn-registro">Registro</button>
   <button id="btn-party">Fiesta!</button>
   <div id="zoom-ctl" style="display:flex;align-items:center;gap:6px;background:rgba(139,35,35,0.92);border:2px solid var(--gold);color:var(--gold);padding:4px 8px;border-radius:8px;font-size:12px;font-weight:600;">
     <span style="font-size:11px;opacity:0.8;">Zoom</span>
@@ -927,6 +952,18 @@ body.sidebar-open #element-palette { display: none; }
   </div>
   <div id="captains-count"></div>
   <div id="captains-list"></div>
+</div>
+
+<div id="registro-panel">
+  <div class="registro-header">
+    <h2>Registro de Mesas</h2>
+    <button class="close-btn" id="btn-close-registro" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;">&times;</button>
+  </div>
+  <div class="registro-actions">
+    <button id="btn-registro-copy">Copiar texto</button>
+    <button id="btn-registro-download">Descargar .txt</button>
+  </div>
+  <div id="registro-text"></div>
 </div>
 
 <div id="sidebar">
@@ -2070,6 +2107,127 @@ document.getElementById('btn-close-captains').addEventListener('click', function
   captainsOpen = false;
   document.getElementById('captains-panel').classList.remove('open');
 });
+
+// ============================================================
+// REGISTRO DE MESAS (text report for coordinator)
+// ============================================================
+var registroOpen = false;
+
+function generateRegistro() {
+  var lines = [];
+  lines.push('REGISTRO DE MESAS — Boda Laura & Carlo');
+  lines.push('9 de Mayo 2026 — Casa de los 7 Patios');
+  lines.push('Generado: ' + new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' }));
+  lines.push('');
+
+  // Sort tables by display name (numeric-aware), skip novios
+  var sorted = tables.slice()
+    .filter(function(t) { return t.id !== 'novios'; })
+    .sort(function(a, b) {
+      return getTableDisplayName(a).localeCompare(getTableDisplayName(b), 'es', { numeric: true });
+    });
+
+  var totalAssigned = 0;
+  sorted.forEach(function(tbl) {
+    var ordered = getTableGuestsOrdered(tbl.id);
+    var cap = tbl.capacity || 10;
+    var captain = findCaptainInTable(tbl.id);
+
+    lines.push('========================================');
+    lines.push(getTableDisplayName(tbl).toUpperCase() + '  (' + ordered.length + '/' + cap + ')');
+    lines.push('Capitán: ' + (captain ? captain.name : '— sin asignar —'));
+    lines.push('----------------------------------------');
+    if (ordered.length === 0) {
+      lines.push('  (mesa vacía)');
+    } else {
+      ordered.forEach(function(g, i) {
+        var num = String(i + 1).padStart(2, ' ');
+        var meal = g.meal ? '  [' + g.meal + ']' : '';
+        lines.push('  ' + num + '. ' + g.name + meal);
+        totalAssigned++;
+      });
+    }
+    lines.push('');
+  });
+
+  // Pendientes (sin mesa)
+  var pending = guests.filter(function(g) { return !g.tableId && g.id !== 'novio_carlo' && g.id !== 'novia_laura'; });
+  if (pending.length > 0) {
+    lines.push('========================================');
+    lines.push('PENDIENTES (sin asignar)  (' + pending.length + ')');
+    lines.push('----------------------------------------');
+    pending.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    pending.forEach(function(g, i) {
+      var num = String(i + 1).padStart(2, ' ');
+      var meal = g.meal ? '  [' + g.meal + ']' : '';
+      lines.push('  ' + num + '. ' + g.name + meal);
+    });
+    lines.push('');
+  }
+
+  // Summary
+  var totalGuests = guests.filter(function(g) { return g.id !== 'novio_carlo' && g.id !== 'novia_laura'; }).length;
+  lines.push('========================================');
+  lines.push('RESUMEN');
+  lines.push('  Mesas: ' + sorted.length);
+  lines.push('  Asignados: ' + totalAssigned + ' / ' + totalGuests);
+  lines.push('  Pendientes: ' + pending.length);
+
+  return lines.join('\n');
+}
+
+function renderRegistro() {
+  document.getElementById('registro-text').textContent = generateRegistro();
+}
+
+document.getElementById('btn-registro').addEventListener('click', function() {
+  registroOpen = !registroOpen;
+  document.getElementById('registro-panel').classList.toggle('open', registroOpen);
+  if (registroOpen) renderRegistro();
+});
+
+document.getElementById('btn-close-registro').addEventListener('click', function() {
+  registroOpen = false;
+  document.getElementById('registro-panel').classList.remove('open');
+});
+
+document.getElementById('btn-registro-copy').addEventListener('click', function() {
+  var text = generateRegistro();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){
+      showSaveToast('✓ Copiado al portapapeles');
+    }).catch(function(err){
+      // Fallback: select the textarea
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); showSaveToast('✓ Copiado'); }
+      catch(e2) { showSaveToast('⚠️ No se pudo copiar: ' + err.message); }
+      document.body.removeChild(ta);
+    });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showSaveToast('✓ Copiado'); }
+    catch(e) { showSaveToast('⚠️ Selecciona y copia manualmente'); }
+    document.body.removeChild(ta);
+  }
+});
+
+document.getElementById('btn-registro-download').addEventListener('click', function() {
+  var text = generateRegistro();
+  var stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g, '-');
+  var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'registro-mesas-' + stamp + '.txt';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+});
 window.addEventListener('keydown', function(e) {
   if (e.key === 'f') zoomFit();
   if (e.key === 'n') document.getElementById('btn-names').click();
@@ -2078,7 +2236,8 @@ window.addEventListener('keydown', function(e) {
     document.getElementById('pending-panel').classList.remove('open');
     document.getElementById('meals-panel').classList.remove('open');
     document.getElementById('captains-panel').classList.remove('open');
-    pendingOpen = false; mealsOpen = false; captainsOpen = false;
+    document.getElementById('registro-panel').classList.remove('open');
+    pendingOpen = false; mealsOpen = false; captainsOpen = false; registroOpen = false;
     cancelAssign();
     cancelTableSwap();
   }
