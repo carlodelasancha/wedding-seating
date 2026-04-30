@@ -22,6 +22,12 @@ body { background: var(--cream); font-family: 'Segoe UI', sans-serif; overflow: 
 }
 #canvas-wrap.dragging-table { cursor: grabbing; }
 #canvas-wrap.dragging-person { cursor: grabbing; }
+/* Lock mode: subtle visual hint that nothing can be dragged */
+body.lock-active .table-shape,
+body.lock-active .seat.occupied,
+body.lock-active .placed-element,
+body.lock-active #pergola-polygon { cursor: not-allowed !important; }
+body.lock-active #btn-lock { box-shadow: 0 0 8px rgba(245,200,66,0.7); }
 
 #world {
   position: absolute; width: 2400px; height: 1800px;
@@ -842,7 +848,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
-  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2201</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-30-0846</small>
 </div>
 
 <div id="toolbar">
@@ -851,6 +857,12 @@ body.sidebar-open #element-palette { display: none; }
   <button id="btn-meals">Comidas</button>
   <button id="btn-captains">Capitanes</button>
   <button id="btn-party">Fiesta!</button>
+  <div id="zoom-ctl" style="display:flex;align-items:center;gap:6px;background:rgba(139,35,35,0.92);border:2px solid var(--gold);color:var(--gold);padding:4px 8px;border-radius:8px;font-size:12px;font-weight:600;">
+    <span style="font-size:11px;opacity:0.8;">Zoom</span>
+    <button id="btn-zoom-out" title="Alejar" style="background:var(--brown);border:1px solid var(--gold);color:var(--gold);width:30px;height:30px;border-radius:4px;cursor:pointer;padding:0;font-size:18px;line-height:1;touch-action:manipulation;">&minus;</button>
+    <button id="btn-zoom-in" title="Acercar" style="background:var(--brown);border:1px solid var(--gold);color:var(--gold);width:30px;height:30px;border-radius:4px;cursor:pointer;padding:0;font-size:18px;line-height:1;touch-action:manipulation;">+</button>
+  </div>
+  <button id="btn-lock" title="Bloquear movimientos (presiona para evitar que muevas mesas o invitados sin querer)" style="background:rgba(139,35,35,0.92);border:2px solid var(--gold);color:var(--gold);font-size:18px;padding:4px 10px;border-radius:8px;cursor:pointer;font-weight:600;touch-action:manipulation;">&#128275; Lock</button>
   <div id="table-size-ctl" style="display:flex;align-items:center;gap:6px;background:rgba(139,35,35,0.92);border:2px solid var(--gold);color:var(--gold);padding:4px 8px;border-radius:8px;font-size:12px;font-weight:600;">
     <span style="font-size:11px;opacity:0.8;">Mesas</span>
     <button id="btn-mesas-smaller" title="Reducir tama\u00f1o de TODAS las mesas" style="background:var(--brown);border:1px solid var(--gold);color:var(--gold);width:24px;height:24px;border-radius:4px;cursor:pointer;padding:0;font-size:14px;">&minus;</button>
@@ -1064,6 +1076,23 @@ function applyPergolaOffset() {
   if (g) g.setAttribute('transform', 'translate(' + pergolaOffset.dx + ',' + pergolaOffset.dy + ')');
 }
 var zoom = 1, panX = 0, panY = 0;
+
+// LOCK MODE: when true, prevents accidental drags (tables, persons, pergola, placed elements).
+// Persisted in localStorage so phone users (parents) keep it locked between sessions.
+var lockMode = (function(){
+  try { return localStorage.getItem('floorplan_lockMode') === '1'; } catch(e) { return false; }
+})();
+function setLockMode(on) {
+  lockMode = !!on;
+  try { localStorage.setItem('floorplan_lockMode', lockMode ? '1' : '0'); } catch(e) {}
+  var btn = document.getElementById('btn-lock');
+  if (btn) {
+    btn.textContent = lockMode ? '🔒 Bloqueado' : '🔓 Lock';
+    btn.style.background = lockMode ? 'rgba(245,200,66,0.95)' : 'rgba(139,35,35,0.92)';
+    btn.style.color = lockMode ? '#3a1c12' : 'var(--gold)';
+  }
+  document.body.classList.toggle('lock-active', lockMode);
+}
 var WORLD_W = 2400, WORLD_H = 1800;
 // Bounding box del JARDÍN (zonas donde hay tierra firme, no océano).
 // Los walkers/fiesta solo se mueven dentro de este rectángulo para no "nadar".
@@ -1434,6 +1463,7 @@ function zoomFit() {
 var dragTable = null, dragTableStartX, dragTableStartY, dragTableOrigLeft, dragTableOrigTop;
 
 world.addEventListener('pointerdown', function(e) {
+  if (lockMode) return; // table drag blocked while locked
   // Person drag takes priority over table drag
   if (e.target.closest('.seat.occupied')) return;
 
@@ -1485,6 +1515,7 @@ window.addEventListener('pointerup', function() {
 var dragPergola = false, pergolaStartX, pergolaStartY, pergolaOrigDx, pergolaOrigDy;
 
 document.addEventListener('pointerdown', function(e) {
+  if (lockMode) return; // pergola drag blocked while locked
   if (e.target.id !== 'pergola-polygon') return;
   dragPergola = true;
   pergolaStartX = e.clientX;
@@ -2123,6 +2154,7 @@ var dragClone = document.getElementById('person-drag-clone');
 var dragGhostEl = document.getElementById('drag-ghost');
 
 world.addEventListener('pointerdown', function(e) {
+  if (lockMode) return; // seat (person) drag blocked while locked
   var seat = e.target.closest('.seat.occupied');
   if (!seat || dragTable) return; // don't interfere with table drag
 
@@ -2901,6 +2933,26 @@ function applyTableMult() {
   var disp = document.getElementById('mesa-mult-display');
   if (disp) disp.textContent = Math.round(tableMult * 100) + '%';
 }
+// Zoom +/- buttons (mobile-friendly: explicit alternative to pinch).
+function zoomBy(factor) {
+  var rect = wrap.getBoundingClientRect();
+  var mx = rect.width / 2, my = rect.height / 2; // zoom toward viewport center
+  var oldZoom = zoom;
+  zoom = Math.max(0.15, Math.min(3, zoom * factor));
+  panX = mx - (mx - panX) * (zoom / oldZoom);
+  panY = my - (my - panY) * (zoom / oldZoom);
+  applyTransform();
+}
+document.getElementById('btn-zoom-in').addEventListener('click', function(){ zoomBy(1.25); });
+document.getElementById('btn-zoom-out').addEventListener('click', function(){ zoomBy(0.8); });
+
+// Lock button: toggles lockMode. When active, all drag handlers bail early.
+document.getElementById('btn-lock').addEventListener('click', function(){
+  setLockMode(!lockMode);
+});
+// Initialize button label/colors from persisted state
+setLockMode(lockMode);
+
 document.getElementById('btn-mesas-bigger').addEventListener('click', function() {
   tableMult = Math.min(2.0, Math.round((tableMult + 0.1) * 10) / 10);
   applyTableMult();
@@ -2925,6 +2977,7 @@ var dragPE = null, peStartX, peStartY, peOrigLeft, peOrigTop;
 var resizePE = null, peResizeStartX, peResizeStartY, peOrigW, peOrigH;
 
 document.getElementById('world').addEventListener('pointerdown', function(e) {
+  if (lockMode) return; // placed-element drag blocked while locked
   var el = e.target.closest('.placed-element');
   if (!el) return;
   if (e.target.classList.contains('pe-delete')) return;
