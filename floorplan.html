@@ -842,7 +842,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
-  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2040</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2058</small>
 </div>
 
 <div id="toolbar">
@@ -1133,6 +1133,7 @@ dbRef.on('value', function(snap) {
     if (Date.now() - selfWriteGuard >= 2000) {
       seatMap = snaps[1].val() || {};
     }
+    seatMapLoaded = true; // unlock ensureSeatMap rebuilds
     renderAll();
     updateStats();
     saveLocalBackup();
@@ -2216,6 +2217,7 @@ function findNearestSeat(clientX, clientY) {
 // Stored in localStorage as: { tableId: { seatIdx: guestId, ... } }
 // ============================================================
 var seatMap = {}; // tableId -> { 0: guestId, 1: guestId, ... }
+var seatMapLoaded = false; // true after first cloud read; prevents premature rebuild on init race
 
 function loadSeatMap() {
   // Loaded from Firebase in dbRef.on('value') callback
@@ -2256,6 +2258,15 @@ function ensureSeatMap(tableId) {
   var tableGuests = guests.filter(function(g) { return g.tableId === tableId; });
   var table = tables.find(function(t) { return t.id === tableId; });
   var cap = table ? (table.capacity || 10) : 10;
+
+  // CRITICAL: do not rebuild + save while seatMap is still loading from the cloud.
+  // Without this guard, an early renderAll() (e.g. from captainByTable.on first trigger)
+  // sees seatMap = {} and rebuilds in default order, then saves that to Firebase --
+  // overwriting any drag the user just made before refreshing.
+  if (!seatMapLoaded) {
+    if (!seatMap[tableId]) seatMap[tableId] = {};
+    return seatMap[tableId];
+  }
 
   if (!seatMap[tableId]) seatMap[tableId] = {};
 
@@ -3516,6 +3527,7 @@ window.addEventListener('load', function() {
     if (Date.now() - selfWriteGuard < 2000) return; // ignore self-echo
     if (movingSeat) return; // user mid-drag
     seatMap = snap.val() || {};
+    seatMapLoaded = true; // unlock ensureSeatMap rebuilds (race with dbRef.on)
     renderAll();
     if (sidebarCurrentTableId) {
       var t = tables.find(function(x) { return x.id === sidebarCurrentTableId; });
