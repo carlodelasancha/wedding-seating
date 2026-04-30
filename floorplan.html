@@ -842,7 +842,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
-  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2111</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2201</small>
 </div>
 
 <div id="toolbar">
@@ -969,11 +969,14 @@ function isCaptainOfTable(guest, tableId) {
 function findCaptainInTable(tableId) {
   var gid = captainByTable[tableId];
   if (!gid) return null;
+  // Don't validate or clean up while guests is still loading (init race) --
+  // we'd misidentify legitimate captains as stale and wipe them.
+  if (!guests || guests.length === 0) return null;
   for (var i = 0; i < guests.length; i++) {
     if (guests[i].id === gid) {
-      // Stale-captain guard: if the guest moved to another table (via drag,
-      // swap, or pending), the captain entry is no longer valid. Clean it up
-      // silently so the sidebar/panel stops showing a ghost captain.
+      // Stale-captain guard: ONLY clean up when the guest exists but moved
+      // to a different table. Don't clean up when guest is not found at all
+      // (could be a transient race during data updates).
       if (guests[i].tableId !== tableId) {
         delete captainByTable[tableId];
         db.ref('floorplan/captainByTable/' + tableId).remove();
@@ -982,9 +985,8 @@ function findCaptainInTable(tableId) {
       return guests[i];
     }
   }
-  // Guest no longer exists -- clean up too.
-  delete captainByTable[tableId];
-  db.ref('floorplan/captainByTable/' + tableId).remove();
+  // Guest not found in current list. Don't auto-clean -- could be transient.
+  // The user can manually re-assign or remove the captain via the sidebar.
   return null;
 }
 function setTableCaptain(tableId, guestId) {
