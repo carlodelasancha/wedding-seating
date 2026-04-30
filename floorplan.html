@@ -842,6 +842,7 @@ body.sidebar-open #element-palette { display: none; }
 <div id="title-bar">
   <h1>Laura &amp; Carlo</h1>
   <small>Casa de los 7 Patios &middot; 9 Mayo 2026</small>
+  <small style="display:block;font-size:9px;opacity:0.5;">build v2026-04-29-2040</small>
 </div>
 
 <div id="toolbar">
@@ -1126,7 +1127,12 @@ dbRef.on('value', function(snap) {
     } else {
       savedPositions = fbPositions;
     }
-    seatMap = snaps[1].val() || {};
+    // Echo-guard: don't overwrite local seatMap if we just wrote to it.
+    // Without this, a self-triggered dbRef.on can read stale floorplan/seatMap
+    // (race between guests.set and seatMap.set) and revert our drop.
+    if (Date.now() - selfWriteGuard >= 2000) {
+      seatMap = snaps[1].val() || {};
+    }
     renderAll();
     updateStats();
     saveLocalBackup();
@@ -2215,12 +2221,34 @@ function loadSeatMap() {
   // Loaded from Firebase in dbRef.on('value') callback
 }
 
+var selfWriteGuard = 0; // timestamp; while < +2s, ignore echo from listeners
+
+function showSaveToast(msg) {
+  var t = document.getElementById('save-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'save-toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
+      'background:rgba(74,140,63,0.95);color:#fff;padding:10px 18px;border-radius:8px;' +
+      'font-size:13px;font-weight:600;z-index:200;border:1px solid #8fdc6a;' +
+      'box-shadow:0 4px 12px rgba(0,0,0,0.4);transition:opacity 0.3s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg || '✓ Guardado';
+  t.style.opacity = '1';
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(function(){ t.style.opacity = '0'; }, 1400);
+}
+
 function saveSeatMap() {
   if (!seatMap || Object.keys(seatMap).length === 0) {
     console.warn('saveSeatMap aborted: empty seatMap would overwrite Firebase');
     return;
   }
-  db.ref('floorplan/seatMap').set(seatMap);
+  selfWriteGuard = Date.now();
+  db.ref('floorplan/seatMap').set(seatMap)
+    .then(function(){ showSaveToast('✓ Guardado'); })
+    .catch(function(err){ showSaveToast('⚠️ Error: ' + err.message); });
 }
 
 // Initialize seat map for a table (first time or if guests changed)
@@ -2353,8 +2381,13 @@ function handleSeatDrop(fromSeat, toSeat) {
     }
 
     // Persist BOTH guests array and seatMap atomically (avoid stale tableId)
-    dbRef.child('guests').set(guests);
-    saveSeatMap();
+    selfWriteGuard = Date.now();
+    db.ref().update({
+      'seating/guests': guests,
+      'floorplan/seatMap': seatMap
+    })
+      .then(function(){ showSaveToast('✓ Guardado'); })
+      .catch(function(err){ showSaveToast('⚠️ Error: ' + err.message); });
   }
 
   renderAll();
@@ -3476,12 +3509,13 @@ window.addEventListener('load', function() {
     renderAll();
   });
 
-  // Live updates for seatMap (cross-device seat-position sync)
+  // Live updates for seatMap (cross-device seat-position sync).
+  // Echo-guard: ignore the listener echo of our own writes (which arrives
+  // ~50-300ms after .set()). Without this, race conditions can revert drops.
   db.ref('floorplan/seatMap').on('value', function(snap) {
-    var remote = snap.val() || {};
-    // Skip if user is mid-drag to avoid fighting their move
-    if (movingSeat) return;
-    seatMap = remote;
+    if (Date.now() - selfWriteGuard < 2000) return; // ignore self-echo
+    if (movingSeat) return; // user mid-drag
+    seatMap = snap.val() || {};
     renderAll();
     if (sidebarCurrentTableId) {
       var t = tables.find(function(x) { return x.id === sidebarCurrentTableId; });
