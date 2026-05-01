@@ -9,6 +9,7 @@
 <title>Laura & Carlo - Floor Plan</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 :root {
   --red: #c41e3a; --orange: #e88a20; --gold: #f5c842; --pink: #e8508a;
@@ -437,6 +438,9 @@ body.lock-active #element-palette { display: none; }
 #btn-meals { background: rgba(232,138,50,0.9) !important; }
 #btn-captains { background: rgba(245,200,66,0.92) !important; color: #3a1c12 !important; }
 #btn-registro { background: rgba(120,80,160,0.92) !important; color: #fff !important; }
+#btn-export-img { background: rgba(58,138,189,0.92) !important; color: #fff !important; }
+#btn-export-img:disabled { opacity: 0.6; cursor: wait; }
+#btn-export-img.exporting { background: rgba(58,138,189,0.6) !important; }
 
 /* Registro panel (text report for coordinator) */
 #registro-panel {
@@ -898,6 +902,7 @@ body.lock-active #element-palette { display: none; }
   <button id="btn-meals">Comidas</button>
   <button id="btn-captains">Capitanes</button>
   <button id="btn-registro">Registro</button>
+  <button id="btn-export-img" title="Descargar imagen nitida del plano para coordinadora">📷 Imagen</button>
   <button id="btn-party">Fiesta!</button>
   <div id="zoom-ctl" style="display:flex;align-items:center;gap:6px;background:rgba(139,35,35,0.92);border:2px solid var(--gold);color:var(--gold);padding:4px 8px;border-radius:8px;font-size:12px;font-weight:600;">
     <span style="font-size:11px;opacity:0.8;">Zoom</span>
@@ -2255,6 +2260,101 @@ document.getElementById('btn-registro-download').addEventListener('click', funct
   a.download = 'registro-mesas-' + stamp + '.txt';
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+});
+
+// ============================================================
+// EXPORTAR IMAGEN DEL PLANO (para coordinadora)
+// Captura #world a 2x escala (4800x3600) en PNG nitido.
+// Fuerza nombres ON, transform a identity, y restaura todo al terminar.
+// ============================================================
+document.getElementById('btn-export-img').addEventListener('click', async function() {
+  var btn = this;
+  if (btn.disabled) return;
+
+  if (typeof html2canvas === 'undefined') {
+    alert('La libreria de captura aun no carga. Intenta en 5 segundos.');
+    return;
+  }
+
+  // Cerrar paneles abiertos para que no estorben (no afectan #world pero por limpieza)
+  ['sidebar','pending-panel','meals-panel','captains-panel','registro-panel'].forEach(function(id){
+    document.getElementById(id).classList.remove('open');
+  });
+
+  // Guardar estado actual
+  var prevTransform = world.style.transform;
+  var prevNames = showNames;
+  var btnNames = document.getElementById('btn-names');
+  var partyOn = document.body.classList.contains('party-mode');
+
+  btn.disabled = true;
+  btn.classList.add('exporting');
+  var origLabel = btn.textContent;
+  btn.textContent = 'Generando...';
+
+  // Forzar nombres ON para que la coordinadora pueda leer
+  if (!showNames) {
+    showNames = true;
+    btnNames.classList.add('active');
+  }
+  // Si fiesta activa, desactivar para captura limpia
+  if (partyOn) document.body.classList.remove('party-mode');
+
+  // Reset transform: capturamos el #world completo a su tamano nativo 2400x1800
+  world.style.transform = 'translate(0px, 0px) scale(1)';
+
+  // Re-render mesas para que las etiquetas aparezcan (renderAll si existe, si no force redraw)
+  if (typeof renderAll === 'function') {
+    try { renderAll(); } catch(e) { /* ignore */ }
+  }
+
+  // Esperar al siguiente frame + un poquito para que el navegador pinte
+  await new Promise(function(res){ requestAnimationFrame(function(){ setTimeout(res, 250); }); });
+
+  try {
+    var canvas = await html2canvas(world, {
+      backgroundColor: '#d4c9ab',
+      scale: 2,
+      width: 2400,
+      height: 1800,
+      windowWidth: 2400,
+      windowHeight: 1800,
+      logging: false,
+      useCORS: true,
+      allowTaint: true,
+      imageTimeout: 0,
+    });
+
+    await new Promise(function(resolve, reject) {
+      canvas.toBlob(function(blob) {
+        if (!blob) { reject(new Error('toBlob fallo')); return; }
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        var stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g, '-');
+        a.download = 'plano-mesas-' + stamp + '.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(url); resolve(); }, 1000);
+      }, 'image/png');
+    });
+  } catch (e) {
+    console.error('Export image error:', e);
+    alert('Error generando imagen: ' + (e && e.message ? e.message : e));
+  } finally {
+    // Restaurar estado
+    world.style.transform = prevTransform;
+    if (showNames !== prevNames) {
+      showNames = prevNames;
+      btnNames.classList.toggle('active', showNames);
+      if (typeof renderAll === 'function') { try { renderAll(); } catch(e){} }
+    }
+    if (partyOn) document.body.classList.add('party-mode');
+    btn.disabled = false;
+    btn.classList.remove('exporting');
+    btn.textContent = origLabel;
+  }
 });
 window.addEventListener('keydown', function(e) {
   if (e.key === 'f') zoomFit();
