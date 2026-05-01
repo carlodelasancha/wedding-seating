@@ -442,6 +442,19 @@ body.lock-active #element-palette { display: none; }
 #btn-export-img:disabled { opacity: 0.6; cursor: wait; }
 #btn-export-img.exporting { background: rgba(58,138,189,0.6) !important; }
 
+/* Modo export: agranda fuentes para legibilidad en PNG impreso */
+body.export-mode .seat-name {
+  font-size: 11px !important;
+  padding: 2px 4px !important;
+  margin-top: 3px !important;
+  background: rgba(255,253,245,0.95) !important;
+  border: 1px solid rgba(90,48,32,0.25) !important;
+}
+body.export-mode .table-shape > div { font-size: 16px !important; font-weight: 800 !important; }
+body.export-mode .table-shape .table-count { font-size: 12px !important; }
+body.export-mode .placed-element { font-size: 18px !important; font-weight: 800 !important; }
+body.export-mode .placed-element .pe-emoji { font-size: 26px !important; }
+
 /* Registro panel (text report for coordinator) */
 #registro-panel {
   position: fixed; left: 0; top: 0; width: 420px; max-width: 95vw; height: 100vh;
@@ -2276,53 +2289,69 @@ document.getElementById('btn-export-img').addEventListener('click', async functi
     return;
   }
 
-  // Cerrar paneles abiertos para que no estorben (no afectan #world pero por limpieza)
   ['sidebar','pending-panel','meals-panel','captains-panel','registro-panel'].forEach(function(id){
     document.getElementById(id).classList.remove('open');
   });
 
-  // Guardar estado actual
-  var prevTransform = world.style.transform;
-  var prevNames = showNames;
+  // Estado a restaurar al final
+  var prev = {
+    zoom: zoom, panX: panX, panY: panY,
+    wrapW: wrap.style.width,
+    wrapH: wrap.style.height,
+    wrapOverflow: wrap.style.overflow,
+    bodyOverflow: document.body.style.overflow,
+    svgW: document.getElementById('venue-svg').getAttribute('width'),
+    svgH: document.getElementById('venue-svg').getAttribute('height'),
+    showNames: showNames,
+    partyOn: document.body.classList.contains('party-mode'),
+    scrollX: window.scrollX,
+    scrollY: window.scrollY,
+  };
   var btnNames = document.getElementById('btn-names');
-  var partyOn = document.body.classList.contains('party-mode');
 
   btn.disabled = true;
   btn.classList.add('exporting');
   var origLabel = btn.textContent;
   btn.textContent = 'Generando...';
 
-  // Forzar nombres ON para que la coordinadora pueda leer
-  if (!showNames) {
-    showNames = true;
-    btnNames.classList.add('active');
+  // Forzar layout fijo de captura: world a tamano nativo 2400x1800.
+  // CRITICO: zoom/panX/panY son globals que applyTransform() y renderAll()
+  // usan. Si solo seteo world.style.transform, renderAll lo pisa.
+  // Por eso reseteo las globals + llamo applyTransform.
+  if (!showNames) { showNames = true; btnNames.classList.add('active'); }
+  if (prev.partyOn) document.body.classList.remove('party-mode');
+  document.body.classList.add('export-mode');
+
+  wrap.style.width = '2400px';
+  wrap.style.height = '1800px';
+  wrap.style.overflow = 'visible';
+  document.body.style.overflow = 'visible';
+
+  zoom = 1; panX = 0; panY = 0;
+  applyTransform();
+
+  var svg = document.getElementById('venue-svg');
+  svg.setAttribute('width', '2400');
+  svg.setAttribute('height', '1800');
+
+  // Re-render mesas para que muestren nombres si se activaron
+  if (showNames !== prev.showNames) {
+    if (typeof renderAll === 'function') { try { renderAll(); } catch(e) {} }
   }
-  // Si fiesta activa, desactivar para captura limpia
-  if (partyOn) document.body.classList.remove('party-mode');
+  window.scrollTo(0, 0);
 
-  // Reset transform: capturamos el #world completo a su tamano nativo 2400x1800
-  world.style.transform = 'translate(0px, 0px) scale(1)';
-
-  // Re-render mesas para que las etiquetas aparezcan (renderAll si existe, si no force redraw)
-  if (typeof renderAll === 'function') {
-    try { renderAll(); } catch(e) { /* ignore */ }
-  }
-
-  // Esperar al siguiente frame + un poquito para que el navegador pinte
-  await new Promise(function(res){ requestAnimationFrame(function(){ setTimeout(res, 250); }); });
+  // Doble RAF + delay para asegurar que SVG patterns/gradients pintan
+  await new Promise(function(res){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ setTimeout(res, 400); }); }); });
 
   try {
     var canvas = await html2canvas(world, {
       backgroundColor: '#d4c9ab',
       scale: 2,
-      width: 2400,
-      height: 1800,
-      windowWidth: 2400,
-      windowHeight: 1800,
       logging: false,
       useCORS: true,
       allowTaint: true,
       imageTimeout: 0,
+      foreignObjectRendering: false,
     });
 
     await new Promise(function(resolve, reject) {
@@ -2343,14 +2372,23 @@ document.getElementById('btn-export-img').addEventListener('click', async functi
     console.error('Export image error:', e);
     alert('Error generando imagen: ' + (e && e.message ? e.message : e));
   } finally {
-    // Restaurar estado
-    world.style.transform = prevTransform;
-    if (showNames !== prevNames) {
-      showNames = prevNames;
+    // Restaurar todo
+    document.body.classList.remove('export-mode');
+    wrap.style.width = prev.wrapW;
+    wrap.style.height = prev.wrapH;
+    wrap.style.overflow = prev.wrapOverflow;
+    document.body.style.overflow = prev.bodyOverflow;
+    if (prev.svgW === null) svg.removeAttribute('width'); else svg.setAttribute('width', prev.svgW);
+    if (prev.svgH === null) svg.removeAttribute('height'); else svg.setAttribute('height', prev.svgH);
+    if (showNames !== prev.showNames) {
+      showNames = prev.showNames;
       btnNames.classList.toggle('active', showNames);
       if (typeof renderAll === 'function') { try { renderAll(); } catch(e){} }
     }
-    if (partyOn) document.body.classList.add('party-mode');
+    if (prev.partyOn) document.body.classList.add('party-mode');
+    zoom = prev.zoom; panX = prev.panX; panY = prev.panY;
+    applyTransform();
+    window.scrollTo(prev.scrollX, prev.scrollY);
     btn.disabled = false;
     btn.classList.remove('exporting');
     btn.textContent = origLabel;
