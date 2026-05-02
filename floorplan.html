@@ -442,18 +442,21 @@ body.lock-active #element-palette { display: none; }
 #btn-export-img:disabled { opacity: 0.6; cursor: wait; }
 #btn-export-img.exporting { background: rgba(58,138,189,0.6) !important; }
 
-/* Modo export: agranda fuentes para legibilidad en PNG impreso */
+/* Modo export: nombres compactos y posicionados hacia afuera para no solaparse */
 body.export-mode .seat-name {
-  font-size: 11px !important;
-  padding: 2px 4px !important;
-  margin-top: 3px !important;
-  background: rgba(255,253,245,0.95) !important;
-  border: 1px solid rgba(90,48,32,0.25) !important;
+  font-size: 8.5px !important;
+  padding: 1px 3px !important;
+  margin-top: 2px !important;
+  line-height: 1.1 !important;
+  background: rgba(255,253,245,0.97) !important;
+  border: 1px solid rgba(90,48,32,0.35) !important;
+  font-weight: 600 !important;
+  z-index: 5 !important;
 }
-body.export-mode .table-shape > div { font-size: 16px !important; font-weight: 800 !important; }
-body.export-mode .table-shape .table-count { font-size: 12px !important; }
-body.export-mode .placed-element { font-size: 18px !important; font-weight: 800 !important; }
-body.export-mode .placed-element .pe-emoji { font-size: 26px !important; }
+body.export-mode .table-shape > div { font-size: 15px !important; font-weight: 800 !important; }
+body.export-mode .table-shape .table-count { font-size: 11px !important; }
+body.export-mode .placed-element { font-size: 16px !important; font-weight: 800 !important; }
+body.export-mode .placed-element .pe-emoji { font-size: 22px !important; }
 
 /* Registro panel (text report for coordinator) */
 #registro-panel {
@@ -1465,7 +1468,33 @@ function renderTable(table, x, y) {
 
       if (showNames) {
         var nm = document.createElement('div'); nm.className = 'seat-name';
-        nm.textContent = guest.name.split(' ').slice(0, 2).join(' ');
+        if (window.__exportMode__) {
+          // Export: solo primer nombre + inicial apellido para reducir ancho
+          var parts = guest.name.split(' ');
+          var first = parts[0] || '';
+          var lastInitial = parts.length > 1 ? ' ' + parts[parts.length - 1].charAt(0) + '.' : '';
+          nm.textContent = first + lastInitial;
+          // Posicionar etiqueta hacia AFUERA del centro de la mesa para evitar solapamiento.
+          // En mesas redondas: arriba si silla esta arriba, abajo si esta abajo.
+          // En rectangulares: igual logica con sx/sy relativo al centro.
+          if (sy < -8) {
+            nm.style.top = 'auto';
+            nm.style.bottom = '100%';
+            nm.style.marginTop = '0';
+            nm.style.marginBottom = '2px';
+          }
+          // Dispersar horizontalmente etiquetas de sillas a izquierda/derecha
+          if (Math.abs(sy) <= 8 && sx !== 0) {
+            nm.style.top = '50%';
+            nm.style.left = sx < 0 ? 'auto' : '100%';
+            nm.style.right = sx < 0 ? '100%' : 'auto';
+            nm.style.transform = 'translateY(-50%)';
+            nm.style.marginLeft = sx < 0 ? '0' : '4px';
+            nm.style.marginRight = sx < 0 ? '4px' : '0';
+          }
+        } else {
+          nm.textContent = guest.name.split(' ').slice(0, 2).join(' ');
+        }
         seat.appendChild(nm);
       }
     }
@@ -2321,6 +2350,7 @@ document.getElementById('btn-export-img').addEventListener('click', async functi
   if (!showNames) { showNames = true; btnNames.classList.add('active'); }
   if (prev.partyOn) document.body.classList.remove('party-mode');
   document.body.classList.add('export-mode');
+  window.__exportMode__ = true;
 
   wrap.style.width = '2400px';
   wrap.style.height = '1800px';
@@ -2334,10 +2364,8 @@ document.getElementById('btn-export-img').addEventListener('click', async functi
   svg.setAttribute('width', '2400');
   svg.setAttribute('height', '1800');
 
-  // Re-render mesas para que muestren nombres si se activaron
-  if (showNames !== prev.showNames) {
-    if (typeof renderAll === 'function') { try { renderAll(); } catch(e) {} }
-  }
+  // SIEMPRE re-render para aplicar layout export (etiquetas hacia afuera + first name)
+  if (typeof renderAll === 'function') { try { renderAll(); } catch(e) {} }
   window.scrollTo(0, 0);
 
   // Doble RAF + delay para asegurar que SVG patterns/gradients pintan
@@ -2372,8 +2400,9 @@ document.getElementById('btn-export-img').addEventListener('click', async functi
     console.error('Export image error:', e);
     alert('Error generando imagen: ' + (e && e.message ? e.message : e));
   } finally {
-    // Restaurar todo
+    // Restaurar todo + re-render para volver a layout normal
     document.body.classList.remove('export-mode');
+    window.__exportMode__ = false;
     wrap.style.width = prev.wrapW;
     wrap.style.height = prev.wrapH;
     wrap.style.overflow = prev.wrapOverflow;
@@ -2383,10 +2412,10 @@ document.getElementById('btn-export-img').addEventListener('click', async functi
     if (showNames !== prev.showNames) {
       showNames = prev.showNames;
       btnNames.classList.toggle('active', showNames);
-      if (typeof renderAll === 'function') { try { renderAll(); } catch(e){} }
     }
     if (prev.partyOn) document.body.classList.add('party-mode');
     zoom = prev.zoom; panX = prev.panX; panY = prev.panY;
+    if (typeof renderAll === 'function') { try { renderAll(); } catch(e){} }
     applyTransform();
     window.scrollTo(prev.scrollX, prev.scrollY);
     btn.disabled = false;
