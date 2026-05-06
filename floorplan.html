@@ -2195,12 +2195,14 @@ function generateRegistro() {
   lines.push('Generado: ' + new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' }));
   lines.push('');
 
-  // Sort tables by display name (numeric-aware), skip novios
+  // Mesa de novios primero (Carlo & Laura)
+  var novios = tables.find(function(t) { return t.id === 'novios'; });
   var sorted = tables.slice()
     .filter(function(t) { return t.id !== 'novios'; })
     .sort(function(a, b) {
       return getTableDisplayName(a).localeCompare(getTableDisplayName(b), 'es', { numeric: true });
     });
+  if (novios) sorted.unshift(novios);
 
   var totalAssigned = 0;
   sorted.forEach(function(tbl) {
@@ -2226,7 +2228,7 @@ function generateRegistro() {
   });
 
   // Pendientes (sin mesa)
-  var pending = guests.filter(function(g) { return !g.tableId && g.id !== 'novio_carlo' && g.id !== 'novia_laura'; });
+  var pending = guests.filter(function(g) { return !g.tableId; });
   if (pending.length > 0) {
     lines.push('========================================');
     lines.push('PENDIENTES (sin asignar)  (' + pending.length + ')');
@@ -2241,7 +2243,7 @@ function generateRegistro() {
   }
 
   // Summary
-  var totalGuests = guests.filter(function(g) { return g.id !== 'novio_carlo' && g.id !== 'novia_laura'; }).length;
+  var totalGuests = guests.length;
   lines.push('========================================');
   lines.push('RESUMEN');
   lines.push('  Mesas: ' + sorted.length);
