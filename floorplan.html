@@ -2040,7 +2040,6 @@ function renderMeals() {
   var buckets = {};
   MEAL_CATEGORIES.forEach(function(c) { buckets[c.key] = []; });
   guests.forEach(function(g) {
-    if (g.id === 'novio_carlo' || g.id === 'novia_laura') return;
     buckets[classifyMeal(g)].push(g);
   });
   var total = 0;
