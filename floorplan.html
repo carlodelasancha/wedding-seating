@@ -980,6 +980,10 @@ body.export-mode .placed-element .pe-emoji { font-size: 22px !important; }
     <button class="close-btn" id="btn-close-meals" style="background:none;border:none;color:var(--gold);font-size:22px;cursor:pointer;">&times;</button>
   </div>
   <div class="meals-total" id="meals-total"></div>
+  <div class="registro-actions" style="display:flex;gap:8px;margin:8px 0;">
+    <button id="btn-meals-copy">Copiar texto</button>
+    <button id="btn-meals-download">Descargar .txt</button>
+  </div>
   <div id="meals-list"></div>
 </div>
 
@@ -2105,6 +2109,99 @@ document.getElementById('btn-meals').addEventListener('click', function() {
 document.getElementById('btn-close-meals').addEventListener('click', function() {
   mealsOpen = false;
   document.getElementById('meals-panel').classList.remove('open');
+});
+
+function generateMealsReport() {
+  var lines = [];
+  lines.push('REPORTE DE COMIDAS — Boda Laura & Carlo');
+  lines.push('9 de Mayo 2026 — Casa de los 7 Patios');
+  lines.push('Generado: ' + new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' }));
+  lines.push('');
+
+  // Summary by meal type
+  var buckets = {};
+  MEAL_CATEGORIES.forEach(function(c) { buckets[c.key] = []; });
+  guests.forEach(function(g) { buckets[classifyMeal(g)].push(g); });
+  var total = 0;
+  MEAL_CATEGORIES.forEach(function(c) { total += buckets[c.key].length; });
+
+  lines.push('========================================');
+  lines.push('RESUMEN GENERAL  (' + total + ' invitados)');
+  lines.push('========================================');
+  MEAL_CATEGORIES.forEach(function(cat) {
+    if (buckets[cat.key].length === 0 && cat.key === 'unknown') return;
+    lines.push('  ' + cat.label + ': ' + buckets[cat.key].length);
+  });
+  lines.push('');
+
+  // Per-table breakdown
+  lines.push('========================================');
+  lines.push('POR MESA');
+  lines.push('========================================');
+  var sortedTables = tables.slice().sort(function(a, b) {
+    return getTableDisplayName(a).localeCompare(getTableDisplayName(b), 'es', { numeric: true });
+  });
+  sortedTables.forEach(function(tbl) {
+    var occ = guests.filter(function(g) { return g.tableId === tbl.id; });
+    if (occ.length === 0) return;
+    var tc = { filet: 0, fish: 0, veg: 0, unknown: 0 };
+    occ.forEach(function(g) { tc[classifyMeal(g)]++; });
+    var parts = [];
+    if (tc.filet) parts.push('Filet ' + tc.filet);
+    if (tc.fish) parts.push('Pescado ' + tc.fish);
+    if (tc.veg) parts.push('Veg ' + tc.veg);
+    if (tc.unknown) parts.push('Sin elegir ' + tc.unknown);
+    lines.push('');
+    lines.push(getTableDisplayName(tbl).toUpperCase() + '  (' + occ.length + ')  →  ' + parts.join(' · '));
+    lines.push('----------------------------------------');
+    occ.forEach(function(g) {
+      var icon = classifyMeal(g) === 'filet' ? '[F]' :
+                 classifyMeal(g) === 'fish' ? '[P]' :
+                 classifyMeal(g) === 'veg' ? '[V]' : '[?]';
+      lines.push('  ' + icon + ' ' + g.name);
+    });
+  });
+
+  // Pendientes (sin mesa)
+  var pending = guests.filter(function(g) { return !g.tableId; });
+  if (pending.length > 0) {
+    lines.push('');
+    lines.push('========================================');
+    lines.push('PENDIENTES SIN MESA  (' + pending.length + ')');
+    lines.push('----------------------------------------');
+    pending.forEach(function(g) {
+      var icon = classifyMeal(g) === 'filet' ? '[F]' :
+                 classifyMeal(g) === 'fish' ? '[P]' :
+                 classifyMeal(g) === 'veg' ? '[V]' : '[?]';
+      lines.push('  ' + icon + ' ' + g.name);
+    });
+  }
+
+  return lines.join('\n');
+}
+
+document.getElementById('btn-meals-copy').addEventListener('click', function() {
+  var txt = generateMealsReport();
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById('btn-meals-copy');
+    var orig = btn.textContent;
+    btn.textContent = '✓ Copiado';
+    setTimeout(function() { btn.textContent = orig; }, 1500);
+  });
+});
+
+document.getElementById('btn-meals-download').addEventListener('click', function() {
+  var txt = generateMealsReport();
+  var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  var stamp = new Date().toISOString().slice(0,10);
+  a.download = 'reporte-comidas-' + stamp + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 });
 
 // ============================================================
